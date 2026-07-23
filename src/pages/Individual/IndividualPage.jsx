@@ -3,7 +3,7 @@ import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark,
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Import images for the banner
-import mainPropertyImage from "../../assets/banner1.jpg"; // Replace with your main image
+import mainPropertyImage from "../../assets/indmainbanner.jpg"; // Replace with your main image
 import apartmentImg from "../../assets/banner1.jpg";
 import villaImg from "../../assets/banner1.jpg";
 import commercialImg from "../../assets/banner1.jpg";
@@ -82,43 +82,31 @@ const IndividualPage = () => {
     { name: "Row House", path: "/individual/row-house", component: "RowHousePage" }
   ];
 
-  // Diamond data - each diamond carries its own label, which side the
-  // label should appear on, and the path it navigates to when clicked.
+  // Diamond data - matches the reference banner: a single horizontal row,
+  // each diamond has a small icon badge and a label underneath.
   const bannerDiamonds = [
     {
       image: apartmentImg,
-      top: "15px",
-      left: "15px",
-      size: "100px",
       label: "Apartments",
-      labelSide: "right",
+      icon: <Building className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
       path: "/apartment"
     },
     {
       image: villaImg,
-      top: "140px",
-      left: "75px",
-      size: "100px",
       label: "Hostel",
-      labelSide: "left",
+      icon: <Building2 className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
       path: "/hostel"
     },
     {
       image: commercialImg,
-      top: "250px",
-      left: "15px",
-      size: "100px",
       label: "Commercial",
-      labelSide: "right",
+      icon: <Landmark className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
       path: "/commercial"
     },
     {
       image: landImg,
-      top: "360px",
-      left: "95px",
-      size: "100px",
       label: "Land & Plots",
-      labelSide: "left",
+      icon: <Warehouse className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
       path: "/land-plots"
     }
   ];
@@ -147,134 +135,93 @@ const IndividualPage = () => {
   return (
     <div className="w-full min-h-screen relative">
       <div className="relative z-10">
-        {/* ====== PREMIUM BROCHURE-STYLE BANNER ====== */}
-        <section className="w-full h-auto lg:h-[480px] bg-white overflow-hidden">
-          {/* CHANGED: Reduced left section from 40% to 30%, right from 60% to 70% */}
-          <div className="grid grid-cols-1 lg:grid-cols-[30%_70%] h-auto lg:h-full">
-            
-            {/* LEFT CONTENT SECTION - 30% Light Green Background (reduced from 40%) */}
-            <div className="relative bg-[#D1E2DB] flex flex-col justify-center px-4 md:px-6 lg:px-8 py-10 lg:py-0 overflow-hidden min-h-[300px] lg:min-h-0">
-              {/* Single top-left wedge, like the reference */}
-               <div className="absolute top-0 left-0 w-72 h-40 bg-[#B8CFC6] rounded-br-[140px] opacity-60" />
+        {/* ====== PREMIUM BROCHURE-STYLE BANNER (replicates reference layout) ====== */}
+        <section className="w-full min-h-[400px] lg:h-[320px] bg-[#D1E2DB] overflow-hidden relative">
+          {/* Single full-bleed image, with a wide gradient wash so it merges directly
+              into the light green background instead of sitting in its own column */}
+          <div className="absolute inset-0 overflow-hidden">
+            <img
+              src={mainPropertyImage}
+              alt="Luxury Property"
+              className="absolute inset-0 w-full h-full object-cover scale-100"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: "linear-gradient(to right, #D1E2DB 0%, #D1E2DB 25%, rgba(209,226,219,0.95) 32%, rgba(209,226,219,0.7) 45%, rgba(209,226,219,0.3) 60%, rgba(209,226,219,0) 75%)"
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
+          </div>
 
-              <div className="relative z-10">
-                {/* Brand Badge */}
-                <p className="text-[#00695C]/70 text-[9px] tracking-[0.3em] mb-2 font-medium uppercase">
-                  EliteInova Properties
-                </p>
-
-                {/* Main Heading - Reduced text sizes for compact layout */}
-                <h1 className="text-[#143B35] font-black leading-none">
-                  <span className="block text-base md:text-lg mb-0.5 font-light tracking-wider">
-                    MODERN
-                  </span>
-                  <span className="block text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight">
-                    HOME
-                  </span>
-                  <span className="block text-lg md:text-xl mt-1 font-bold text-[#00695C]">
-                    FOR SALE
-                  </span>
-                </h1>
-
-                {/* Description - Reduced max width */}
-                <p className="text-[#4B5C58] mt-3 max-w-xs text-xs md:text-sm leading-relaxed">
-                  Discover premium villas, apartments, plots and commercial spaces.
-                </p>
-
-                {/* CTA Button */}
-                <button className="mt-4 bg-[#00695C] text-white font-bold px-6 md:px-8 py-2 md:py-2.5 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-xs md:text-sm">
-                  Explore Properties
-                </button>
-              </div>
+          {/* Content floats directly on top of the merged image - no separate panel */}
+          <div className="relative z-10 flex flex-col justify-center h-full max-w-xl px-6 md:px-10 lg:px-12 py-8 lg:py-6">
+            {/* Top divider with small home glyph, matching the reference's ornamental rule */}
+            <div className="flex items-center gap-3 mb-2">
+              <span className="h-px w-8 bg-[#00695C]/40" />
+              <Home className="w-3.5 h-3.5 text-[#00695C]" />
+              <span className="h-px w-8 bg-[#00695C]/40" />
             </div>
 
-            {/* RIGHT IMAGE SECTION - 70% with Light Green Background (increased from 60%) */}
-            <div className="relative h-[300px] lg:h-full overflow-hidden bg-[#D1E2DB]">
-              <img
-                src={mainPropertyImage}
-                alt="Luxury Property"
-                className="absolute inset-0 w-full h-full object-cover scale-105"
-              />
-              
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-black/10" />
+            {/* Heading */}
+            <h1 className="text-[#143B35] font-black leading-[0.95]">
+              <span className="block text-base md:text-lg mb-0.5 font-light tracking-[0.2em]">
+                MODERN
+              </span>
+              <span
+                className="block text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight"
+                style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+              >
+                HOME
+              </span>
+            </h1>
 
-              {/* Light Green diagonal design strips */}
-              <div className="absolute inset-0 z-10 pointer-events-none">
-                <div
-                  className="
-                    absolute
-                    top-[-80px]
-                    left-[-60px]
-                    w-[180px]
-                    h-[700px]
-                    bg-[#D1E2DB]
-                    rotate-[35deg]
-                    opacity-90
-                  "
-                />
-                <div
-                  className="
-                    absolute
-                    top-[-80px]
-                    left-[80px]
-                    w-[50px]
-                    h-[700px]
-                    bg-[#D1E2DB]
-                    rotate-[35deg]
-                    opacity-85
-                  "
-                />
-              </div>
+            {/* Divider with diamond glyph */}
+            <div className="flex items-center gap-3 my-2">
+              <span className="h-px w-6 bg-[#00695C]/40" />
+              <span className="w-1.5 h-1.5 rotate-45 bg-[#00695C]" />
+              <span className="h-px w-6 bg-[#00695C]/40" />
+            </div>
 
-              {/*
-                FOUR DIAMONDS - fully visible with labels.
-                Labels alternate sides (right/left) per diamond, and since this
-                parent container has overflow-hidden, a label can never visually
-                cross into the left "words" section - it gets clipped at this
-                container's own left edge first.
-              */}
+            {/* Sub-heading */}
+            <h2
+              className="text-xl md:text-2xl lg:text-3xl font-bold tracking-wide text-[#00695C] mb-2"
+              style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+            >
+              FOR SALE
+            </h2>
+
+            {/* 2-line description - shortened for reduced height */}
+            <p className="text-[#4B5C58] max-w-sm text-xs md:text-sm leading-relaxed mb-4">
+              Discover premium villas, apartments, plots and commercial spaces.
+            </p>
+
+            {/* FOUR DIAMONDS - single horizontal row, icon badge + label under each - slightly smaller */}
+            <div className="flex items-start gap-3 sm:gap-4 md:gap-6">
               {bannerDiamonds.map((diamond, index) => (
                 <div
                   key={index}
-                  className="
-                    absolute
-                    z-30
-                    group
-                    cursor-pointer
-                    transition-all
-                    duration-500
-                    hover:scale-110
-                  "
-                  style={{
-                    top: diamond.top,
-                    left: diamond.left,
-                    width: diamond.size,
-                    height: diamond.size,
-                  }}
+                  className="flex flex-col items-center cursor-pointer group"
                   onClick={() => handlePropertyCategoryNavigation(diamond.path)}
                 >
-                  {/* Diamond Shape */}
-                  <div className="w-full h-full rotate-45 overflow-hidden rounded-[22px] border-[5px] border-[#D1E2DB] shadow-xl hover:shadow-[0_0_35px_rgba(0,105,92,0.4)] transition-all duration-300">
+                  {/* Diamond image - slightly smaller */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rotate-45 rounded-xl overflow-hidden border-[3px] border-white shadow-lg ring-1 ring-[#D1E2DB] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.35)] transition-all duration-300">
                     <img
                       src={diamond.image}
                       alt={diamond.label}
                       className="w-full h-full object-cover -rotate-45 scale-[1.6]"
                     />
                   </div>
-                  
-                  {/* CHANGED: Label with light green background instead of white */}
-                  <div
-                    className={`absolute top-1/2 -translate-y-1/2 whitespace-nowrap ${
-                      diamond.labelSide === "right"
-                        ? "left-[calc(100%+12px)]"
-                        : "right-[calc(100%+12px)]"
-                    }`}
-                  >
-                    <span className="text-[10px] font-semibold text-[#143B35] px-3 py-1.5 rounded-full bg-[#D1E2DB] shadow-md border border-[#B8CFC6]">
-                      {diamond.label}
-                    </span>
+
+                  {/* Icon badge, overlapping the bottom tip of the diamond - slightly smaller */}
+                  <div className="w-5 h-5 md:w-6 md:h-6 -mt-2.5 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    {diamond.icon}
                   </div>
+
+                  {/* Label - slightly smaller */}
+                  <span className="mt-1 text-[8px] sm:text-[9px] md:text-[10px] font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
+                    {diamond.label}
+                  </span>
                 </div>
               ))}
             </div>

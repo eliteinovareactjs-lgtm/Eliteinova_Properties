@@ -20,6 +20,30 @@ const LandAndPlotsPage = () => {
     { name: "Hostel", path: "/hostel", icon: <Building2 className="w-4 h-4" /> }
   ];
 
+  // Banner diamonds - updated with Individual, Apartment, Commercial, Hostel
+  const bannerDiamonds = [
+    {
+      label: "Individual",
+      icon: <Building className="w-4 h-4" style={{ color: "#00695C" }} />,
+      path: "/individual"
+    },
+    {
+      label: "Apartment",
+      icon: <Landmark className="w-4 h-4" style={{ color: "#00695C" }} />,
+      path: "/apartment"
+    },
+    {
+      label: "Commercial",
+      icon: <Warehouse className="w-4 h-4" style={{ color: "#00695C" }} />,
+      path: "/commercial"
+    },
+    {
+      label: "Hostel",
+      icon: <Building2 className="w-4 h-4" style={{ color: "#00695C" }} />,
+      path: "/hostel"
+    }
+  ];
+
   // Main categories with submenus
   const landCategories = [
     {
@@ -304,61 +328,110 @@ const LandAndPlotsPage = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Hero Section */}
-        <section className="w-full h-[300px] md:h-[400px] relative flex items-center overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-b animate-gradient-slow"></div>
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(15)].map((_, i) => (
+        {/* ====== BROCHURE-STYLE BANNER (chevron photo + diamond categories, teal theme) ====== */}
+        <section className="w-full bg-white overflow-hidden relative">
+          <div className="flex flex-col lg:flex-row items-center min-h-[420px] lg:min-h-[440px]">
+
+            {/* LEFT - photo framed in a layered chevron / arrow cut, like the reference banner */}
+            <div className="relative w-full lg:w-[52%] h-[260px] sm:h-[320px] lg:h-[440px] shrink-0">
+              {/* outer teal chevron frame */}
               <div
-                key={`dot-${i}`}
-                className="absolute w-2 h-2 bg-teal-400/30 rounded-full animate-bubble-float"
+                className="absolute inset-0"
                 style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${5 + Math.random() * 5}s`,
+                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)",
+                  background: "linear-gradient(135deg, #00695C, #26A69A)"
                 }}
-              ></div>
-            ))}
-          </div>
-          <div className="max-w-none mx-auto px-6 relative z-10 text-center w-full">
-            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-teal-600/20 to-emerald-600/20 backdrop-blur-lg border border-teal-300/20 animate-float-glow shadow-[0_0_30px_rgba(0,105,92,0.3)]">
-              <Star className="w-4 h-4 text-teal-300 animate-spin-slow" fill="currentColor" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-300 text-sm font-medium">
-                Premium Land & Plots
-              </span>
+              />
+              {/* white gap layer */}
+              <div
+                className="absolute"
+                style={{
+                  top: "10px", left: 0, right: "10px", bottom: "10px",
+                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)",
+                  background: "#ffffff"
+                }}
+              />
+              {/* photo layer */}
+              <div
+                className="absolute overflow-hidden"
+                style={{
+                  top: "20px", left: 0, right: "22px", bottom: "20px",
+                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)"
+                }}
+              >
+                <img
+                  src={backgroundImage}
+                  alt="Premium land and plots"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-slide-up drop-shadow-[0_0_30px_rgba(0,105,92,0.5)]">
-              Find Your Perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-300 to-teal-300 animate-gradient-text">Land & Plot</span>
-            </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed ">
-              Browse through our verified land and plot properties for your dream project
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 px-4 animate-fade-in-up delay-200">
-              {propertyCategories.map((category, index) => (
-                <button
-                  key={category.name}
-                  onClick={() => handlePropertyCategoryNavigation(category.path)}
-                  className={`group relative px-7 py-3.5 rounded-xl text-white font-semibold text-base shadow-2xl hover:shadow-[0_0_40px_rgba(0,105,92,0.5)] transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 overflow-hidden animate-slide-up ${
-                    category.name === "Land & Plots" ? "ring-2 ring-teal-300 ring-offset-2 ring-offset-teal-900/30" : ""
-                  }`}
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    background: category.name === "Land & Plots" 
-                      ? "linear-gradient(135deg, #004D40, #00695C, #00897B)"
-                      : "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)",
-                    backgroundSize: "200% 200%"
-                  }}
+
+            {/* RIGHT - copy with heading, subheading, description and four diamonds */}
+            <div className="relative z-10 flex-1 px-6 sm:px-10 lg:px-14 py-10 lg:py-0 flex flex-col justify-center">
+              {/* Heading */}
+              <h1 className="text-[#143B35] font-black leading-[0.95] mb-2">
+                <span
+                  className="block text-3xl sm:text-4xl lg:text-5xl tracking-tight"
+                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
                 >
-                  <div className="absolute inset-0 animate-gradient-shift"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                  <div className="relative z-10 flex items-center gap-3">
-                    <span className="group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">{category.icon}</span>
-                    <span>{category.name}</span>
+                  Discover Your
+                </span>
+                <span
+                  className="block text-3xl sm:text-4xl lg:text-5xl tracking-tight text-[#00695C]"
+                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+                >
+                  Dream Property
+                </span>
+              </h1>
+
+              {/* Subheading */}
+              <p className="text-[#00695C] font-semibold tracking-[0.15em] text-xs sm:text-sm mb-2">
+                ELITEINOVA.COM
+              </p>
+
+              {/* Description */}
+              <p className="text-[#4B5C58] max-w-md text-sm sm:text-base leading-relaxed mb-6">
+                Find the perfect property from our curated collection of premium real estate options.
+              </p>
+
+              {/* Divider */}
+              <div className="h-px w-16 bg-[#00695C]/30 mb-6" />
+
+              {/* FOUR DIAMONDS - Individual, Apartment, Commercial, Hostel */}
+              <div className="flex items-start gap-4 sm:gap-6 mb-6">
+                {bannerDiamonds.map((diamond, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center cursor-pointer group"
+                    onClick={() => handleNavigation(diamond.path)}
+                  >
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rotate-45 rounded-xl overflow-hidden border-[3px] border-white shadow-lg ring-1 ring-[#D1E2DB] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.35)] transition-all duration-300">
+                      <img
+                        src={backgroundImage}
+                        alt={diamond.label}
+                        className="w-full h-full object-cover -rotate-45 scale-[1.8]"
+                      />
+                    </div>
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 -mt-3 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
+                      {diamond.icon}
+                    </div>
+                    <span className="mt-1.5 text-[10px] sm:text-xs font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
+                      {diamond.label}
+                    </span>
                   </div>
-                </button>
-              ))}
+                ))}
+              </div>
+
+              {/* CTA button */}
+              <button
+                onClick={() => handleNavigation("/land-plots")}
+                className="group relative inline-flex w-fit items-center gap-2 px-8 py-3 rounded-none text-white font-bold text-sm tracking-[0.15em] shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 overflow-hidden border border-[#00695C]"
+                style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10">EXPLORE NOW</span>
+              </button>
             </div>
           </div>
         </section>
