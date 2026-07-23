@@ -17,7 +17,8 @@ const Header = ({ onPostPropertyClick }) => {
     post: false,
     loan: false,
     services: false,
-    customerSub: {}
+    customerSub: {},
+    postSub: {}
   });
   const navigate = useNavigate();
   const searchRef = useRef(null);
@@ -30,13 +31,12 @@ const Header = ({ onPostPropertyClick }) => {
     "Hostel": ["Rent", "Buy", "Lease", "Sell"],
   };
 
-  const postPropertyMenu = [
-    "Owner",
-    "Agent",
-    "Builder",
-    "Hostel",
-    "Property Management",
-  ];
+ const postPropertyMenu = {
+    "Owner": ["Individual", "Apartment", "Commercial", "Land & Plots", "Hostel"],
+    "Agent": ["Individual", "Apartment", "Commercial", "Land & Plots", "Hostel"],
+    "Builder": ["Individual", "Apartment", "Commercial", "Land & Plots", "Hostel"],
+    "Property Management": ["Individual", "Apartment", "Commercial", "Land & Plots", "Hostel"],
+  };
 
   const loanMenu = [
     "Home Loan",
@@ -79,12 +79,14 @@ const Header = ({ onPostPropertyClick }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handlePostSubmenuClick = (item) => {
+  // role = "Owner" | "Agent" | "Builder" | "Property Management"
+  // propertyType = "Individual" | "Apartment" | "Commercial" | "Land & Plots" | "Hostel"
+  const handlePostSubmenuClick = (role, propertyType) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
-    
+
     if (onPostPropertyClick) {
-      onPostPropertyClick(item);
+      onPostPropertyClick(role, propertyType);
     }
   };
 
@@ -133,7 +135,8 @@ const Header = ({ onPostPropertyClick }) => {
         post: false,
         loan: false,
         services: false,
-        customerSub: {}
+        customerSub: {},
+        postSub: {}
       });
     }
   };
@@ -144,8 +147,8 @@ const Header = ({ onPostPropertyClick }) => {
       ...prev,
       [key]: !prev[key],
       // Close other dropdowns when opening one
-      ...(key !== 'customerSub' && Object.keys(prev).reduce((acc, k) => {
-        if (k !== key && k !== 'customerSub') acc[k] = false;
+      ...(key !== 'customerSub' && key !== 'postSub' && Object.keys(prev).reduce((acc, k) => {
+        if (k !== key && k !== 'customerSub' && k !== 'postSub') acc[k] = false;
         return acc;
       }, {}))
     }));
@@ -158,6 +161,17 @@ const Header = ({ onPostPropertyClick }) => {
       customerSub: {
         ...prev.customerSub,
         [key]: !prev.customerSub[key]
+      }
+    }));
+  };
+
+  // Toggle post-property role sub dropdown
+  const togglePostSub = (key) => {
+    setMobileDropdowns(prev => ({
+      ...prev,
+      postSub: {
+        ...prev.postSub,
+        [key]: !prev.postSub[key]
       }
     }));
   };
@@ -489,14 +503,26 @@ const Header = ({ onPostPropertyClick }) => {
 
               {activeDropdown === "post" && (
                 <div className="absolute top-full left-0 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 min-w-[190px] border border-white/30 animate-dropdown">
-                  {postPropertyMenu.map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => handlePostSubmenuClick(item)}
-                      className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300"
-                    >
-                      {item}
-                    </button>
+                  {Object.entries(postPropertyMenu).map(([role, submenu]) => (
+                    <div key={role} className="relative group/item">
+                      <button
+                        className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 flex items-center justify-between gap-3"
+                      >
+                        {role}
+                        <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-gray-400" />
+                      </button>
+                      <div className="absolute left-full top-0 hidden group-hover/item:block bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 min-w-[170px] z-50 border border-white/30 animate-dropdown-nested">
+                        {submenu.map((propertyType) => (
+                          <button
+                            key={propertyType}
+                            onClick={() => handlePostSubmenuClick(role, propertyType)}
+                            className="w-full px-5 py-2.5 text-left text-sm text-gray-700 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300"
+                          >
+                            {propertyType}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -674,17 +700,33 @@ const Header = ({ onPostPropertyClick }) => {
                 
                 {mobileDropdowns.post && (
                   <div className="pl-4 pb-2 space-y-1">
-                    {postPropertyMenu.map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          handlePostSubmenuClick(item);
-                          toggleMobileMenu();
-                        }}
-                        className="block text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
-                      >
-                        {item}
-                      </button>
+                    {Object.entries(postPropertyMenu).map(([role, submenu]) => (
+                      <div key={role} className="border-l border-white/10 pl-3">
+                        <div
+                          className="flex items-center justify-between py-2 cursor-pointer"
+                          onClick={() => togglePostSub(role)}
+                        >
+                          <span className="text-white/90 text-sm">{role}</span>
+                          <ChevronDown className={`w-3 h-3 text-white/70 transition-transform duration-300 ${mobileDropdowns.postSub[role] ? 'rotate-180' : ''}`} />
+                        </div>
+
+                        {mobileDropdowns.postSub[role] && (
+                          <div className="pl-3 pb-1 space-y-1">
+                            {submenu.map((propertyType) => (
+                              <button
+                                key={propertyType}
+                                onClick={() => {
+                                  handlePostSubmenuClick(role, propertyType);
+                                  toggleMobileMenu();
+                                }}
+                                className="block text-white/70 text-xs py-1.5 w-full text-left hover:text-white transition-colors"
+                              >
+                                {propertyType}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -787,7 +829,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes float-particle {
           0%, 100% { 
             transform: translateY(0) translateX(0) rotate(0deg); 
