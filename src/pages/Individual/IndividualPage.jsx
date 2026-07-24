@@ -136,26 +136,26 @@ const IndividualPage = () => {
     <div className="w-full min-h-screen relative">
       <div className="relative z-10">
         {/* ====== PREMIUM BROCHURE-STYLE BANNER (replicates reference layout) ====== */}
-        <section className="w-full min-h-[400px] lg:h-[320px] bg-[#D1E2DB] overflow-hidden relative">
+        <section className="w-full min-h-[420px] lg:h-[420px] bg-[#D1E2DB] overflow-hidden relative">
           {/* Single full-bleed image, with a wide gradient wash so it merges directly
               into the light green background instead of sitting in its own column */}
           <div className="absolute inset-0 overflow-hidden">
             <img
               src={mainPropertyImage}
               alt="Luxury Property"
-              className="absolute inset-0 w-full h-full object-cover scale-100"
+              className="absolute inset-0 w-full h-full object-cover object-[70%_40%]"
             />
             <div
               className="absolute inset-0"
               style={{
-                background: "linear-gradient(to right, #D1E2DB 0%, #D1E2DB 25%, rgba(209,226,219,0.95) 32%, rgba(209,226,219,0.7) 45%, rgba(209,226,219,0.3) 60%, rgba(209,226,219,0) 75%)"
+                background: "linear-gradient(to right, #D1E2DB 0%, #D1E2DB 35%, rgba(209,226,219,0.6) 42%, rgba(209,226,219,0.3) 52%, rgba(209,226,219,0.1) 62%, rgba(209,226,219,0) 71%)"
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
           </div>
 
           {/* Content floats directly on top of the merged image - no separate panel */}
-          <div className="relative z-10 flex flex-col justify-center h-full max-w-xl px-6 md:px-10 lg:px-12 py-8 lg:py-6">
+          <div className="relative z-10 flex flex-col justify-center h-full w-full md:w-[50%] lg:w-[50%] max-w-none px-6 md:px-10 lg:px-12 py-8 lg:py-6">
             {/* Top divider with small home glyph, matching the reference's ornamental rule */}
             <div className="flex items-center gap-3 mb-2">
               <span className="h-px w-8 bg-[#00695C]/40" />
