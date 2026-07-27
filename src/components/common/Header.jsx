@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo1.png";
 
 // Import Individual Forms (Owner)
-import { IndBuyForm, IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner";
+import { IndBuyForm, IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner/Index.js";
 
 // Import Agent Forms
-import { BuyAgentIndForm, RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent";
+import { BuyAgentIndForm, RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent/Index.js";
 
 // Import Builder Forms
 import { BuyBuilderIndForm, RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
