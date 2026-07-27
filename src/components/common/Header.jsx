@@ -4,16 +4,16 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo1.png";
 
 // Import Individual Forms (Owner)
-import { IndBuyForm, IndRentForm, IndSellForm, IndLeaseForm } from "../forms/Owner/Index.js";
+import { IndBuyForm, IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner";
 
 // Import Agent Forms
-import { BuyAgentIndForm, RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../forms/Agent/Index.js";
+import { BuyAgentIndForm, RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent";
 
 // Import Builder Forms
-import { BuyBuilderIndForm, RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../forms/Builder/Index.js";
+import { BuyBuilderIndForm, RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
 
 // Import Property Management Forms
-import { BuyPMIndForm, RentPMIndForm, SellPMIndForm, LeasePMIndForm } from "../forms/PropertyManagement/Index.js";
+import { BuyPMIndForm, RentPMIndForm, SellPMIndForm, LeasePMIndForm } from "../Forms/PropertyManagement/Index.js";
 
 const Header = ({ onPostPropertyClick }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
