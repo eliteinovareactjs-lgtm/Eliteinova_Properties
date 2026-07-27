@@ -36,7 +36,7 @@ const FieldDt = ({ label, required, hint, children }) => (
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 
-const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool"];
+const availableAmenities = ["Gated Community", "24/7 Security", "Power Backup", "CCTV Surveillance", "24/7 Water Supply", "Wi-Fi Ready", "Children's Play Area", "Gym / Fitness Center", "Balcony / Terrace", "Lift / Elevator", "Visitor Parking", "Nearby School / Hospital" ];
 
 // Rent options - integrated as form fields
 const bedroomOptions = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
@@ -506,17 +506,6 @@ function MobContentRent({ step, inp, formData, updateForm, imagePreviews, handle
           ))}
         </div>
       </Field>
-      <Field label="Amenities Required">
-        <div className="grid grid-cols-2 gap-1">
-          {rentAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentAmenities.includes(amenity.id)} onChange={() => toggleRentAmenity(amenity.id)} />
-              {amenity.icon}
-              {amenity.label}
-            </label>
-          ))}
-        </div>
-      </Field>
     </>
   );
 
@@ -784,16 +773,6 @@ function DtContentRent({ step, inp, formData, updateForm, imagePreviews, handleI
             <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-terrace-rent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.terrace === option} onChange={() => updateForm("terrace", option)} />
               {option}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Amenities Required">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-          {rentAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentAmenities.includes(amenity.id)} onChange={() => toggleRentAmenity(amenity.id)} />
-              {amenity.label}
             </label>
           ))}
         </div>

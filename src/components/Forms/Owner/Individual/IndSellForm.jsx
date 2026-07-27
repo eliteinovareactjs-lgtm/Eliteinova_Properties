@@ -36,7 +36,7 @@ const FieldDt = ({ label, required, hint, children }) => (
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 
-const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool"];
+const availableAmenities = ["Gated Community", "24/7 Security", "Power Backup", "CCTV Surveillance", "Clubhouse", "Children's Play Area", "Gym / Fitness Center", "Swimming Pool", "Balcony / Terrace", "Lift / Elevator", "24/7 Water Supply"];
 
 // Sell options - integrated as form fields
 const bedroomOptions = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
@@ -408,11 +408,8 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
       <Field label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </Field>
-      <Field label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </Field>
       <Field label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
+        {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-ptype-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
             {t}
@@ -531,17 +528,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
           ))}
         </div>
       </Field>
-      <Field label="Amenities Required">
-        <div className="grid grid-cols-2 gap-1">
-          {sellAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sellAmenities.includes(amenity.id)} onChange={() => toggleSellAmenity(amenity.id)} />
-              {amenity.icon}
-              {amenity.label}
-            </label>
-          ))}
-        </div>
-      </Field>
+      {/* REMOVED: Amenities Required section */}
     </>
   );
 
@@ -715,11 +702,8 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
       <FieldDt label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </FieldDt>
       <FieldDt label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
+        {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
             <input type="radio" name="dt-ptype-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
             {t}
@@ -842,16 +826,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Amenities Required">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-          {sellAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sellAmenities.includes(amenity.id)} onChange={() => toggleSellAmenity(amenity.id)} />
-              {amenity.label}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
+      {/* REMOVED: Amenities Required section */}
     </>
   );
 
