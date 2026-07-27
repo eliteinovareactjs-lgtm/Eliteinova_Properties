@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Upload } from "lucide-react";
+import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, Dog, Wind, Droplet, Layers, Layout, Smartphone, Mail, Phone, MessageCircle, Globe, Compass, RefreshCw, Upload } from "lucide-react";
 
 const steps = ["Builder Details", "Property Details", "Pricing & Amenities", "Media Upload", "Document Upload"];
 const subtitles = [
   "Enter builder & company information",
-  "Tell us about the property",
+  "Tell us about the apartment",
   "Set pricing & select amenities",
   "Upload property photos & video",
   "Upload required documents"
@@ -33,61 +33,61 @@ const FieldDt = ({ label, required, hint, children }) => (
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 
-const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool"];
+const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool", "Covered Parking", "CCTV Surveillance", "Clubhouse", "Children's Play Area", "Jogging Track", "Visitor Parking", "Smart Home Features"];
 
-const bedroomOptions = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
-const bathroomOptions = ["1", "2", "3", "4+"];
-const furnishingOptions = ["Fully Furnished", "Semi Furnished", "Unfurnished"];
-const parkingOptions = ["1 Car", "2 Cars", "3+ Cars"];
-const facingOptions = ["East", "West", "North", "South", "No Preference"];
 const yesNoOptions = ["Yes", "No"];
+const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
+const facingOptions = ["North", "South", "East", "West", "North-East", "North-West", "South-East", "South-West"];
+const ownershipOptions = ["Freehold", "Leasehold"];
+const contactTimeOptions = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 8 PM)", "Anytime"];
+const propertyConditionOptions = ["New", "Good", "Renovated", "Needs Renovation"];
 
-const buyAmenities = [
-  { id: "gatedCommunity", label: "Gated Community", icon: <Building className="w-4 h-4" /> },
+const apartmentSellAmenities = [
+  { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
+  { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
   { id: "security247", label: "24/7 Security", icon: <Shield className="w-4 h-4" /> },
-  { id: "powerBackup", label: "Power Backup", icon: <Lock className="w-4 h-4" /> },
   { id: "cctv", label: "CCTV Surveillance", icon: <Camera className="w-4 h-4" /> },
-  { id: "clubhouse", label: "Clubhouse", icon: <Hotel className="w-4 h-4" /> },
-  { id: "playArea", label: "Children's Play Area", icon: <Users className="w-4 h-4" /> },
+  { id: "powerBackup", label: "Power Backup", icon: <Lock className="w-4 h-4" /> },
   { id: "gym", label: "Gym / Fitness Center", icon: <Dumbbell className="w-4 h-4" /> },
   { id: "swimmingPool", label: "Swimming Pool", icon: <Waves className="w-4 h-4" /> },
-  { id: "smartHome", label: "Smart Home Features", icon: <Wifi className="w-4 h-4" /> },
-  { id: "balcony", label: "Balcony / Terrace", icon: <Sun className="w-4 h-4" /> },
-  { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
-  { id: "waterSupply247", label: "24/7 Water Supply", icon: <Coffee className="w-4 h-4" /> },
+  { id: "clubhouse", label: "Clubhouse", icon: <Hotel className="w-4 h-4" /> },
+  { id: "playArea", label: "Children's Play Area", icon: <Users className="w-4 h-4" /> },
+  { id: "garden", label: "Garden / Park", icon: <Trees className="w-4 h-4" /> },
+  { id: "joggingTrack", label: "Jogging Track", icon: <Sprout className="w-4 h-4" /> },
   { id: "visitorParking", label: "Visitor Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "nearbySchool", label: "Nearby School / Hospital", icon: <Landmark className="w-4 h-4" /> }
+  { id: "smartHome", label: "Smart Home Features", icon: <Layout className="w-4 h-4" /> },
+  { id: "petFriendly", label: "Pet Friendly", icon: <Dog className="w-4 h-4" /> }
 ];
 
-export default function BuyBuilderIndForm({ isOpen, onClose }) {
+export default function SellBuilderApartForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
   const [formData, setFormData] = useState({
     // Builder Details
     builderName: "", companyName: "", reraNo: "", officeAddress: "", contactPerson: "", phoneNumber: "", emailId: "", website: "",
     // Property Details
-    propertyTitle: "", propertyCategory: "", propertyType: "", propertyAddress: "",
-    city: "", builtUpArea: "", carpetArea: "", bedrooms: "", bathrooms: "",
-    furnishingStatus: "", parking: "",
-    // Pricing & Amenities
-    listingPurpose: "sale", expectedPrice: "", priceType: "", maintenance: "",
-    availableFrom: "", selectedAmenities: [], otherAmenities: "",
-    // Buy Preferences
-    preferredLocation: "",
-    buyBedrooms: [],
-    buyBathrooms: [],
-    buyFurnishing: "",
-    buyParking: "",
-    gardenSpace: "",
-    terrace: "",
-    budgetRange: { min: "", max: "" },
-    plotSize: { min: "", max: "" },
-    builtupAreaRange: { min: "", max: "" },
-    purchaseTime: "",
-    buyingPurpose: "",
-    homeLoanRequired: "",
-    facingPreference: "",
-    buyAmenities: [],
+    propertyType: "Apartment", listingType: "Builder", purpose: "Sell",
+    city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
+    builtUpAreaMin: "", builtUpAreaMax: "", carpetAreaMin: "", carpetAreaMax: "",
+    bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
+    facingDirection: "", balcony: "", propertyAge: "", cornerUnit: "",
+    // Sell Details
+    sellPriceMin: "", sellPriceMax: "", priceNegotiable: "", maintenanceCharges: "", propertyTax: "",
+    ownershipType: "",
+    // Interior Details
+    furnishing: "", modularKitchen: "", wardrobes: "", airConditioning: "",
+    utilityArea: "", smartHomeFeatures: "",
+    // Legal Details
+    titleDeedVerified: "", loanEligible: "", reraApproved: "",
+    // Amenities
+    selectedAmenities: [], otherAmenities: "",
+    // Availability
+    readyToMove: "", underConstruction: "", immediatePossession: "",
+    // Nearby Access
+    nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
+    nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
+    // Contact
+    contactVia: "", preferredContactTime: "",
     // Media
     propertyImages: [], propertyVideo: null,
     // Documents - Builder specific
@@ -206,12 +206,12 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
     }
   };
 
-  const toggleBuyAmenity = (amenityId) => {
-    const current = formData.buyAmenities;
+  const toggleApartmentAmenity = (amenityId) => {
+    const current = formData.selectedAmenities;
     if (current.includes(amenityId)) {
-      updateForm("buyAmenities", current.filter(id => id !== amenityId));
+      updateForm("selectedAmenities", current.filter(id => id !== amenityId));
     } else {
-      updateForm("buyAmenities", [...current, amenityId]);
+      updateForm("selectedAmenities", [...current, amenityId]);
     }
   };
 
@@ -230,7 +230,7 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-    console.log("Buy Builder Form submitted:", formData);
+    console.log("Sell Builder Apartment Form submitted:", formData);
     onClose();
   };
 
@@ -249,8 +249,8 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏗️</div>
-            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Buy Property - Builder</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List property for sale by builder</p>
+            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Sell Apartment - Builder</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List apartment for sale by builder</p>
           </div>
 
           <div className="text-center px-3 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -270,7 +270,7 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
           </div>
 
           <div className="px-3 py-2.5 overflow-y-auto flex-1">
-            <MobContentBuyBuilder
+            <MobContentSellBuilderApart
               step={step}
               inp={inMob}
               formData={formData}
@@ -289,18 +289,18 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
               builderIdPreview={builderIdPreview}
               brochurePreview={brochurePreview}
               toggleAmenity={toggleAmenity}
-              toggleBuyAmenity={toggleBuyAmenity}
+              toggleApartmentAmenity={toggleApartmentAmenity}
               availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              bedroomOptions={bedroomOptions}
-              bathroomOptions={bathroomOptions}
-              furnishingOptions={furnishingOptions}
-              parkingOptions={parkingOptions}
-              facingOptions={facingOptions}
               yesNoOptions={yesNoOptions}
-              buyAmenities={buyAmenities}
+              furnishingOptions={furnishingOptions}
+              facingOptions={facingOptions}
+              ownershipOptions={ownershipOptions}
+              propertyConditionOptions={propertyConditionOptions}
+              contactTimeOptions={contactTimeOptions}
+              apartmentSellAmenities={apartmentSellAmenities}
             />
           </div>
 
@@ -349,8 +349,8 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏗️</div>
-            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Buy Property - Builder</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List property for sale by builder</p>
+            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Sell Apartment - Builder</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List apartment for sale by builder</p>
           </div>
 
           <div className="text-center px-4 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -370,7 +370,7 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
           </div>
 
           <div className="px-3 sm:px-4 py-3 overflow-y-auto flex-1">
-            <DtContentBuyBuilder
+            <DtContentSellBuilderApart
               step={step}
               inp={inDt}
               formData={formData}
@@ -389,18 +389,18 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
               builderIdPreview={builderIdPreview}
               brochurePreview={brochurePreview}
               toggleAmenity={toggleAmenity}
-              toggleBuyAmenity={toggleBuyAmenity}
+              toggleApartmentAmenity={toggleApartmentAmenity}
               availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              bedroomOptions={bedroomOptions}
-              bathroomOptions={bathroomOptions}
-              furnishingOptions={furnishingOptions}
-              parkingOptions={parkingOptions}
-              facingOptions={facingOptions}
               yesNoOptions={yesNoOptions}
-              buyAmenities={buyAmenities}
+              furnishingOptions={furnishingOptions}
+              facingOptions={facingOptions}
+              ownershipOptions={ownershipOptions}
+              propertyConditionOptions={propertyConditionOptions}
+              contactTimeOptions={contactTimeOptions}
+              apartmentSellAmenities={apartmentSellAmenities}
             />
           </div>
 
@@ -440,8 +440,8 @@ export default function BuyBuilderIndForm({ isOpen, onClose }) {
   );
 }
 
-// MOBILE CONTENT - Buy Builder
-function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleBuyAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, facingOptions, yesNoOptions, buyAmenities }) {
+// MOBILE CONTENT - Sell Builder Apartment
+function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, propertyConditionOptions, contactTimeOptions, apartmentSellAmenities }) {
   const ta = `${inp} resize-y`;
 
   // STEP 0: Builder Details
@@ -474,155 +474,134 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
     </>
   );
 
-  // STEP 1: Property Details + Buy Preferences
+  // STEP 1: Property Details
   if (step === 1) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Property Details</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <Field label="Property Title / Name" required>
-        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
-      </Field>
-      <Field label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </Field>
-      <Field label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
-          <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-ptype-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
-            {t}
-          </label>
-        ))}
-      </Field>
-      <Field label="Property Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
-      </Field>
       <Field label="City" required>
         <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </Field>
-      <Field label="Area Details" required hint="In square feet">
-        <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
-          <input className={inp} type="number" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <Field label="Area / Locality" required>
+        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      </Field>
+      <Field label="Landmark">
+        <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
+      </Field>
+      <Field label="PIN Code">
+        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+      </Field>
+      <Field label="Nearby Connectivity">
+        <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
+      </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">🏠 Property Details</h3>
+      </div>
+      <Field label="Property Type" required>
+        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+      </Field>
+      <Field label="Built-up Area" hint="In square feet">
+        <div className="flex gap-1">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
         </div>
       </Field>
-      <Field label="Room Details">
-        <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" placeholder="Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      <Field label="Carpet Area" hint="In square feet">
+        <div className="flex gap-1">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
         </div>
       </Field>
-      <Field label="Furnishing Status" required>
-        {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
-          <label key={f} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-furnish-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishingStatus === f} onChange={() => updateForm("furnishingStatus", f)} readOnly={false} />
-            {f}
+      <Field label="Number of Bedrooms">
+        {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
+          <label key={bhk} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
+            <input type="radio" name="mob-bhk-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+            {bhk}
           </label>
         ))}
       </Field>
-      <Field label="Parking">
+      <Field label="Number of Bathrooms">
+        {["1", "2", "3", "4+"].map(b => (
+          <label key={b} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
+            <input type="radio" name="mob-bath-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+            {b}
+          </label>
+        ))}
+      </Field>
+      <Field label="Floor Number">
+        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+      </Field>
+      <Field label="Total Floors">
+        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+      </Field>
+      <Field label="Facing Direction">
+        <div className="grid grid-cols-2 gap-1">
+          {facingOptions.map(f => (
+            <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-facing-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              {f}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Balcony">
         <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-parking-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
-            Yes
-          </label>
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-parking-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
-            No
-          </label>
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-balcony-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Property Age">
+        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      </Field>
+      <Field label="Corner Unit">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-corner-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Ownership Type">
+        <div className="flex gap-4">
+          {ownershipOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-ownership-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
+              {opt}
+            </label>
+          ))}
         </div>
       </Field>
 
-      {/* Buy Preferences */}
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Buy Preferences</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">🪑 Interior Details</h3>
       </div>
-      <Field label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </Field>
-      <Field label="Budget Range (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Plot Size (sq. ft.)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.plotSize.min} onChange={(e) => updateForm("plotSize", { ...formData.plotSize, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.plotSize.max} onChange={(e) => updateForm("plotSize", { ...formData.plotSize, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Built-up Area Range (sq. ft.)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.builtupAreaRange.min} onChange={(e) => updateForm("builtupAreaRange", { ...formData.builtupAreaRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.builtupAreaRange.max} onChange={(e) => updateForm("builtupAreaRange", { ...formData.builtupAreaRange, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Purchase Time">
-        {["Immediately", "Within 3 Months", "Within 6 Months", "Just Exploring"].map(time => (
-          <label key={time} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-purchase-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.purchaseTime === time} onChange={() => updateForm("purchaseTime", time)} />
-            {time}
-          </label>
-        ))}
-      </Field>
-      <Field label="Buying Purpose">
-        {["Self Use", "Investment", "Vacation Home"].map(purpose => (
-          <label key={purpose} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-purpose-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.buyingPurpose === purpose} onChange={() => updateForm("buyingPurpose", purpose)} />
-            {purpose}
-          </label>
-        ))}
-      </Field>
-      <Field label="Home Loan Required">
-        <div className="flex gap-2">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-loan-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.homeLoanRequired === option} onChange={() => updateForm("homeLoanRequired", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </Field>
-      <Field label="Facing Preference">
-        <div className="flex flex-wrap gap-1">
-          {facingOptions.map(facing => (
-            <label key={facing} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-facing-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingPreference === facing} onChange={() => updateForm("facingPreference", facing)} />
-              {facing}
-            </label>
-          ))}
-        </div>
-      </Field>
-      <Field label="Garden Space">
-        <div className="flex gap-2">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-garden-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.gardenSpace === option} onChange={() => updateForm("gardenSpace", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </Field>
-      <Field label="Terrace / Balcony">
-        <div className="flex gap-2">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-terrace-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.terrace === option} onChange={() => updateForm("terrace", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </Field>
-      <Field label="Amenities Required">
+      <Field label="Furnishing Status">
         <div className="grid grid-cols-2 gap-1">
-          {buyAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.buyAmenities.includes(amenity.id)} onChange={() => toggleBuyAmenity(amenity.id)} />
-              {amenity.icon}
-              {amenity.label}
+          {furnishingOptions.map(f => (
+            <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-furnish-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              {f}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Interior Features">
+        <div className="grid grid-cols-2 gap-1">
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
+            <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[feature.toLowerCase().replace(/ /g, '')] === "yes"} onChange={() => updateForm(feature.toLowerCase().replace(/ /g, ''), formData[feature.toLowerCase().replace(/ /g, '')] === "yes" ? "no" : "yes")} />
+              {feature}
             </label>
           ))}
         </div>
@@ -635,44 +614,87 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Pricing & Amenities</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
-      <Field label="Listing Purpose" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-purpose-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.listingPurpose === "sale"} onChange={() => updateForm("listingPurpose", "sale")} readOnly={false} />
-            For Sale
-          </label>
+      <Field label="Selling Price" required>
+        <div className="flex gap-1">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.sellPriceMin} onChange={(e) => updateForm("sellPriceMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
         </div>
       </Field>
-      <Field label="Expected Price (₹)" required>
-        <input className={inp} placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
-      </Field>
-      <Field label="Price Type">
+      <Field label="Price Negotiable">
         <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-pt-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} readOnly={false} />
-            Fixed
-          </label>
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-pt-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} readOnly={false} />
-            Negotiable
-          </label>
-        </div>
-      </Field>
-      <Field label="Maintenance (₹/month)">
-        <input className={inp} placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
-      </Field>
-      <Field label="Available From">
-        <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
-      </Field>
-      <Field label="Amenities">
-        <div className="flex flex-wrap gap-1 mt-0.5">
-          {availableAmenities.map(a => (
-            <span key={a} onClick={() => toggleAmenity(a)} className={`px-1.5 py-0.5 text-[10px] rounded-full border cursor-pointer transition-all ${formData.selectedAmenities.includes(a) ? 'bg-[#00695C] text-white border-[#00695C]' : 'bg-teal-50 text-[#00695C] border-teal-200 hover:bg-teal-100'}`}>
-              {a}
-            </span>
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-negotiable-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
+              {opt}
+            </label>
           ))}
+        </div>
+      </Field>
+      <Field label="Maintenance Charges">
+        <input className={inp} type="number" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", e.target.value)} />
+      </Field>
+      <Field label="Property Tax">
+        <input className={inp} type="number" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", e.target.value)} />
+      </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">⚖️ Legal Details</h3>
+      </div>
+      <Field label="Title Deed Verified">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-title-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Loan Eligible">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-loan-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="RERA Approved">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-rera-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">✨ Amenities</h3>
+      </div>
+      <Field label="Select Amenities">
+        <div className="grid grid-cols-2 gap-1">
+          {apartmentSellAmenities.map(amenity => (
+            <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleApartmentAmenity(amenity.id)} />
+              {amenity.icon}
+              {amenity.label}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Other Amenities">
+        <div className="flex gap-1">
+          <input className={`${inp} flex-1`} placeholder="e.g., Clubhouse, CCTV..." value={formData.otherAmenities} onChange={(e) => updateForm("otherAmenities", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomAmenity()} />
+          <button onClick={addCustomAmenity} className="px-2 py-1 text-[11px] bg-[#00695C] text-white rounded-lg">Add</button>
+        </div>
+        <div className="flex flex-wrap gap-1 mt-1">
           {customAmenitiesList.map(a => (
             <span key={a} className="px-1.5 py-0.5 text-[10px] bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
               {a}
@@ -681,10 +703,82 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
           ))}
         </div>
       </Field>
-      <Field label="Other Amenities">
-        <div className="flex gap-1">
-          <input className={`${inp} flex-1`} placeholder="e.g. Clubhouse, CCTV..." value={formData.otherAmenities} onChange={(e) => updateForm("otherAmenities", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomAmenity()} />
-          <button onClick={addCustomAmenity} className="px-2 py-1 text-[11px] bg-[#00695C] text-white rounded-lg">Add</button>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">📅 Availability</h3>
+      </div>
+      <Field label="Ready to Move">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-ready-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Under Construction">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-construction-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Immediate Possession">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-possession-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">📍 Nearby Access</h3>
+      </div>
+      <Field label="Nearby Places">
+        <div className="grid grid-cols-2 gap-1">
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
+            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
+            return (
+              <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
+                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
+                {place}
+              </label>
+            );
+          })}
+        </div>
+      </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+      </div>
+      <Field label="Contact via">
+        <div className="flex gap-4">
+          {["Owner", "Agent", "Builder"].map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-contact-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Preferred Contact Time">
+        <div className="grid grid-cols-2 gap-1">
+          {contactTimeOptions.map(t => (
+            <label key={t} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="radio" name="mob-time-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
+              {t}
+            </label>
+          ))}
         </div>
       </Field>
     </>
@@ -700,8 +794,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       <p className="text-[10px] text-center text-gray-400 mb-2">📸 Minimum 3 property images required</p>
       <Field label="Property Images" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-buybuilder" onChange={handleImageUpload} />
-          <label htmlFor="m-imgs-buybuilder" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-sellbuilderapart" onChange={handleImageUpload} />
+          <label htmlFor="m-imgs-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="mb-1 w-7 h-7 text-[#00695C]" />
             <span className="text-[11px] font-semibold text-[#00695C]">Upload Property Photos</span>
             <span className="text-[10px] text-gray-400">JPG, PNG supported</span>
@@ -720,8 +814,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       </Field>
       <Field label="Property Video">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid-buybuilder" onChange={handleVideoUpload} />
-          <label htmlFor="m-vid-buybuilder" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid-sellbuilderapart" onChange={handleVideoUpload} />
+          <label htmlFor="m-vid-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
             <Video className="mb-1 w-7 h-7 text-[#00695C]" />
             <span className="text-[11px] font-semibold text-[#00695C]">Upload Video Tour</span>
             <span className="text-[10px] text-gray-400">MP4 or MOV</span>
@@ -749,8 +843,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       {/* RERA Registration Certificate */}
       <Field label="RERA Registration Certificate" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-rera-buy" onChange={(e) => handleDocumentUpload("reraCert", e)} />
-          <label htmlFor="m-rera-buy" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-rera-sellbuilder" onChange={(e) => handleDocumentUpload("reraCert", e)} />
+          <label htmlFor="m-rera-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
               <Upload className="w-4 h-4 text-white" />
             </div>
@@ -774,8 +868,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       {/* Property Layout/Floor Plan */}
       <Field label="Property Layout/Floor Plan" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-floorplan-buy" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
-          <label htmlFor="m-floorplan-buy" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-floorplan-sellbuilder" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
+          <label htmlFor="m-floorplan-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
               <Upload className="w-4 h-4 text-white" />
             </div>
@@ -799,8 +893,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       {/* Builder ID Proof/Company Registration */}
       <Field label="Builder ID Proof/Company Registration" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-builderid-buy" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
-          <label htmlFor="m-builderid-buy" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-builderid-sellbuilder" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
+          <label htmlFor="m-builderid-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
               <Upload className="w-4 h-4 text-white" />
             </div>
@@ -824,8 +918,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
       {/* Project Brochure/Images */}
       <Field label="Project Brochure/Images">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="m-brochure-buy" onChange={(e) => handleDocumentUpload("brochure", e)} />
-          <label htmlFor="m-brochure-buy" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="m-brochure-sellbuilder" onChange={(e) => handleDocumentUpload("brochure", e)} />
+          <label htmlFor="m-brochure-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
               <Upload className="w-4 h-4 text-white" />
             </div>
@@ -853,8 +947,8 @@ function MobContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, 
   );
 }
 
-// DESKTOP CONTENT - Buy Builder
-function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleBuyAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, facingOptions, yesNoOptions, buyAmenities }) {
+// DESKTOP CONTENT - Sell Builder Apartment
+function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, propertyConditionOptions, contactTimeOptions, apartmentSellAmenities }) {
   const ta = `${inp} resize-y`;
 
   // STEP 0: Builder Details
@@ -887,156 +981,143 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 1: Property Details + Buy Preferences
+  // STEP 1: Property Details
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Property Details</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <FieldDt label="Property Title / Name" required>
-        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
-          <label key={t} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
-            <input type="radio" name="dt-ptype-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
-            {t}
-          </label>
-        ))}
-      </FieldDt>
-      <FieldDt label="Property Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address (Flat No., Building, Street, Locality)" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
-      </FieldDt>
       <FieldDt label="City" required>
         <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Area Details" required hint="Enter values in square feet">
-        <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" placeholder="Build-up Area (sq ft)" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
-          <input className={inp} type="number" placeholder="Carpet Area (sq ft)" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <FieldDt label="Area / Locality" required>
+        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Landmark">
+        <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="PIN Code">
+        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Nearby Connectivity">
+        <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">🏠 Property Details</h3>
+      </div>
+      <FieldDt label="Property Type" required>
+        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Built-up Area" hint="In square feet">
+        <div className="flex gap-2">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
         </div>
       </FieldDt>
-      <FieldDt label="Room Details">
-        <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" placeholder="No. of Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="No. of Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      <FieldDt label="Carpet Area" hint="In square feet">
+        <div className="flex gap-2">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
         </div>
       </FieldDt>
-      <FieldDt label="Furnishing Status" required>
-        {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
-          <label key={f} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
-            <input type="radio" name="dt-furnish-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishingStatus === f} onChange={() => updateForm("furnishingStatus", f)} readOnly={false} />
-            {f}
-          </label>
-        ))}
+      <FieldDt label="Number of Bedrooms">
+        <div className="flex flex-wrap gap-3">
+          {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
+            <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bhk-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+              {bhk}
+            </label>
+          ))}
+        </div>
       </FieldDt>
-      <FieldDt label="Parking Facility">
+      <FieldDt label="Number of Bathrooms">
+        <div className="flex flex-wrap gap-3">
+          {["1", "2", "3", "4+"].map(b => (
+            <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bath-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+              {b}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Floor Number">
+        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Total Floors">
+        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facing Direction">
+        <div className="grid grid-cols-4 gap-2">
+          {facingOptions.map(f => (
+            <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-facing-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              {f}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Balcony">
         <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-parking-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
-            Yes, available
-          </label>
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-parking-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
-            No parking
-          </label>
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-balcony-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Property Age">
+        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Corner Unit">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-corner-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Ownership Type">
+        <div className="flex gap-5">
+          {ownershipOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-ownership-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
+              {opt}
+            </label>
+          ))}
         </div>
       </FieldDt>
 
-      {/* Buy Preferences */}
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Buy Preferences</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">🪑 Interior Details</h3>
       </div>
-      <FieldDt label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Budget Range (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Plot Size (sq. ft.)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.plotSize.min} onChange={(e) => updateForm("plotSize", { ...formData.plotSize, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.plotSize.max} onChange={(e) => updateForm("plotSize", { ...formData.plotSize, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Built-up Area Range (sq. ft.)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.builtupAreaRange.min} onChange={(e) => updateForm("builtupAreaRange", { ...formData.builtupAreaRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.builtupAreaRange.max} onChange={(e) => updateForm("builtupAreaRange", { ...formData.builtupAreaRange, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Purchase Time">
-        {["Immediately", "Within 3 Months", "Within 6 Months", "Just Exploring"].map(time => (
-          <label key={time} className="flex items-center gap-2 text-[13px] mb-1.5 cursor-pointer">
-            <input type="radio" name="dt-purchase-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.purchaseTime === time} onChange={() => updateForm("purchaseTime", time)} />
-            {time}
-          </label>
-        ))}
-      </FieldDt>
-      <FieldDt label="Buying Purpose">
-        {["Self Use", "Investment", "Vacation Home"].map(purpose => (
-          <label key={purpose} className="flex items-center gap-2 text-[13px] mb-1.5 cursor-pointer">
-            <input type="radio" name="dt-purpose-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.buyingPurpose === purpose} onChange={() => updateForm("buyingPurpose", purpose)} />
-            {purpose}
-          </label>
-        ))}
-      </FieldDt>
-      <FieldDt label="Home Loan Required">
-        <div className="flex gap-5">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-loan-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.homeLoanRequired === option} onChange={() => updateForm("homeLoanRequired", option)} />
-              {option}
+      <FieldDt label="Furnishing Status">
+        <div className="flex flex-wrap gap-3">
+          {furnishingOptions.map(f => (
+            <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-furnish-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              {f}
             </label>
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Facing Preference">
-        <div className="flex flex-wrap gap-x-5 gap-y-1.5">
-          {facingOptions.map(facing => (
-            <label key={facing} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-facing-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingPreference === facing} onChange={() => updateForm("facingPreference", facing)} />
-              {facing}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Garden Space">
-        <div className="flex gap-5">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-garden-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.gardenSpace === option} onChange={() => updateForm("gardenSpace", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Terrace / Balcony">
-        <div className="flex gap-5">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-terrace-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.terrace === option} onChange={() => updateForm("terrace", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Amenities Required">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-          {buyAmenities.map(amenity => (
-            <label key={amenity.id} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.buyAmenities.includes(amenity.id)} onChange={() => toggleBuyAmenity(amenity.id)} />
-              {amenity.label}
-            </label>
-          ))}
+      <FieldDt label="Interior Features">
+        <div className="grid grid-cols-2 gap-2">
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => {
+            const key = feature.toLowerCase().replace(/ /g, '');
+            return (
+              <label key={feature} className="flex items-center gap-2 text-[13px] cursor-pointer">
+                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] === "yes"} onChange={() => updateForm(key, formData[key] === "yes" ? "no" : "yes")} />
+                {feature}
+              </label>
+            );
+          })}
         </div>
       </FieldDt>
     </>
@@ -1047,44 +1128,86 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Pricing & Amenities</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
-      <FieldDt label="Listing Purpose" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-purpose-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.listingPurpose === "sale"} onChange={() => updateForm("listingPurpose", "sale")} readOnly={false} />
-            For Sale
-          </label>
+      <FieldDt label="Selling Price" required>
+        <div className="flex gap-2">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.sellPriceMin} onChange={(e) => updateForm("sellPriceMin", e.target.value)} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
         </div>
       </FieldDt>
-      <FieldDt label="Expected Price (₹)" required>
-        <input className={inp} placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Price Type">
+      <FieldDt label="Price Negotiable">
         <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-priceType-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} readOnly={false} />
-            Fixed Price
-          </label>
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-priceType-buybuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} readOnly={false} />
-            Negotiable
-          </label>
-        </div>
-      </FieldDt>
-      <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Available From" hint="Date from which the property is available">
-        <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Select Amenities">
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {availableAmenities.map(a => (
-            <span key={a} onClick={() => toggleAmenity(a)} className={`px-2.5 py-1.5 text-[13px] rounded-full border cursor-pointer transition-all ${formData.selectedAmenities.includes(a) ? 'bg-[#00695C] text-white border-[#00695C]' : 'bg-teal-50 text-[#00695C] border-teal-200 hover:bg-teal-100'}`}>
-              {a}
-            </span>
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-negotiable-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
+              {opt}
+            </label>
           ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Maintenance Charges">
+        <input className={inp} type="number" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Property Tax">
+        <input className={inp} type="number" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", e.target.value)} />
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">⚖️ Legal Details</h3>
+      </div>
+      <FieldDt label="Title Deed Verified">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-title-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Loan Eligible">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-loan-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="RERA Approved">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-rera-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">✨ Amenities</h3>
+      </div>
+      <FieldDt label="Select Amenities">
+        <div className="grid grid-cols-2 gap-2">
+          {apartmentSellAmenities.map(amenity => (
+            <label key={amenity.id} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleApartmentAmenity(amenity.id)} />
+              {amenity.label}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Other Amenities">
+        <div className="flex gap-2">
+          <input className={`${inp} flex-1`} placeholder="e.g., Clubhouse, CCTV..." value={formData.otherAmenities} onChange={(e) => updateForm("otherAmenities", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomAmenity()} />
+          <button onClick={addCustomAmenity} className="px-3 py-1.5 text-[13px] bg-[#00695C] text-white rounded-lg hover:bg-[#004d42] transition-colors">Add</button>
+        </div>
+        <div className="flex flex-wrap gap-1.5 mt-1">
           {customAmenitiesList.map(a => (
             <span key={a} className="px-2.5 py-1.5 text-[13px] bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
               {a}
@@ -1093,10 +1216,82 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Other Amenities">
-        <div className="flex gap-2">
-          <input className={inp} placeholder="e.g. Clubhouse, CCTV, Solar Panel..." value={formData.otherAmenities} onChange={(e) => updateForm("otherAmenities", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomAmenity()} />
-          <button onClick={addCustomAmenity} className="px-3 py-1.5 text-[13px] bg-[#00695C] text-white rounded-lg hover:bg-[#004d42] transition-colors">Add</button>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">📅 Availability</h3>
+      </div>
+      <FieldDt label="Ready to Move">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-ready-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Under Construction">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-construction-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Immediate Possession">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-possession-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">📍 Nearby Access</h3>
+      </div>
+      <FieldDt label="Nearby Places">
+        <div className="grid grid-cols-2 gap-2">
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
+            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
+            return (
+              <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
+                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
+                {place}
+              </label>
+            );
+          })}
+        </div>
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+      </div>
+      <FieldDt label="Contact via">
+        <div className="flex gap-5">
+          {["Owner", "Agent", "Builder"].map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-contact-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Preferred Contact Time">
+        <div className="grid grid-cols-2 gap-2">
+          {contactTimeOptions.map(t => (
+            <label key={t} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-time-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
+              {t}
+            </label>
+          ))}
         </div>
       </FieldDt>
     </>
@@ -1112,8 +1307,8 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
       <p className="text-[11px] text-center text-gray-400 mb-3">📸 Minimum 3 property images required</p>
       <FieldDt label="Property Images" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="property-images-buybuilder" onChange={handleImageUpload} />
-          <label htmlFor="property-images-buybuilder" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept="image/*" multiple className="hidden" id="property-images-sellbuilderapart" onChange={handleImageUpload} />
+          <label htmlFor="property-images-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
             <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Photos</span>
             <span className="text-[11px] text-gray-400 mt-1">Click to select multiple images (JPG, PNG)</span>
@@ -1132,8 +1327,8 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
       </FieldDt>
       <FieldDt label="Property Video">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="property-video-buybuilder" onChange={handleVideoUpload} />
-          <label htmlFor="property-video-buybuilder" className="cursor-pointer flex flex-col items-center">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="property-video-sellbuilderapart" onChange={handleVideoUpload} />
+          <label htmlFor="property-video-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
             <Video className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
             <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Video Tour</span>
             <p className="text-[11px] text-gray-400 mt-1">MP4 or MOV format supported</p>
@@ -1160,9 +1355,9 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
       
       {/* RERA Registration Certificate */}
       <FieldDt label="RERA Registration Certificate" required>
-        <div className="upload-box cursor-pointer hover:bg-green-50 border-2 border-dashed border-teal-300 rounded-xl p-4 text-center">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-rera-buy" onChange={(e) => handleDocumentUpload("reraCert", e)} />
-          <label htmlFor="dt-rera-buy" className="cursor-pointer flex flex-col items-center">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-rera-sellbuilder" onChange={(e) => handleDocumentUpload("reraCert", e)} />
+          <label htmlFor="dt-rera-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
               <Upload className="w-5 h-5 text-white" />
             </div>
@@ -1185,9 +1380,9 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
 
       {/* Property Layout/Floor Plan */}
       <FieldDt label="Property Layout/Floor Plan" required>
-        <div className="upload-box cursor-pointer hover:bg-green-50 border-2 border-dashed border-teal-300 rounded-xl p-4 text-center">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-floorplan-buy" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
-          <label htmlFor="dt-floorplan-buy" className="cursor-pointer flex flex-col items-center">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-floorplan-sellbuilder" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
+          <label htmlFor="dt-floorplan-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
               <Upload className="w-5 h-5 text-white" />
             </div>
@@ -1210,9 +1405,9 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
 
       {/* Builder ID Proof/Company Registration */}
       <FieldDt label="Builder ID Proof/Company Registration" required>
-        <div className="upload-box cursor-pointer hover:bg-green-50 border-2 border-dashed border-teal-300 rounded-xl p-4 text-center">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-builderid-buy" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
-          <label htmlFor="dt-builderid-buy" className="cursor-pointer flex flex-col items-center">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-builderid-sellbuilder" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
+          <label htmlFor="dt-builderid-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
               <Upload className="w-5 h-5 text-white" />
             </div>
@@ -1235,9 +1430,9 @@ function DtContentBuyBuilder({ step, inp, formData, updateForm, imagePreviews, h
 
       {/* Project Brochure/Images */}
       <FieldDt label="Project Brochure/Images">
-        <div className="upload-box cursor-pointer hover:bg-green-50 border-2 border-dashed border-teal-300 rounded-xl p-4 text-center">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="dt-brochure-buy" onChange={(e) => handleDocumentUpload("brochure", e)} />
-          <label htmlFor="dt-brochure-buy" className="cursor-pointer flex flex-col items-center">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="dt-brochure-sellbuilder" onChange={(e) => handleDocumentUpload("brochure", e)} />
+          <label htmlFor="dt-brochure-sellbuilder" className="cursor-pointer flex flex-col items-center">
             <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
               <Upload className="w-5 h-5 text-white" />
             </div>

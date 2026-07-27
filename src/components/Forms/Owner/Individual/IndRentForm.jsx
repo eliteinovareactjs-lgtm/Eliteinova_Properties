@@ -408,11 +408,8 @@ function MobContentRent({ step, inp, formData, updateForm, imagePreviews, handle
       <Field label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </Field>
-      <Field label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </Field>
       <Field label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
+        {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-ptype-rent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
             {t}
@@ -463,24 +460,6 @@ function MobContentRent({ step, inp, formData, updateForm, imagePreviews, handle
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Rent Preferences</h3>
       </div>
-      <Field label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </Field>
-      <Field label="Monthly Rent Budget (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.monthlyRentBudget.min} onChange={(e) => updateForm("monthlyRentBudget", { ...formData.monthlyRentBudget, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.monthlyRentBudget.max} onChange={(e) => updateForm("monthlyRentBudget", { ...formData.monthlyRentBudget, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Security Deposit (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.securityDeposit.min} onChange={(e) => updateForm("securityDeposit", { ...formData.securityDeposit, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.securityDeposit.max} onChange={(e) => updateForm("securityDeposit", { ...formData.securityDeposit, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Move-in Date">
-        <input className={inp} type="date" value={formData.moveInDate} onChange={(e) => updateForm("moveInDate", e.target.value)} />
-      </Field>
       <Field label="Rental Duration">
         {["Short Term", "Long Term", "Flexible"].map(duration => (
           <label key={duration} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
@@ -711,11 +690,8 @@ function DtContentRent({ step, inp, formData, updateForm, imagePreviews, handleI
       <FieldDt label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Property Category" required>
-        <input className={inp} placeholder="e.g. Apartment, Villa, Plot..." value={formData.propertyCategory} onChange={(e) => updateForm("propertyCategory", e.target.value)} />
-      </FieldDt>
       <FieldDt label="Property Type" required>
-        {["Residential", "Commercial", "Mill / Industrial"].map(t => (
+        {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
             <input type="radio" name="dt-ptype-rent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === t} onChange={() => updateForm("propertyType", t)} readOnly={false} />
             {t}
@@ -766,24 +742,6 @@ function DtContentRent({ step, inp, formData, updateForm, imagePreviews, handleI
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Rent Preferences</h3>
       </div>
-      <FieldDt label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Monthly Rent Budget (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.monthlyRentBudget.min} onChange={(e) => updateForm("monthlyRentBudget", { ...formData.monthlyRentBudget, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.monthlyRentBudget.max} onChange={(e) => updateForm("monthlyRentBudget", { ...formData.monthlyRentBudget, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Security Deposit (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.securityDeposit.min} onChange={(e) => updateForm("securityDeposit", { ...formData.securityDeposit, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.securityDeposit.max} onChange={(e) => updateForm("securityDeposit", { ...formData.securityDeposit, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Move-in Date">
-        <input className={inp} type="date" value={formData.moveInDate} onChange={(e) => updateForm("moveInDate", e.target.value)} />
-      </FieldDt>
       <FieldDt label="Rental Duration">
         {["Short Term", "Long Term", "Flexible"].map(duration => (
           <label key={duration} className="flex items-center gap-2 text-[13px] mb-1.5 cursor-pointer">

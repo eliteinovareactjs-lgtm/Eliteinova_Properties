@@ -4,16 +4,28 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo1.png";
 
 // Import Individual Forms (Owner)
-import { IndBuyForm, IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner/Index.js";
+import { IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner/Index.js";
+
+// Import Apartment Forms (Owner)
+import { ApartRentForm, ApartSellForm, ApartLeaseForm } from "../Forms/Owner/Index.js";
 
 // Import Agent Forms
-import { BuyAgentIndForm, RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent/Index.js";
+import { RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent/Index.js";
+
+// Import Agent Apartment Forms
+import { RentAgentApartForm, SellAgentApartForm, LeaseAgentApartForm } from "../Forms/Agent/Index.js";
 
 // Import Builder Forms
-import { BuyBuilderIndForm, RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
+import { RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
+
+// Import Builder Apartment Forms
+import { RentBuilderApartForm, SellBuilderApartForm, LeaseBuilderApartForm } from "../Forms/Builder/Index.js";
 
 // Import Property Management Forms
-import { BuyPMIndForm, RentPMIndForm, SellPMIndForm, LeasePMIndForm } from "../Forms/PropertyManagement/Index.js";
+import { RentPMIndForm, SellPMIndForm, LeasePMIndForm } from "../Forms/PropertyManagement/Index.js";
+
+// Import Property Management Apartment Forms
+import { RentPMApartForm, SellPMApartForm, LeasePMApartForm } from "../Forms/PropertyManagement/Index.js";
 
 const Header = ({ onPostPropertyClick }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -30,31 +42,51 @@ const Header = ({ onPostPropertyClick }) => {
   
   // State for Owner forms
   const [showOwnerActionPopup, setShowOwnerActionPopup] = useState(false);
-  const [showOwnerBuyForm, setShowOwnerBuyForm] = useState(false);
   const [showOwnerRentForm, setShowOwnerRentForm] = useState(false);
   const [showOwnerSellForm, setShowOwnerSellForm] = useState(false);
   const [showOwnerLeaseForm, setShowOwnerLeaseForm] = useState(false);
 
+  // State for Apartment forms (Owner)
+  const [showApartActionPopup, setShowApartActionPopup] = useState(false);
+  const [showApartRentForm, setShowApartRentForm] = useState(false);
+  const [showApartSellForm, setShowApartSellForm] = useState(false);
+  const [showApartLeaseForm, setShowApartLeaseForm] = useState(false);
+
   // State for Agent forms
   const [showAgentActionPopup, setShowAgentActionPopup] = useState(false);
-  const [showAgentBuyForm, setShowAgentBuyForm] = useState(false);
   const [showAgentRentForm, setShowAgentRentForm] = useState(false);
   const [showAgentSellForm, setShowAgentSellForm] = useState(false);
   const [showAgentLeaseForm, setShowAgentLeaseForm] = useState(false);
 
+  // State for Agent Apartment forms
+  const [showAgentApartActionPopup, setShowAgentApartActionPopup] = useState(false);
+  const [showAgentApartRentForm, setShowAgentApartRentForm] = useState(false);
+  const [showAgentApartSellForm, setShowAgentApartSellForm] = useState(false);
+  const [showAgentApartLeaseForm, setShowAgentApartLeaseForm] = useState(false);
+
   // State for Builder forms
   const [showBuilderActionPopup, setShowBuilderActionPopup] = useState(false);
-  const [showBuilderBuyForm, setShowBuilderBuyForm] = useState(false);
   const [showBuilderRentForm, setShowBuilderRentForm] = useState(false);
   const [showBuilderSellForm, setShowBuilderSellForm] = useState(false);
   const [showBuilderLeaseForm, setShowBuilderLeaseForm] = useState(false);
 
+  // State for Builder Apartment forms
+  const [showBuilderApartActionPopup, setShowBuilderApartActionPopup] = useState(false);
+  const [showBuilderApartRentForm, setShowBuilderApartRentForm] = useState(false);
+  const [showBuilderApartSellForm, setShowBuilderApartSellForm] = useState(false);
+  const [showBuilderApartLeaseForm, setShowBuilderApartLeaseForm] = useState(false);
+
   // State for Property Management forms
   const [showPMActionPopup, setShowPMActionPopup] = useState(false);
-  const [showPMBuyForm, setShowPMBuyForm] = useState(false);
   const [showPMRentForm, setShowPMRentForm] = useState(false);
   const [showPMSellForm, setShowPMSellForm] = useState(false);
   const [showPMLeaseForm, setShowPMLeaseForm] = useState(false);
+
+  // State for Property Management Apartment forms
+  const [showPMApartActionPopup, setShowPMApartActionPopup] = useState(false);
+  const [showPMApartRentForm, setShowPMApartRentForm] = useState(false);
+  const [showPMApartSellForm, setShowPMApartSellForm] = useState(false);
+  const [showPMApartLeaseForm, setShowPMApartLeaseForm] = useState(false);
 
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedPropertyType, setSelectedPropertyType] = useState("");
@@ -134,53 +166,76 @@ const Header = ({ onPostPropertyClick }) => {
     setSelectedRole(role);
     setSelectedPropertyType(propertyType);
 
-    // If property type is "Individual", show role selection popup
-    if (propertyType === "Individual") {
-      // If role is already "Agent", "Owner", "Builder", or "Property Management", show respective action popup directly
+    if (propertyType === "Individual" || propertyType === "Apartment") {
       if (role === "Agent") {
-        setShowAgentActionPopup(true);
+        if (propertyType === "Apartment") {
+          setShowAgentApartActionPopup(true);
+        } else {
+          setShowAgentActionPopup(true);
+        }
       } else if (role === "Owner") {
-        setShowOwnerActionPopup(true);
+        if (propertyType === "Apartment") {
+          setShowApartActionPopup(true);
+        } else {
+          setShowOwnerActionPopup(true);
+        }
       } else if (role === "Builder") {
-        setShowBuilderActionPopup(true);
+        if (propertyType === "Apartment") {
+          setShowBuilderApartActionPopup(true);
+        } else {
+          setShowBuilderActionPopup(true);
+        }
       } else if (role === "Property Management") {
-        setShowPMActionPopup(true);
+        if (propertyType === "Apartment") {
+          setShowPMApartActionPopup(true);
+        } else {
+          setShowPMActionPopup(true);
+        }
       } else {
-        // For other roles, show role selection
         setShowRoleSelectionPopup(true);
       }
     } else {
-      // For other property types, use the existing handler
       if (onPostPropertyClick) {
         onPostPropertyClick(role, propertyType);
       }
     }
   };
 
-  // Handle role selection from popup
   const handleRoleSelect = (role) => {
     setShowRoleSelectionPopup(false);
     setSelectedRole(role);
     
     if (role === "Owner") {
-      setShowOwnerActionPopup(true);
+      if (selectedPropertyType === "Apartment") {
+        setShowApartActionPopup(true);
+      } else {
+        setShowOwnerActionPopup(true);
+      }
     } else if (role === "Agent") {
-      setShowAgentActionPopup(true);
+      if (selectedPropertyType === "Apartment") {
+        setShowAgentApartActionPopup(true);
+      } else {
+        setShowAgentActionPopup(true);
+      }
     } else if (role === "Builder") {
-      setShowBuilderActionPopup(true);
+      if (selectedPropertyType === "Apartment") {
+        setShowBuilderApartActionPopup(true);
+      } else {
+        setShowBuilderActionPopup(true);
+      }
     } else if (role === "Property Management") {
-      setShowPMActionPopup(true);
+      if (selectedPropertyType === "Apartment") {
+        setShowPMApartActionPopup(true);
+      } else {
+        setShowPMActionPopup(true);
+      }
     }
   };
 
-  // Handle Owner action button clicks (Buy, Rent, Sell, Lease)
+  // Handle Owner action button clicks (Rent, Sell, Lease)
   const handleOwnerActionClick = (action) => {
     setShowOwnerActionPopup(false);
-    
     switch(action) {
-      case "Buy":
-        setShowOwnerBuyForm(true);
-        break;
       case "Rent":
         setShowOwnerRentForm(true);
         break;
@@ -195,14 +250,28 @@ const Header = ({ onPostPropertyClick }) => {
     }
   };
 
-  // Handle Agent action button clicks (Buy, Rent, Sell, Lease)
+  // Handle Apartment action button clicks (Rent, Sell, Lease)
+  const handleApartActionClick = (action) => {
+    setShowApartActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowApartRentForm(true);
+        break;
+      case "Sell":
+        setShowApartSellForm(true);
+        break;
+      case "Lease":
+        setShowApartLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Handle Agent action button clicks (Rent, Sell, Lease)
   const handleAgentActionClick = (action) => {
     setShowAgentActionPopup(false);
-    
     switch(action) {
-      case "Buy":
-        setShowAgentBuyForm(true);
-        break;
       case "Rent":
         setShowAgentRentForm(true);
         break;
@@ -217,14 +286,28 @@ const Header = ({ onPostPropertyClick }) => {
     }
   };
 
-  // Handle Builder action button clicks (Buy, Rent, Sell, Lease)
+  // Handle Agent Apartment action button clicks (Rent, Sell, Lease)
+  const handleAgentApartActionClick = (action) => {
+    setShowAgentApartActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowAgentApartRentForm(true);
+        break;
+      case "Sell":
+        setShowAgentApartSellForm(true);
+        break;
+      case "Lease":
+        setShowAgentApartLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Handle Builder action button clicks (Rent, Sell, Lease)
   const handleBuilderActionClick = (action) => {
     setShowBuilderActionPopup(false);
-    
     switch(action) {
-      case "Buy":
-        setShowBuilderBuyForm(true);
-        break;
       case "Rent":
         setShowBuilderRentForm(true);
         break;
@@ -239,14 +322,28 @@ const Header = ({ onPostPropertyClick }) => {
     }
   };
 
-  // Handle Property Management action button clicks (Buy, Rent, Sell, Lease)
+  // Handle Builder Apartment action button clicks (Rent, Sell, Lease)
+  const handleBuilderApartActionClick = (action) => {
+    setShowBuilderApartActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowBuilderApartRentForm(true);
+        break;
+      case "Sell":
+        setShowBuilderApartSellForm(true);
+        break;
+      case "Lease":
+        setShowBuilderApartLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Handle Property Management action button clicks (Rent, Sell, Lease)
   const handlePMActionClick = (action) => {
     setShowPMActionPopup(false);
-    
     switch(action) {
-      case "Buy":
-        setShowPMBuyForm(true);
-        break;
       case "Rent":
         setShowPMRentForm(true);
         break;
@@ -255,6 +352,24 @@ const Header = ({ onPostPropertyClick }) => {
         break;
       case "Lease":
         setShowPMLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Handle Property Management Apartment action button clicks (Rent, Sell, Lease)
+  const handlePMApartActionClick = (action) => {
+    setShowPMApartActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowPMApartRentForm(true);
+        break;
+      case "Sell":
+        setShowPMApartSellForm(true);
+        break;
+      case "Lease":
+        setShowPMApartLeaseForm(true);
         break;
       default:
         break;
@@ -349,7 +464,6 @@ const Header = ({ onPostPropertyClick }) => {
           ? 'bg-gradient-to-r from-[#00695C]/95 via-[#26A69A]/95 to-[#00695C]/95 backdrop-blur-xl shadow-2xl shadow-[#00695C]/20' 
           : 'bg-gradient-to-r from-[#00695C] via-[#26A69A] to-[#00695C]'
       }`}>
-        {/* Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(15)].map((_, i) => (
             <div
@@ -374,12 +488,10 @@ const Header = ({ onPostPropertyClick }) => {
 
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
 
-        {/* ================= TOP BAR ================= */}
         <div className="h-[72px] md:h-[84px] w-full px-3 md:px-6 flex items-center relative">
           <div className="absolute inset-0 bg-gradient-to-r from-white/[0.03] via-transparent to-white/[0.03] animate-sweep" />
           
           <div className="flex items-center justify-between w-full relative z-10">
-            {/* LEFT SECTION */}
             <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={toggleMobileMenu}
@@ -449,7 +561,6 @@ const Header = ({ onPostPropertyClick }) => {
               </div>
             </div>
 
-            {/* RIGHT SECTION */}
             <div className="flex items-center gap-1.5 md:gap-3">
               <div ref={searchRef} className="relative">
                 <button
@@ -580,7 +691,6 @@ const Header = ({ onPostPropertyClick }) => {
           </div>
         </div>
 
-        {/* ================= DESKTOP NAVIGATION ================= */}
         <nav className="hidden md:flex h-12 items-center relative bg-gradient-to-r from-[#004D40]/90 via-[#00796B]/90 to-[#004D40]/90 backdrop-blur-sm border-t border-white/5">
           <div className="absolute inset-0 opacity-[0.03]">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer-slow" />
@@ -610,7 +720,6 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </button>
 
-            {/* Customer Portal */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("customer")}
@@ -652,7 +761,6 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
-            {/* Post Property */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("post")}
@@ -694,7 +802,6 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
-            {/* Find Your Loan */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("loan")}
@@ -720,7 +827,6 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
-            {/* Services */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("services")}
@@ -749,7 +855,6 @@ const Header = ({ onPostPropertyClick }) => {
         </nav>
       </header>
 
-      {/* ================= ROLE SELECTION POPUP (Only for Individual) ================= */}
       {showRoleSelectionPopup && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowRoleSelectionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -767,7 +872,7 @@ const Header = ({ onPostPropertyClick }) => {
             </div>
             
             <p className="text-sm text-gray-600 mb-6">
-              {selectedRole} → Individual Property: Who is listing this property?
+              {selectedRole} → {selectedPropertyType} Property: Who is listing this property?
             </p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -811,7 +916,6 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* ================= OWNER ACTION POPUP (Buy, Rent, Sell, Lease) ================= */}
       {showOwnerActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowOwnerActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -832,23 +936,13 @@ const Header = ({ onPostPropertyClick }) => {
               {selectedRole} → Individual Property: How would you like to proceed?
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleOwnerActionClick("Buy")}
-                className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 hover:border-green-500 transition-all duration-300 group"
-              >
-                <div className="text-2xl mb-1">🛒</div>
-                <div className="font-bold text-green-700 group-hover:text-green-900">Buy</div>
-                <div className="text-[10px] text-gray-500">Purchase property</div>
-              </button>
-
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => handleOwnerActionClick("Rent")}
                 className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">🏠</div>
                 <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
-                <div className="text-[10px] text-gray-500">Rent property</div>
               </button>
 
               <button
@@ -857,7 +951,6 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">💰</div>
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
-                <div className="text-[10px] text-gray-500">Sell property</div>
               </button>
 
               <button
@@ -866,14 +959,61 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">📄</div>
                 <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
-                <div className="text-[10px] text-gray-500">Lease property</div>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= AGENT ACTION POPUP (Buy, Rent, Sell, Lease) ================= */}
+      {showApartActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowApartActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Apartment - Choose Action
+              </h2>
+              <button 
+                onClick={() => setShowApartActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              {selectedRole} → Apartment: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleApartActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏠</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleApartActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleApartActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAgentActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -894,23 +1034,13 @@ const Header = ({ onPostPropertyClick }) => {
               {selectedRole} → Individual Property: How would you like to proceed?
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleAgentActionClick("Buy")}
-                className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 hover:border-green-500 transition-all duration-300 group"
-              >
-                <div className="text-2xl mb-1">🛒</div>
-                <div className="font-bold text-green-700 group-hover:text-green-900">Buy</div>
-                <div className="text-[10px] text-gray-500">Purchase property</div>
-              </button>
-
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => handleAgentActionClick("Rent")}
                 className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">🏠</div>
                 <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
-                <div className="text-[10px] text-gray-500">Rent property</div>
               </button>
 
               <button
@@ -919,7 +1049,6 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">💰</div>
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
-                <div className="text-[10px] text-gray-500">Sell property</div>
               </button>
 
               <button
@@ -928,14 +1057,61 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">📄</div>
                 <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
-                <div className="text-[10px] text-gray-500">Lease property</div>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= BUILDER ACTION POPUP (Buy, Rent, Sell, Lease) ================= */}
+      {showAgentApartActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentApartActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Agent - Apartment Action
+              </h2>
+              <button 
+                onClick={() => setShowAgentApartActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              {selectedRole} → Apartment: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleAgentApartActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏠</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentApartActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentApartActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showBuilderActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -956,23 +1132,13 @@ const Header = ({ onPostPropertyClick }) => {
               {selectedRole} → Individual Property: How would you like to proceed?
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleBuilderActionClick("Buy")}
-                className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 hover:border-green-500 transition-all duration-300 group"
-              >
-                <div className="text-2xl mb-1">🛒</div>
-                <div className="font-bold text-green-700 group-hover:text-green-900">Buy</div>
-                <div className="text-[10px] text-gray-500">Purchase property</div>
-              </button>
-
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => handleBuilderActionClick("Rent")}
                 className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">🏠</div>
                 <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
-                <div className="text-[10px] text-gray-500">Rent property</div>
               </button>
 
               <button
@@ -981,7 +1147,6 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">💰</div>
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
-                <div className="text-[10px] text-gray-500">Sell property</div>
               </button>
 
               <button
@@ -990,14 +1155,61 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">📄</div>
                 <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
-                <div className="text-[10px] text-gray-500">Lease property</div>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= PROPERTY MANAGEMENT ACTION POPUP (Buy, Rent, Sell, Lease) ================= */}
+      {showBuilderApartActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderApartActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Builder - Apartment Action
+              </h2>
+              <button 
+                onClick={() => setShowBuilderApartActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              {selectedRole} → Apartment: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleBuilderApartActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏠</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleBuilderApartActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleBuilderApartActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPMActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1018,23 +1230,13 @@ const Header = ({ onPostPropertyClick }) => {
               {selectedRole} → Individual Property: How would you like to proceed?
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handlePMActionClick("Buy")}
-                className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 hover:border-green-500 transition-all duration-300 group"
-              >
-                <div className="text-2xl mb-1">🛒</div>
-                <div className="font-bold text-green-700 group-hover:text-green-900">Buy</div>
-                <div className="text-[10px] text-gray-500">Purchase property</div>
-              </button>
-
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={() => handlePMActionClick("Rent")}
                 className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">🏠</div>
                 <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
-                <div className="text-[10px] text-gray-500">Rent property</div>
               </button>
 
               <button
@@ -1043,7 +1245,6 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">💰</div>
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
-                <div className="text-[10px] text-gray-500">Sell property</div>
               </button>
 
               <button
@@ -1052,38 +1253,93 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 <div className="text-2xl mb-1">📄</div>
                 <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
-                <div className="text-[10px] text-gray-500">Lease property</div>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= OWNER INDIVIDUAL FORMS ================= */}
-      <IndBuyForm isOpen={showOwnerBuyForm} onClose={() => setShowOwnerBuyForm(false)} />
+      {showPMApartActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMApartActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Property Management - Apartment Action
+              </h2>
+              <button 
+                onClick={() => setShowPMApartActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              {selectedRole} → Apartment: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handlePMApartActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏠</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handlePMApartActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handlePMApartActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <IndRentForm isOpen={showOwnerRentForm} onClose={() => setShowOwnerRentForm(false)} />
       <IndSellForm isOpen={showOwnerSellForm} onClose={() => setShowOwnerSellForm(false)} />
       <IndLeaseForm isOpen={showOwnerLeaseForm} onClose={() => setShowOwnerLeaseForm(false)} />
 
-      {/* ================= AGENT INDIVIDUAL FORMS ================= */}
-      <BuyAgentIndForm isOpen={showAgentBuyForm} onClose={() => setShowAgentBuyForm(false)} />
+      <ApartRentForm isOpen={showApartRentForm} onClose={() => setShowApartRentForm(false)} />
+      <ApartSellForm isOpen={showApartSellForm} onClose={() => setShowApartSellForm(false)} />
+      <ApartLeaseForm isOpen={showApartLeaseForm} onClose={() => setShowApartLeaseForm(false)} />
+
       <RentAgentIndForm isOpen={showAgentRentForm} onClose={() => setShowAgentRentForm(false)} />
       <SellAgentIndForm isOpen={showAgentSellForm} onClose={() => setShowAgentSellForm(false)} />
       <LeaseAgentIndForm isOpen={showAgentLeaseForm} onClose={() => setShowAgentLeaseForm(false)} />
 
-      {/* ================= BUILDER INDIVIDUAL FORMS ================= */}
-      <BuyBuilderIndForm isOpen={showBuilderBuyForm} onClose={() => setShowBuilderBuyForm(false)} />
+      <RentAgentApartForm isOpen={showAgentApartRentForm} onClose={() => setShowAgentApartRentForm(false)} />
+      <SellAgentApartForm isOpen={showAgentApartSellForm} onClose={() => setShowAgentApartSellForm(false)} />
+      <LeaseAgentApartForm isOpen={showAgentApartLeaseForm} onClose={() => setShowAgentApartLeaseForm(false)} />
+
       <RentBuilderIndForm isOpen={showBuilderRentForm} onClose={() => setShowBuilderRentForm(false)} />
       <SellBuilderIndForm isOpen={showBuilderSellForm} onClose={() => setShowBuilderSellForm(false)} />
       <LeaseBuilderIndForm isOpen={showBuilderLeaseForm} onClose={() => setShowBuilderLeaseForm(false)} />
 
-      {/* ================= PROPERTY MANAGEMENT INDIVIDUAL FORMS ================= */}
-      <BuyPMIndForm isOpen={showPMBuyForm} onClose={() => setShowPMBuyForm(false)} />
+      <RentBuilderApartForm isOpen={showBuilderApartRentForm} onClose={() => setShowBuilderApartRentForm(false)} />
+      <SellBuilderApartForm isOpen={showBuilderApartSellForm} onClose={() => setShowBuilderApartSellForm(false)} />
+      <LeaseBuilderApartForm isOpen={showBuilderApartLeaseForm} onClose={() => setShowBuilderApartLeaseForm(false)} />
+
       <RentPMIndForm isOpen={showPMRentForm} onClose={() => setShowPMRentForm(false)} />
       <SellPMIndForm isOpen={showPMSellForm} onClose={() => setShowPMSellForm(false)} />
       <LeasePMIndForm isOpen={showPMLeaseForm} onClose={() => setShowPMLeaseForm(false)} />
 
-      {/* ================= MOBILE MENU ================= */}
+      <RentPMApartForm isOpen={showPMApartRentForm} onClose={() => setShowPMApartRentForm(false)} />
+      <SellPMApartForm isOpen={showPMApartSellForm} onClose={() => setShowPMApartSellForm(false)} />
+      <LeasePMApartForm isOpen={showPMApartLeaseForm} onClose={() => setShowPMApartLeaseForm(false)} />
+
       {mobileMenuOpen && (
         <div 
           className="md:hidden fixed inset-0 z-50 animate-fade"
@@ -1140,7 +1396,6 @@ const Header = ({ onPostPropertyClick }) => {
                 🏠 Home
               </button>
               
-              {/* Customer Portal Mobile */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '50ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
@@ -1186,7 +1441,6 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
               
-              {/* Post Property Mobile */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '100ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
@@ -1232,7 +1486,6 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
 
-              {/* Find Loan Mobile */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '150ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
@@ -1261,7 +1514,6 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
               
-              {/* Services Mobile */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '200ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
