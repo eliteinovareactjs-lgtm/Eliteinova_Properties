@@ -17,7 +17,7 @@ import LeasePage from "./pages/LeasePage";
 import ApartmentPage from "./pages/Apartment/ApartmentPage";
 import CommercialPage from "./pages/Commercial/CommercialPage";
 import LandPlotsPage from "./pages/LandAndPlots/LandAndPlotsPage";
-// import HostelPage from "./pages/HostelPage";
+import HostelPage from "./pages/Hostel/HostelPage";
 
 // Import all house type pages
 import IndependentHousePage from "./pages/Individual/IndependentHousePage";
@@ -181,14 +181,18 @@ function AppLayout() {
           <Route path="/apartment" element={<ApartmentPage />} />
           <Route path="/commercial" element={<CommercialPage />} />
           <Route path="/land-plots" element={<LandPlotsPage />} />
+          <Route path="/hostel" element={<HostelPage />} />
           {/* <Route path="/rent" element={<RentPage />} />
           <Route path="/buy" element={<BuyPage />} />
           <Route path="/lease" element={<LeasePage />} />
-          <Route path="/sell" element={<SellPage />} />
-          <Route path="/commercial" element={<CommercialPage />} />
-          <Route path="/land-plots" element={<LandPlotsPage />} />
-          <Route path="/hostel" element={<HostelPage />} /> */}
-          
+          <Route path="/sell" element={<SellPage />} /> */}
+
+          {/* Hostel Type Routes */}
+          <Route path="/hostel/girls-hostel" element={<HostelPage />} />
+          <Route path="/hostel/boys-hostel" element={<HostelPage />} />
+          <Route path="/hostel/co-living-space" element={<HostelPage />} />
+          <Route path="/hostel/working-professional-hostel" element={<HostelPage />} />
+
           {/* Individual House Type Routes */}
           <Route path="/individual/independent-house" element={<IndependentHousePage />} />
           <Route path="/individual/independent-villa" element={<IndependentVillaPage />} />
