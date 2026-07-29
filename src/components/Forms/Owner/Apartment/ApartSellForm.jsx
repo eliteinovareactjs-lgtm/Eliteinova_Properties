@@ -83,8 +83,6 @@ export default function ApartSellForm({ isOpen, onClose }) {
     // Nearby Access
     nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
     nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
-    // Contact
-    contactVia: "", preferredContactTime: "",
     // Media
     propertyImages: [], propertyVideo: null,
     // Documents
@@ -678,31 +676,6 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
           })}
         </div>
       </Field>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">📞 Contact Preference</h3>
-      </div>
-      <Field label="Contact via">
-        <div className="flex gap-4">
-          {["Owner", "Agent", "Builder"].map(opt => (
-            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-contact-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
-      </Field>
-      <Field label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-1">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="radio" name="mob-time-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
-      </Field>
     </>
   );
 
@@ -1095,31 +1068,6 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
               </label>
             );
           })}
-        </div>
-      </FieldDt>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">📞 Contact Preference</h3>
-      </div>
-      <FieldDt label="Contact via">
-        <div className="flex gap-5">
-          {["Owner", "Agent", "Builder"].map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-contact-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-2">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-time-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
         </div>
       </FieldDt>
     </>
