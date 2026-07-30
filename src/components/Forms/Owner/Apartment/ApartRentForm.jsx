@@ -738,24 +738,6 @@ function MobContentApartRent({ step, inp, formData, updateForm, imagePreviews, h
         <h3 className="text-[11px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
       
-      <Field label="Property Category" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
-            Individual
-          </label>
-        </div>
-      </Field>
-
-      <Field label="Posted By" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
-            Owner
-          </label>
-        </div>
-      </Field>
-
       <Field label="Property Type" required>
         <div className="grid grid-cols-2 gap-1">
           {["Serviced Apartment", "Residential Apartment", "Gated Community Studio", "Luxury Apartment", "Duplex Apartment", "Condo Apartment", "Penthouse Apartment"].map(type => (
@@ -1530,24 +1512,6 @@ function DtContentApartRent({ step, inp, formData, updateForm, imagePreviews, ha
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
-      
-      <FieldDt label="Property Category" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
-            Individual
-          </label>
-        </div>
-      </FieldDt>
-
-      <FieldDt label="Posted By" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
-            Owner
-          </label>
-        </div>
-      </FieldDt>
 
       <FieldDt label="Property Type" required>
         <div className="grid grid-cols-2 gap-2">
