@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, Dog, Wind, Droplet, Layers, Layout, Smartphone, Mail, Phone, MessageCircle, Globe, Compass, RefreshCw, Upload } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, User, Mail, Phone, Calendar as CalendarIcon, UserCheck, File, MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, CheckSquare, PenTool, Trash2, Globe, Facebook, Instagram, Linkedin, Youtube, BriefcaseBusiness, Building2, Factory, Store, ShieldCheck } from "lucide-react";
 
-const steps = ["Builder Details", "Property Details", "Pricing & Amenities", "Media Upload", "Document Upload"];
+const steps = ["Company Details", "Authorized Person", "Office Address", "Identity & Business Verification", "Property Details", "Pricing & Amenities", "Bank Details", "Social Media", "Documents", "Declaration"];
 const subtitles = [
-  "Enter builder & company information",
-  "Tell us about the apartment",
+  "Enter company/builder information",
+  "Authorized representative details",
+  "Office address information",
+  "Verify business identity",
+  "Tell us about your apartment",
   "Set pricing & select amenities",
-  "Upload property photos & video",
-  "Upload required documents"
+  "Bank account details",
+  "Social media & online presence",
+  "Upload company documents",
+  "Confirm & submit"
 ];
 
 const Field = ({ label, required, hint, children }) => (
@@ -33,77 +38,87 @@ const FieldDt = ({ label, required, hint, children }) => (
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 
-const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool", "Covered Parking", "CCTV Surveillance", "Clubhouse", "Children's Play Area", "Jogging Track", "Visitor Parking", "Smart Home Features"];
-
 const yesNoOptions = ["Yes", "No"];
 const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
 const facingOptions = ["North", "South", "East", "West", "North-East", "North-West", "South-East", "South-West"];
 const ownershipOptions = ["Freehold", "Leasehold"];
 const contactTimeOptions = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 8 PM)", "Anytime"];
-const propertyConditionOptions = ["New", "Good", "Renovated", "Needs Renovation"];
 
 const apartmentSellAmenities = [
-  { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
-  { id: "security247", label: "24/7 Security", icon: <Shield className="w-4 h-4" /> },
-  { id: "cctv", label: "CCTV Surveillance", icon: <Camera className="w-4 h-4" /> },
-  { id: "powerBackup", label: "Power Backup", icon: <Lock className="w-4 h-4" /> },
-  { id: "gym", label: "Gym / Fitness Center", icon: <Dumbbell className="w-4 h-4" /> },
-  { id: "swimmingPool", label: "Swimming Pool", icon: <Waves className="w-4 h-4" /> },
-  { id: "clubhouse", label: "Clubhouse", icon: <Hotel className="w-4 h-4" /> },
-  { id: "playArea", label: "Children's Play Area", icon: <Users className="w-4 h-4" /> },
-  { id: "garden", label: "Garden / Park", icon: <Trees className="w-4 h-4" /> },
-  { id: "joggingTrack", label: "Jogging Track", icon: <Sprout className="w-4 h-4" /> },
-  { id: "visitorParking", label: "Visitor Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "smartHome", label: "Smart Home Features", icon: <Layout className="w-4 h-4" /> },
-  { id: "petFriendly", label: "Pet Friendly", icon: <Dog className="w-4 h-4" /> }
+  { id: "coveredParking", label: "Covered Parking" },
+  { id: "lift", label: "Lift / Elevator" },
+  { id: "security247", label: "24/7 Security" },
+  { id: "cctv", label: "CCTV Surveillance" },
+  { id: "powerBackup", label: "Power Backup" },
+  { id: "gym", label: "Gym / Fitness Center" },
+  { id: "swimmingPool", label: "Swimming Pool" },
+  { id: "clubhouse", label: "Clubhouse" },
+  { id: "playArea", label: "Children's Play Area" },
+  { id: "garden", label: "Garden / Park" },
+  { id: "joggingTrack", label: "Jogging Track" },
+  { id: "visitorParking", label: "Visitor Parking" },
+  { id: "smartHome", label: "Smart Home Features" },
+  { id: "petFriendly", label: "Pet Friendly" }
 ];
 
 export default function SellBuilderApartForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
   const [formData, setFormData] = useState({
-    // Builder Details
-    builderName: "", companyName: "", reraNo: "", officeAddress: "", contactPerson: "", phoneNumber: "", emailId: "", website: "",
-    // Property Details
-    propertyType: "Apartment", listingType: "Builder", purpose: "Sell",
-    city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
+    // Company Details (Step 0)
+    companyName: "", companyRegNumber: "", reraNumber: "", gstNumber: "", yearsOfExperience: "", companyWebsite: "", companyLogo: null, companyProfile: "",
+    
+    // Authorized Person (Step 1)
+    authFullName: "", authDesignation: "", authMobile: "", authEmail: "", authWhatsapp: "", authPhoto: null,
+    
+    // Office Address (Step 2)
+    officeAddress: "", officeCity: "", officeDistrict: "", officeState: "", officePinCode: "", officeLandmark: "",
+    
+    // Identity & Business Verification (Step 3)
+    aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, companyRegCert: null, gstCert: null, reraCert: null, companyPanCard: null,
+    
+    // Property Details (Step 4)
+    propertyType: "Apartment", purpose: "Sell",
+    area: "", landmark: "", nearbyConnectivity: "",
     builtUpAreaMin: "", builtUpAreaMax: "", carpetAreaMin: "", carpetAreaMax: "",
     bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
     facingDirection: "", balcony: "", propertyAge: "", cornerUnit: "",
-    // Sell Details
-    sellPriceMin: "", sellPriceMax: "", priceNegotiable: "", maintenanceCharges: "", propertyTax: "",
-    ownershipType: "",
-    // Interior Details
     furnishing: "", modularKitchen: "", wardrobes: "", airConditioning: "",
     utilityArea: "", smartHomeFeatures: "",
-    // Legal Details
+    ownershipType: "",
+    
+    // Pricing & Amenities (Step 5)
+    sellPriceMin: "", sellPriceMax: "", budgetRange: { min: "", max: "" }, priceNegotiable: "", maintenanceCharges: "", propertyTax: "",
     titleDeedVerified: "", loanEligible: "", reraApproved: "",
-    // Amenities
     selectedAmenities: [], otherAmenities: "",
-    // Availability
     readyToMove: "", underConstruction: "", immediatePossession: "",
-    // Nearby Access
     nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
     nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
-    // Contact
-    contactVia: "", preferredContactTime: "",
-    // Media
-    propertyImages: [], propertyVideo: null,
-    // Documents - Builder specific
-    reraCert: null,
-    floorPlan: null,
-    builderIdProof: null,
-    brochure: null
+    
+    // Bank Details (Step 6)
+    accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
+    
+    // Social Media (Step 7)
+    website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
+    
+    // Documents (Step 8)
+    companyLogoDoc: null, companyBrochure: null, projectBrochures: [], companyRegCertDoc: null, reraCertDoc: null, gstCertDoc: null, panCardDoc: null, authIdProof: null, officeAddressProof: null,
+    propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
+    
+    // Declaration (Step 9)
+    declarationAccepted: false,
+    signature: null, signatureDate: "", signaturePlace: ""
   });
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreview, setVideoPreview] = useState(null);
-  const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
-  const [reraPreview, setReraPreview] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
   const [floorPlanPreview, setFloorPlanPreview] = useState(null);
-  const [builderIdPreview, setBuilderIdPreview] = useState(null);
-  const [brochurePreview, setBrochurePreview] = useState(null);
+  const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [signaturePoints, setSignaturePoints] = useState([]);
+  const [allSignaturePoints, setAllSignaturePoints] = useState([]);
+  const [activeCanvas, setActiveCanvas] = useState(null);
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -111,9 +126,10 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const newImages = [...formData.propertyImages, ...files];
+    const limitedFiles = files.slice(0, 3 - formData.propertyImages.length);
+    const newImages = [...formData.propertyImages, ...limitedFiles];
     updateForm("propertyImages", newImages);
-    const newPreviews = files.map(file => URL.createObjectURL(file));
+    const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
   };
 
@@ -125,9 +141,55 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
     setImagePreviews(newPreviews);
   };
 
+  const handleCoverImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Cover image must be less than 2MB");
+        return;
+      }
+      updateForm("coverImage", file);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeCoverImage = () => {
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    updateForm("coverImage", null);
+    setCoverPreview(null);
+  };
+
+  const handleFloorPlanUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert("Floor plan must be a PDF file");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Floor plan must be less than 5MB");
+        return;
+      }
+      updateForm("floorPlan", file);
+      if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
+      setFloorPlanPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeFloorPlan = () => {
+    if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
+    updateForm("floorPlan", null);
+    setFloorPlanPreview(null);
+  };
+
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Video must be less than 10MB");
+        return;
+      }
       updateForm("propertyVideo", file);
       if (videoPreview) URL.revokeObjectURL(videoPreview);
       setVideoPreview(URL.createObjectURL(file));
@@ -140,73 +202,22 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
     setVideoPreview(null);
   };
 
-  const handleDocumentUpload = (docType, e) => {
-    const files = Array.from(e.target.files);
-    if (docType === "brochure" && files.length > 0) {
-      updateForm(docType, files);
-      const newPreviews = files.map(file => URL.createObjectURL(file));
-      if (brochurePreview) {
-        brochurePreview.forEach(preview => URL.revokeObjectURL(preview));
+  const handleDocumentUpload = (docType, e, maxSize = 5) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert(`${docType} must be a PDF file`);
+        return;
       }
-      setBrochurePreview(newPreviews);
-    } else if (files.length > 0) {
-      const file = files[0];
+      if (file.size > maxSize * 1024 * 1024) {
+        alert(`${docType} must be less than ${maxSize}MB`);
+        return;
+      }
       updateForm(docType, file);
-      if (docType === "reraCert") {
-        if (reraPreview) URL.revokeObjectURL(reraPreview);
-        setReraPreview(URL.createObjectURL(file));
-      } else if (docType === "floorPlan") {
-        if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
-        setFloorPlanPreview(URL.createObjectURL(file));
-      } else if (docType === "builderIdProof") {
-        if (builderIdPreview) URL.revokeObjectURL(builderIdPreview);
-        setBuilderIdPreview(URL.createObjectURL(file));
-      }
     }
   };
 
-  const removeFile = (docType, index = null) => {
-    if (docType === "brochure") {
-      if (brochurePreview && index !== null) {
-        URL.revokeObjectURL(brochurePreview[index]);
-        const newPreviews = brochurePreview.filter((_, i) => i !== index);
-        const newFiles = formData.brochure.filter((_, i) => i !== index);
-        setBrochurePreview(newPreviews);
-        updateForm("brochure", newFiles);
-      } else if (brochurePreview) {
-        brochurePreview.forEach(preview => URL.revokeObjectURL(preview));
-        setBrochurePreview(null);
-        updateForm("brochure", null);
-      }
-    } else {
-      updateForm(docType, null);
-      if (docType === "reraCert" && reraPreview) {
-        URL.revokeObjectURL(reraPreview);
-        setReraPreview(null);
-      } else if (docType === "floorPlan" && floorPlanPreview) {
-        URL.revokeObjectURL(floorPlanPreview);
-        setFloorPlanPreview(null);
-      } else if (docType === "builderIdProof" && builderIdPreview) {
-        URL.revokeObjectURL(builderIdPreview);
-        setBuilderIdPreview(null);
-      }
-    }
-  };
-
-  const removeBrochureImage = (index) => {
-    removeFile("brochure", index);
-  };
-
-  const toggleAmenity = (amenity) => {
-    const current = formData.selectedAmenities;
-    if (current.includes(amenity)) {
-      updateForm("selectedAmenities", current.filter(a => a !== amenity));
-    } else {
-      updateForm("selectedAmenities", [...current, amenity]);
-    }
-  };
-
-  const toggleApartmentAmenity = (amenityId) => {
+  const toggleAmenity = (amenityId) => {
     const current = formData.selectedAmenities;
     if (current.includes(amenityId)) {
       updateForm("selectedAmenities", current.filter(id => id !== amenityId));
@@ -229,8 +240,59 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
     updateForm("selectedAmenities", formData.selectedAmenities.filter(a => a !== amenity));
   };
 
+  // Signature handling
+  const startDrawing = (e, canvasId) => {
+    const canvas = document.getElementById(canvasId);
+    const rect = canvas.getBoundingClientRect();
+    setIsDrawing(true);
+    setActiveCanvas(canvasId);
+    const point = {
+      x: (e.clientX || e.touches[0].clientX) - rect.left,
+      y: (e.clientY || e.touches[0].clientY) - rect.top
+    };
+    setSignaturePoints([point]);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = document.getElementById(activeCanvas);
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const point = {
+      x: (e.clientX || e.touches[0].clientX) - rect.left,
+      y: (e.clientY || e.touches[0].clientY) - rect.top
+    };
+    setSignaturePoints([...signaturePoints, point]);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    if (signaturePoints.length > 1 && activeCanvas) {
+      setAllSignaturePoints([...allSignaturePoints, [...signaturePoints]]);
+      const canvas = document.getElementById(activeCanvas);
+      const ctx = canvas.getContext('2d');
+      const dataUrl = canvas.toDataURL('image/png');
+      updateForm('signature', dataUrl);
+    }
+    setActiveCanvas(null);
+  };
+
+  const clearSignature = () => {
+    setSignaturePoints([]);
+    setAllSignaturePoints([]);
+    updateForm('signature', null);
+    ['signatureCanvas', 'm-signatureCanvas', 'dt-signatureCanvas'].forEach(id => {
+      const canvas = document.getElementById(id);
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+  };
+
   const handleSubmit = () => {
-    console.log("Sell Builder Apartment Form submitted:", formData);
+    updateForm('signatureDate', new Date().toLocaleDateString());
+    console.log("Apartment Sell Builder Form submitted:", formData);
     onClose();
   };
 
@@ -249,8 +311,8 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏗️</div>
-            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Sell Apartment - Builder</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List apartment for sale by builder</p>
+            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Apartment Sell - Builder/Company</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List your apartment for sale</p>
           </div>
 
           <div className="text-center px-3 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -282,15 +344,7 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              removeFile={removeFile}
-              removeBrochureImage={removeBrochureImage}
-              reraPreview={reraPreview}
-              floorPlanPreview={floorPlanPreview}
-              builderIdPreview={builderIdPreview}
-              brochurePreview={brochurePreview}
               toggleAmenity={toggleAmenity}
-              toggleApartmentAmenity={toggleApartmentAmenity}
-              availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
@@ -298,9 +352,21 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
               furnishingOptions={furnishingOptions}
               facingOptions={facingOptions}
               ownershipOptions={ownershipOptions}
-              propertyConditionOptions={propertyConditionOptions}
               contactTimeOptions={contactTimeOptions}
               apartmentSellAmenities={apartmentSellAmenities}
+              handleCoverImageUpload={handleCoverImageUpload}
+              handleFloorPlanUpload={handleFloorPlanUpload}
+              coverPreview={coverPreview}
+              floorPlanPreview={floorPlanPreview}
+              removeCoverImage={removeCoverImage}
+              removeFloorPlan={removeFloorPlan}
+              startDrawing={startDrawing}
+              draw={draw}
+              stopDrawing={stopDrawing}
+              clearSignature={clearSignature}
+              signaturePoints={signaturePoints}
+              allSignaturePoints={allSignaturePoints}
+              setAllSignaturePoints={setAllSignaturePoints}
             />
           </div>
 
@@ -349,8 +415,8 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏗️</div>
-            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Sell Apartment - Builder</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List apartment for sale by builder</p>
+            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Apartment Sell - Builder/Company</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List your apartment for sale</p>
           </div>
 
           <div className="text-center px-4 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -382,15 +448,7 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              removeFile={removeFile}
-              removeBrochureImage={removeBrochureImage}
-              reraPreview={reraPreview}
-              floorPlanPreview={floorPlanPreview}
-              builderIdPreview={builderIdPreview}
-              brochurePreview={brochurePreview}
               toggleAmenity={toggleAmenity}
-              toggleApartmentAmenity={toggleApartmentAmenity}
-              availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
@@ -398,9 +456,21 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
               furnishingOptions={furnishingOptions}
               facingOptions={facingOptions}
               ownershipOptions={ownershipOptions}
-              propertyConditionOptions={propertyConditionOptions}
               contactTimeOptions={contactTimeOptions}
               apartmentSellAmenities={apartmentSellAmenities}
+              handleCoverImageUpload={handleCoverImageUpload}
+              handleFloorPlanUpload={handleFloorPlanUpload}
+              coverPreview={coverPreview}
+              floorPlanPreview={floorPlanPreview}
+              removeCoverImage={removeCoverImage}
+              removeFloorPlan={removeFloorPlan}
+              startDrawing={startDrawing}
+              draw={draw}
+              stopDrawing={stopDrawing}
+              clearSignature={clearSignature}
+              signaturePoints={signaturePoints}
+              allSignaturePoints={allSignaturePoints}
+              setAllSignaturePoints={setAllSignaturePoints}
             />
           </div>
 
@@ -440,42 +510,234 @@ export default function SellBuilderApartForm({ isOpen, onClose }) {
   );
 }
 
-// MOBILE CONTENT - Sell Builder Apartment
-function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, propertyConditionOptions, contactTimeOptions, apartmentSellAmenities }) {
+// MOBILE CONTENT - SELL BUILDER APARTMENT
+function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
+  const signatureCanvasRef = useRef(null);
 
-  // STEP 0: Builder Details
+  useEffect(() => {
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      allSignaturePoints.forEach(stroke => {
+        if (stroke.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#00695C';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          stroke.forEach((point, index) => {
+            if (index === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x, point.y);
+            }
+          });
+          ctx.stroke();
+        }
+      });
+      
+      if (signaturePoints.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#00695C';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        signaturePoints.forEach((point, index) => {
+          if (index === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        });
+        ctx.stroke();
+      }
+    }
+  }, [signaturePoints, allSignaturePoints]);
+
+  // STEP 0: Company Details
   if (step === 0) return (
     <>
-      <Field label="Builder/Developer Name" required>
-        <input className={inp} placeholder="Enter builder/developer name" value={formData.builderName} onChange={(e) => updateForm("builderName", e.target.value)} />
+      <Field label="Builder / Company Name" required>
+        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </Field>
-      <Field label="Company/Firm Name" required>
-        <input className={inp} placeholder="Enter company/firm name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <Field label="Company Registration Number" required>
+        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </Field>
-      <Field label="RERA Registration No" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNo} onChange={(e) => updateForm("reraNo", e.target.value)} />
+      <Field label="RERA Registration Number" required>
+        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </Field>
-      <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[65px]`} placeholder="Enter office address (Street, Area, City, State, PIN)" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <Field label="GST Number">
+        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </Field>
-      <Field label="Authorized Contact Person Name" required>
-        <input className={inp} placeholder="Enter contact person name" value={formData.contactPerson} onChange={(e) => updateForm("contactPerson", e.target.value)} />
+      <Field label="Years of Experience" required>
+        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </Field>
-      <Field label="Phone Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.phoneNumber} onChange={(e) => updateForm("phoneNumber", e.target.value)} />
+      <Field label="Company Website (Optional)">
+        <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </Field>
-      <Field label="Email ID" required hint="We'll send listing updates to this email">
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </Field>
-      <Field label="Website" hint="If applicable">
-        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      <Field label="Company Profile / About Us" required>
+        <textarea className={`${ta} min-h-[60px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </Field>
     </>
   );
 
-  // STEP 1: Property Details
+  // STEP 1: Authorized Person
   if (step === 1) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Person Details</h3>
+      </div>
+      <Field label="Full Name" required>
+        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      </Field>
+      <Field label="Designation" required>
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      </Field>
+      <Field label="Mobile Number" required>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      </Field>
+      <Field label="Email Address" required>
+        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      </Field>
+      <Field label="WhatsApp Number">
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+      </Field>
+      <Field label="Profile Photo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <label htmlFor="m-authphoto" className="cursor-pointer flex flex-col items-center">
+            <User className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.authPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authPhoto.name}</p>}
+      </Field>
+    </>
+  );
+
+  // STEP 2: Office Address
+  if (step === 2) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
+      </div>
+      <Field label="Office Address" required>
+        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      </Field>
+      <Field label="City" required>
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      </Field>
+      <Field label="District" required>
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      </Field>
+      <Field label="State" required>
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      </Field>
+      <Field label="PIN Code" required>
+        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      </Field>
+      <Field label="Landmark">
+        <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 3: Identity & Business Verification
+  if (step === 3) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
+      </div>
+      <Field label="Aadhaar Number" required>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      </Field>
+      <Field label="PAN Number" required>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      </Field>
+
+      <Field label="Upload Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-authaadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
+          <label htmlFor="m-authaadhaar" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Aadhaar</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
+      </Field>
+
+      <Field label="Upload PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-authpan" onChange={(e) => handleDocumentUpload("panCard", e)} />
+          <label htmlFor="m-authpan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload PAN</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
+      </Field>
+
+      <Field label="Upload Company Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-companyreg" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
+          <label htmlFor="m-companyreg" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Registration</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyRegCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyRegCert.name}</p>}
+      </Field>
+
+      <Field label="Upload GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-gstcert" onChange={(e) => handleDocumentUpload("gstCert", e)} />
+          <label htmlFor="m-gstcert" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload GST</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.gstCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.gstCert.name}</p>}
+      </Field>
+
+      <Field label="Upload RERA Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-reracert" onChange={(e) => handleDocumentUpload("reraCert", e)} />
+          <label htmlFor="m-reracert" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload RERA</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.reraCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.reraCert.name}</p>}
+      </Field>
+
+      <Field label="Upload Company PAN Card (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-companypan" onChange={(e) => handleDocumentUpload("companyPanCard", e)} />
+          <label htmlFor="m-companypan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Company PAN</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyPanCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyPanCard.name}</p>}
+      </Field>
+    </>
+  );
+
+  // STEP 4: Property Details
+  if (step === 4) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -502,7 +764,14 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <h3 className="text-[11px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
       <Field label="Property Type" required>
-        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+        <div className="grid grid-cols-2 gap-1">
+          {["Serviced Apartment", "Residential Apartment", "Gated Community Studio", "Luxury Apartment", "Duplex Apartment", "Condo Apartment", "Penthouse Apartment"].map(type => (
+            <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-property-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
+              {type}
+            </label>
+          ))}
+        </div>
       </Field>
       <Field label="Built-up Area" hint="In square feet">
         <div className="flex gap-1">
@@ -519,7 +788,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
       <Field label="Number of Bedrooms">
         {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
           <label key={bhk} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-bhk-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+            <input type="radio" name="mob-bhk-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
             {bhk}
           </label>
         ))}
@@ -527,7 +796,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
       <Field label="Number of Bathrooms">
         {["1", "2", "3", "4+"].map(b => (
           <label key={b} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-bath-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+            <input type="radio" name="mob-bath-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
             {b}
           </label>
         ))}
@@ -542,7 +811,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="grid grid-cols-2 gap-1">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-facing-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="mob-facing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -552,7 +821,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-balcony-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="mob-balcony-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -565,7 +834,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-corner-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              <input type="radio" name="mob-corner-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
               {opt}
             </label>
           ))}
@@ -575,7 +844,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {ownershipOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-ownership-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
+              <input type="radio" name="mob-ownership-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
               {opt}
             </label>
           ))}
@@ -590,7 +859,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="grid grid-cols-2 gap-1">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-furnish-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              <input type="radio" name="mob-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
               {f}
             </label>
           ))}
@@ -598,19 +867,22 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
       </Field>
       <Field label="Interior Features">
         <div className="grid grid-cols-2 gap-1">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
-            <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[feature.toLowerCase().replace(/ /g, '')] === "yes"} onChange={() => updateForm(feature.toLowerCase().replace(/ /g, ''), formData[feature.toLowerCase().replace(/ /g, '')] === "yes" ? "no" : "yes")} />
-              {feature}
-            </label>
-          ))}
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => {
+            const key = feature.toLowerCase().replace(/ /g, '');
+            return (
+              <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
+                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] === "yes"} onChange={() => updateForm(key, formData[key] === "yes" ? "no" : "yes")} />
+                {feature}
+              </label>
+            );
+          })}
         </div>
       </Field>
     </>
   );
 
-  // STEP 2: Pricing & Amenities
-  if (step === 2) return (
+  // STEP 5: Pricing & Amenities
+  if (step === 5) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -622,11 +894,19 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
           <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
         </div>
       </Field>
+      
+      <Field label="Budget Range (₹)" hint="Set a range for negotiation">
+        <div className="flex gap-1">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+        </div>
+      </Field>
+
       <Field label="Price Negotiable">
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-negotiable-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
+              <input type="radio" name="mob-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
               {opt}
             </label>
           ))}
@@ -647,7 +927,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-title-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
+              <input type="radio" name="mob-title-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
               {opt}
             </label>
           ))}
@@ -657,7 +937,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-loan-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
+              <input type="radio" name="mob-loan-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
               {opt}
             </label>
           ))}
@@ -667,7 +947,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-rera-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
+              <input type="radio" name="mob-rera-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
               {opt}
             </label>
           ))}
@@ -682,8 +962,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="grid grid-cols-2 gap-1">
           {apartmentSellAmenities.map(amenity => (
             <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleApartmentAmenity(amenity.id)} />
-              {amenity.icon}
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleAmenity(amenity.id)} />
               {amenity.label}
             </label>
           ))}
@@ -712,7 +991,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-ready-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
+              <input type="radio" name="mob-ready-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
               {opt}
             </label>
           ))}
@@ -722,7 +1001,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-construction-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              <input type="radio" name="mob-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
               {opt}
             </label>
           ))}
@@ -732,7 +1011,7 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-possession-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              <input type="radio" name="mob-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
               {opt}
             </label>
           ))}
@@ -756,233 +1035,563 @@ function MobContentSellBuilderApart({ step, inp, formData, updateForm, imagePrev
           })}
         </div>
       </Field>
+    </>
+  );
 
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+  // STEP 6: Bank Details
+  if (step === 6) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <Field label="Contact via">
-        <div className="flex gap-4">
-          {["Owner", "Agent", "Builder"].map(opt => (
-            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-contact-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
+      <Field label="Account Holder Name" required>
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </Field>
-      <Field label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-1">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="radio" name="mob-time-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
+      <Field label="Bank Name" required>
+        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      </Field>
+      <Field label="Account Number" required>
+        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      </Field>
+      <Field label="IFSC Code" required>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      </Field>
+      <Field label="UPI ID">
+        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
       </Field>
     </>
   );
 
-  // STEP 3: Media Upload
-  if (step === 3) return (
+  // STEP 7: Social Media
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Media Upload</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
       </div>
-      <p className="text-[10px] text-center text-gray-400 mb-2">📸 Minimum 3 property images required</p>
-      <Field label="Property Images" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-sellbuilderapart" onChange={handleImageUpload} />
-          <label htmlFor="m-imgs-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
-            <ImagePlus className="mb-1 w-7 h-7 text-[#00695C]" />
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Property Photos</span>
-            <span className="text-[10px] text-gray-400">JPG, PNG supported</span>
+      <Field label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </Field>
+      <Field label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </Field>
+      <Field label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </Field>
+      <Field label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </Field>
+      <Field label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 8: Documents
+  if (step === 8) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Company Documents</h3>
+      </div>
+      <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
+
+      <Field label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-comp-logo" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <label htmlFor="m-comp-logo" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.companyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyLogoDoc.name}</p>}
+      </Field>
+
+      <Field label="Company Profile Brochure (PDF)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-comp-brochure" onChange={(e) => handleDocumentUpload("companyBrochure", e)} />
+          <label htmlFor="m-comp-brochure" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Brochure</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyBrochure && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyBrochure.name}</p>}
+      </Field>
+
+      <Field label="Project Brochure(s)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" multiple className="hidden" id="m-project-brochures" onChange={(e) => {
+            const files = Array.from(e.target.files);
+            const validFiles = files.filter(f => f.type === 'application/pdf');
+            if (validFiles.length !== files.length) {
+              alert('Only PDF files are allowed');
+            }
+            updateForm("projectBrochures", [...formData.projectBrochures, ...validFiles]);
+          }} />
+          <label htmlFor="m-project-brochures" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Brochures</span>
+            <span className="text-[9px] text-gray-400">PDF, multiple allowed</span>
+          </label>
+        </div>
+        {formData.projectBrochures.length > 0 && (
+          <p className="text-[10px] text-green-600 mt-1">✓ {formData.projectBrochures.length} file(s) uploaded</p>
+        )}
+      </Field>
+
+      <Field label="Company Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-comp-reg-doc" onChange={(e) => handleDocumentUpload("companyRegCertDoc", e)} />
+          <label htmlFor="m-comp-reg-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Registration</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyRegCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyRegCertDoc.name}</p>}
+      </Field>
+
+      <Field label="RERA Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-rera-doc" onChange={(e) => handleDocumentUpload("reraCertDoc", e)} />
+          <label htmlFor="m-rera-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload RERA</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.reraCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.reraCertDoc.name}</p>}
+      </Field>
+
+      <Field label="GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-gst-doc" onChange={(e) => handleDocumentUpload("gstCertDoc", e)} />
+          <label htmlFor="m-gst-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload GST</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.gstCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.gstCertDoc.name}</p>}
+      </Field>
+
+      <Field label="PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
+          <label htmlFor="m-pan-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload PAN</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.panCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCardDoc.name}</p>}
+      </Field>
+
+      <Field label="Authorized Signatory ID Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-auth-id" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
+          <label htmlFor="m-auth-id" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload ID Proof</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.authIdProof && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authIdProof.name}</p>}
+      </Field>
+
+      <Field label="Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
+          <label htmlFor="m-office-proof" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Address Proof</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProof && <p className="text-[10px] text-green-600 mt-1">✓ {formData.officeAddressProof.name}</p>}
+      </Field>
+
+      {/* Media Upload for Property */}
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Property Media</h3>
+      </div>
+      <Field label="Upload Cover Image" required hint="Max 2MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="m-cover" onChange={handleCoverImageUpload} />
+          <label htmlFor="m-cover" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Cover</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {coverPreview && (
+          <div className="mt-1 relative">
+            <img src={coverPreview} alt="Cover" className="w-full h-16 object-cover rounded-lg" />
+            <button onClick={removeCoverImage} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </Field>
+
+      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
+          <label htmlFor="m-imgs" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Photos</span>
+            <span className="text-[9px] text-gray-400">Max 3 photos</span>
           </label>
         </div>
         {imagePreviews.length > 0 && (
-          <div className="mt-2 grid grid-cols-3 gap-1">
+          <div className="mt-1 grid grid-cols-3 gap-1">
             {imagePreviews.map((preview, idx) => (
               <div key={idx} className="relative">
-                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-16 object-cover rounded-lg" />
+                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-14 object-cover rounded-lg" />
                 <button onClick={() => removeImage(idx)} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
               </div>
             ))}
           </div>
         )}
       </Field>
-      <Field label="Property Video">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid-sellbuilderapart" onChange={handleVideoUpload} />
-          <label htmlFor="m-vid-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
-            <Video className="mb-1 w-7 h-7 text-[#00695C]" />
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Video Tour</span>
-            <span className="text-[10px] text-gray-400">MP4 or MOV</span>
+
+      <Field label="Upload Property Video (Optional)" hint="Max 10MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid" onChange={handleVideoUpload} />
+          <label htmlFor="m-vid" className="cursor-pointer flex flex-col items-center">
+            <Video className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Video</span>
+            <span className="text-[9px] text-gray-400">MP4/MOV (Max 10MB)</span>
           </label>
         </div>
         {videoPreview && (
-          <div className="mt-2 relative">
-            <video src={videoPreview} controls className="w-full h-24 object-cover rounded-lg" />
-            <button onClick={removeVideo} className="absolute top-1 right-1 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
-          </div>
-        )}
-      </Field>
-    </>
-  );
-
-  // STEP 4: Document Upload - Builder Version
-  if (step === 4) return (
-    <>
-      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Documents To Upload</h3>
-      </div>
-      <p className="text-[9px] text-gray-400 text-center mb-2">Upload required documents for verification</p>
-      
-      {/* RERA Registration Certificate */}
-      <Field label="RERA Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-rera-sellbuilder" onChange={(e) => handleDocumentUpload("reraCert", e)} />
-          <label htmlFor="m-rera-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload RERA Registration Certificate</span>
-            <span className="text-[9px] text-gray-400">Upload RERA registration document</span>
-          </label>
-        </div>
-        {reraPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.reraCert?.name}</p>
-            <button 
-              onClick={() => removeFile("reraCert")} 
-              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center"
-            >
-              ✕
-            </button>
+          <div className="mt-1 relative">
+            <video src={videoPreview} controls className="w-full h-20 object-cover rounded-lg" />
+            <button onClick={removeVideo} className="absolute top-0 right-0 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
       </Field>
 
-      {/* Property Layout/Floor Plan */}
-      <Field label="Property Layout/Floor Plan" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-floorplan-sellbuilder" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
-          <label htmlFor="m-floorplan-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Property Layout/Floor Plan</span>
-            <span className="text-[9px] text-gray-400">Upload property layout or floor plan</span>
+      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-floorplan" onChange={handleFloorPlanUpload} />
+          <label htmlFor="m-floorplan" className="cursor-pointer flex flex-col items-center">
+            <Home className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Floor Plan</span>
+            <span className="text-[9px] text-gray-400">PDF only</span>
           </label>
         </div>
         {floorPlanPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.floorPlan?.name}</p>
-            <button 
-              onClick={() => removeFile("floorPlan")} 
-              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </Field>
-
-      {/* Builder ID Proof/Company Registration */}
-      <Field label="Builder ID Proof/Company Registration" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-builderid-sellbuilder" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
-          <label htmlFor="m-builderid-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Builder ID Proof/Company Registration</span>
-            <span className="text-[9px] text-gray-400">Upload builder ID or company registration</span>
-          </label>
-        </div>
-        {builderIdPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.builderIdProof?.name}</p>
-            <button 
-              onClick={() => removeFile("builderIdProof")} 
-              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </Field>
-
-      {/* Project Brochure/Images */}
-      <Field label="Project Brochure/Images">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="m-brochure-sellbuilder" onChange={(e) => handleDocumentUpload("brochure", e)} />
-          <label htmlFor="m-brochure-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Project Brochure/Images</span>
-            <span className="text-[9px] text-gray-400">Upload project brochure or images</span>
-          </label>
-        </div>
-        {brochurePreview && brochurePreview.length > 0 && (
-          <div className="mt-2 grid grid-cols-3 gap-1">
-            {brochurePreview.map((preview, idx) => (
-              <div key={idx} className="relative">
-                <img src={preview} className="w-full h-12 object-cover rounded" alt={`Brochure ${idx + 1}`} />
-                <button 
-                  onClick={() => removeBrochureImage(idx)} 
-                  className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-[6px] flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+          <div className="mt-1 relative">
+            <p className="text-[10px] text-green-600">✓ {formData.floorPlan?.name}</p>
+            <button onClick={removeFloorPlan} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
       </Field>
     </>
   );
+
+  // STEP 9: Declaration
+  if (step === 9) return (
+    <>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Signature</h3>
+      </div>
+      <label className="flex items-center gap-2 text-[10px] font-semibold text-[#00695C] mb-1">
+        <PenTool className="w-3.5 h-3.5" /> Authorized Signatory <span className="text-red-500">*</span>
+      </label>
+      <p className="text-[10px] text-gray-500 mb-1.5">Draw your signature in the box below</p>
+      <div className="relative">
+        <canvas
+          id="m-signatureCanvas"
+          ref={signatureCanvasRef}
+          width="400"
+          height="100"
+          className="signature-canvas w-full h-24 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          onMouseDown={(e) => startDrawing(e, 'm-signatureCanvas')}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={(e) => startDrawing(e, 'm-signatureCanvas')}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+        <button
+          type="button"
+          onClick={clearSignature}
+          className="absolute top-1 right-1 bg-[#00695C] text-white px-2 py-0.5 rounded text-[10px] hover:bg-[#004d42] transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <Field label="Date" required>
+        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+      </Field>
+      <Field label="Place" required>
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      </Field>
+
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I confirm that I am the authorized representative of the builder/company.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to comply with all applicable real estate laws and regulations.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
+    </>
+  );
+
+  return null;
 }
 
-// DESKTOP CONTENT - Sell Builder Apartment
-function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeFile, removeBrochureImage, reraPreview, floorPlanPreview, builderIdPreview, brochurePreview, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, propertyConditionOptions, contactTimeOptions, apartmentSellAmenities }) {
+// DESKTOP CONTENT - SELL BUILDER APARTMENT
+function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
+  const signatureCanvasRef = useRef(null);
 
-  // STEP 0: Builder Details
+  useEffect(() => {
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      allSignaturePoints.forEach(stroke => {
+        if (stroke.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#00695C';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          stroke.forEach((point, index) => {
+            if (index === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x, point.y);
+            }
+          });
+          ctx.stroke();
+        }
+      });
+      
+      if (signaturePoints.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#00695C';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        signaturePoints.forEach((point, index) => {
+          if (index === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        });
+        ctx.stroke();
+      }
+    }
+  }, [signaturePoints, allSignaturePoints]);
+
+  // STEP 0: Company Details
   if (step === 0) return (
     <>
-      <FieldDt label="Builder/Developer Name" required>
-        <input className={inp} placeholder="Enter builder/developer name" value={formData.builderName} onChange={(e) => updateForm("builderName", e.target.value)} />
+      <FieldDt label="Builder / Company Name" required>
+        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company/Firm Name" required>
-        <input className={inp} placeholder="Enter company/firm name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <FieldDt label="Company Registration Number" required>
+        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="RERA Registration No" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNo} onChange={(e) => updateForm("reraNo", e.target.value)} />
+      <FieldDt label="RERA Registration Number" required>
+        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[80px]`} placeholder="Enter office address (Street, Area, City, State, PIN)" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <FieldDt label="GST Number">
+        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Authorized Contact Person Name" required>
-        <input className={inp} placeholder="Enter contact person name" value={formData.contactPerson} onChange={(e) => updateForm("contactPerson", e.target.value)} />
+      <FieldDt label="Years of Experience" required>
+        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Phone Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.phoneNumber} onChange={(e) => updateForm("phoneNumber", e.target.value)} />
+      <FieldDt label="Company Website (Optional)">
+        <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Email ID" required hint="We'll send listing updates to this email">
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Website" hint="If applicable">
-        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      <FieldDt label="Company Profile / About Us" required>
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 1: Property Details
+  // STEP 1: Authorized Person
   if (step === 1) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Person Details</h3>
+      </div>
+      <FieldDt label="Full Name" required>
+        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Designation" required>
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Mobile Number" required>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Email Address" required>
+        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="WhatsApp Number">
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Profile Photo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <label htmlFor="dt-authphoto" className="cursor-pointer flex flex-col items-center">
+            <User className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.authPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authPhoto.name}</p>}
+      </FieldDt>
+    </>
+  );
+
+  // STEP 2: Office Address
+  if (step === 2) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
+      </div>
+      <FieldDt label="Office Address" required>
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="City" required>
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="District" required>
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="State" required>
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="PIN Code" required>
+        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Landmark">
+        <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 3: Identity & Business Verification
+  if (step === 3) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
+      </div>
+      <FieldDt label="Aadhaar Number" required>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="PAN Number" required>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      </FieldDt>
+
+      <FieldDt label="Upload Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-authaadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
+          <label htmlFor="dt-authaadhaar" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Aadhaar Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-authpan" onChange={(e) => handleDocumentUpload("panCard", e)} />
+          <label htmlFor="dt-authpan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload PAN Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload Company Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-companyreg" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
+          <label htmlFor="dt-companyreg" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Registration Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyRegCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyRegCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-gstcert" onChange={(e) => handleDocumentUpload("gstCert", e)} />
+          <label htmlFor="dt-gstcert" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload GST Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.gstCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.gstCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload RERA Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-reracert" onChange={(e) => handleDocumentUpload("reraCert", e)} />
+          <label htmlFor="dt-reracert" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload RERA Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.reraCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.reraCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload Company PAN Card (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-companypan" onChange={(e) => handleDocumentUpload("companyPanCard", e)} />
+          <label htmlFor="dt-companypan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company PAN</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyPanCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyPanCard.name}</p>}
+      </FieldDt>
+    </>
+  );
+
+  // STEP 4: Property Details
+  if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1009,7 +1618,14 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <h3 className="text-[14px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
       <FieldDt label="Property Type" required>
-        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+        <div className="grid grid-cols-2 gap-2">
+          {["Serviced Apartment", "Residential Apartment", "Gated Community Studio", "Luxury Apartment", "Duplex Apartment", "Condo Apartment", "Penthouse Apartment"].map(type => (
+            <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-property-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
+              {type}
+            </label>
+          ))}
+        </div>
       </FieldDt>
       <FieldDt label="Built-up Area" hint="In square feet">
         <div className="flex gap-2">
@@ -1027,7 +1643,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex flex-wrap gap-3">
           {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
             <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bhk-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+              <input type="radio" name="dt-bhk-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
               {bhk}
             </label>
           ))}
@@ -1037,7 +1653,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex flex-wrap gap-3">
           {["1", "2", "3", "4+"].map(b => (
             <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bath-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+              <input type="radio" name="dt-bath-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
               {b}
             </label>
           ))}
@@ -1053,7 +1669,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="grid grid-cols-4 gap-2">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-facing-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="dt-facing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -1063,7 +1679,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-balcony-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="dt-balcony-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -1076,7 +1692,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-corner-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              <input type="radio" name="dt-corner-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
               {opt}
             </label>
           ))}
@@ -1086,7 +1702,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {ownershipOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-ownership-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
+              <input type="radio" name="dt-ownership-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === opt} onChange={() => updateForm("ownershipType", opt)} />
               {opt}
             </label>
           ))}
@@ -1101,7 +1717,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex flex-wrap gap-3">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-furnish-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              <input type="radio" name="dt-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
               {f}
             </label>
           ))}
@@ -1123,8 +1739,8 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
     </>
   );
 
-  // STEP 2: Pricing & Amenities
-  if (step === 2) return (
+  // STEP 5: Pricing & Amenities
+  if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1136,11 +1752,19 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
           <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
         </div>
       </FieldDt>
+      
+      <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
+        <div className="flex gap-2">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+        </div>
+      </FieldDt>
+
       <FieldDt label="Price Negotiable">
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
+              <input type="radio" name="dt-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
               {opt}
             </label>
           ))}
@@ -1161,7 +1785,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-title-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
+              <input type="radio" name="dt-title-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.titleDeedVerified === opt} onChange={() => updateForm("titleDeedVerified", opt)} />
               {opt}
             </label>
           ))}
@@ -1171,7 +1795,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-loan-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
+              <input type="radio" name="dt-loan-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.loanEligible === opt} onChange={() => updateForm("loanEligible", opt)} />
               {opt}
             </label>
           ))}
@@ -1181,7 +1805,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-rera-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
+              <input type="radio" name="dt-rera-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.reraApproved === opt} onChange={() => updateForm("reraApproved", opt)} />
               {opt}
             </label>
           ))}
@@ -1196,7 +1820,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="grid grid-cols-2 gap-2">
           {apartmentSellAmenities.map(amenity => (
             <label key={amenity.id} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleApartmentAmenity(amenity.id)} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleAmenity(amenity.id)} />
               {amenity.label}
             </label>
           ))}
@@ -1225,7 +1849,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-ready-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
+              <input type="radio" name="dt-ready-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToMove === opt} onChange={() => updateForm("readyToMove", opt)} />
               {opt}
             </label>
           ))}
@@ -1235,7 +1859,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-construction-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              <input type="radio" name="dt-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
               {opt}
             </label>
           ))}
@@ -1245,7 +1869,7 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-possession-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              <input type="radio" name="dt-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
               {opt}
             </label>
           ))}
@@ -1269,193 +1893,331 @@ function DtContentSellBuilderApart({ step, inp, formData, updateForm, imagePrevi
           })}
         </div>
       </FieldDt>
+    </>
+  );
 
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+  // STEP 6: Bank Details
+  if (step === 6) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <FieldDt label="Contact via">
-        <div className="flex gap-5">
-          {["Owner", "Agent", "Builder"].map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-contact-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
+      <FieldDt label="Account Holder Name" required>
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-2">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-time-sellbuilder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
+      <FieldDt label="Bank Name" required>
+        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Account Number" required>
+        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="IFSC Code" required>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="UPI ID">
+        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 3: Media Upload
-  if (step === 3) return (
+  // STEP 7: Social Media
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Media Upload</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
       </div>
-      <p className="text-[11px] text-center text-gray-400 mb-3">📸 Minimum 3 property images required</p>
-      <FieldDt label="Property Images" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="property-images-sellbuilderapart" onChange={handleImageUpload} />
-          <label htmlFor="property-images-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
-            <ImagePlus className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Photos</span>
-            <span className="text-[11px] text-gray-400 mt-1">Click to select multiple images (JPG, PNG)</span>
+      <FieldDt label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 8: Documents
+  if (step === 8) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Company Documents</h3>
+      </div>
+      <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
+
+      <FieldDt label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-comp-logo" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <label htmlFor="dt-comp-logo" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.companyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyLogoDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Company Profile Brochure (PDF)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-comp-brochure" onChange={(e) => handleDocumentUpload("companyBrochure", e)} />
+          <label htmlFor="dt-comp-brochure" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Profile Brochure</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyBrochure && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyBrochure.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Project Brochure(s)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" multiple className="hidden" id="dt-project-brochures" onChange={(e) => {
+            const files = Array.from(e.target.files);
+            const validFiles = files.filter(f => f.type === 'application/pdf');
+            if (validFiles.length !== files.length) {
+              alert('Only PDF files are allowed');
+            }
+            updateForm("projectBrochures", [...formData.projectBrochures, ...validFiles]);
+          }} />
+          <label htmlFor="dt-project-brochures" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Project Brochures</span>
+            <span className="text-[11px] text-gray-400">PDF, multiple allowed</span>
+          </label>
+        </div>
+        {formData.projectBrochures.length > 0 && (
+          <p className="text-[13px] text-green-600 mt-2">✓ {formData.projectBrochures.length} file(s) uploaded</p>
+        )}
+      </FieldDt>
+
+      <FieldDt label="Company Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-comp-reg-doc" onChange={(e) => handleDocumentUpload("companyRegCertDoc", e)} />
+          <label htmlFor="dt-comp-reg-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Registration Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.companyRegCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyRegCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="RERA Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-rera-doc" onChange={(e) => handleDocumentUpload("reraCertDoc", e)} />
+          <label htmlFor="dt-rera-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload RERA Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.reraCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.reraCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-gst-doc" onChange={(e) => handleDocumentUpload("gstCertDoc", e)} />
+          <label htmlFor="dt-gst-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload GST Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.gstCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.gstCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
+          <label htmlFor="dt-pan-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload PAN Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.panCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCardDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Authorized Signatory ID Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-auth-id" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
+          <label htmlFor="dt-auth-id" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload ID Proof</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.authIdProof && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authIdProof.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
+          <label htmlFor="dt-office-proof" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Address Proof</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProof && <p className="text-[13px] text-green-600 mt-2">✓ {formData.officeAddressProof.name}</p>}
+      </FieldDt>
+
+      {/* Media Upload for Property */}
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Property Media</h3>
+      </div>
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="dt-cover" onChange={handleCoverImageUpload} />
+          <label htmlFor="dt-cover" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Cover Image</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {coverPreview && (
+          <div className="mt-2 relative">
+            <img src={coverPreview} alt="Cover" className="w-full h-20 object-cover rounded-lg" />
+            <button onClick={removeCoverImage} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </FieldDt>
+
+      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
+          <label htmlFor="dt-imgs" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Property Photos</span>
+            <span className="text-[11px] text-gray-400">Max 3 photos</span>
           </label>
         </div>
         {imagePreviews.length > 0 && (
-          <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="mt-2 grid grid-cols-3 gap-2">
             {imagePreviews.map((preview, idx) => (
               <div key={idx} className="relative">
-                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-20 object-cover rounded-lg border border-gray-200" />
-                <button onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
+                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-16 object-cover rounded-lg" />
+                <button onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
               </div>
             ))}
           </div>
         )}
       </FieldDt>
-      <FieldDt label="Property Video">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="property-video-sellbuilderapart" onChange={handleVideoUpload} />
-          <label htmlFor="property-video-sellbuilderapart" className="cursor-pointer flex flex-col items-center">
-            <Video className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Video Tour</span>
-            <p className="text-[11px] text-gray-400 mt-1">MP4 or MOV format supported</p>
+
+      <FieldDt label="Upload Property Video (Optional)" hint="Max 10MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="dt-vid" onChange={handleVideoUpload} />
+          <label htmlFor="dt-vid" className="cursor-pointer flex flex-col items-center">
+            <Video className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Video Tour</span>
+            <span className="text-[11px] text-gray-400">MP4/MOV (Max 10MB)</span>
           </label>
         </div>
         {videoPreview && (
-          <div className="mt-3 relative">
-            <video src={videoPreview} controls className="w-full h-32 object-cover rounded-lg border border-gray-200" />
-            <button onClick={removeVideo} className="absolute top-2 right-2 w-6.5 h-6.5 bg-red-500 text-white rounded-full text-[13px] flex items-center justify-center hover:bg-red-600">✕</button>
-          </div>
-        )}
-      </FieldDt>
-    </>
-  );
-
-  // STEP 4: Document Upload - Builder Version Desktop
-  if (step === 4) return (
-    <>
-      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Documents To Upload</h3>
-      </div>
-      <p className="text-[10px] text-gray-400 text-center mb-3">Upload required documents for verification</p>
-      
-      {/* RERA Registration Certificate */}
-      <FieldDt label="RERA Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-rera-sellbuilder" onChange={(e) => handleDocumentUpload("reraCert", e)} />
-          <label htmlFor="dt-rera-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload RERA Registration Certificate</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload RERA registration document</span>
-          </label>
-        </div>
-        {reraPreview && (
           <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.reraCert?.name}</p>
-            <button 
-              onClick={() => removeFile("reraCert")} 
-              className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-            >
-              ✕
-            </button>
+            <video src={videoPreview} controls className="w-full h-24 object-cover rounded-lg" />
+            <button onClick={removeVideo} className="absolute top-2 right-2 w-6.5 h-6.5 bg-red-500 text-white rounded-full text-[13px] flex items-center justify-center">✕</button>
           </div>
         )}
       </FieldDt>
 
-      {/* Property Layout/Floor Plan */}
-      <FieldDt label="Property Layout/Floor Plan" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-floorplan-sellbuilder" onChange={(e) => handleDocumentUpload("floorPlan", e)} />
-          <label htmlFor="dt-floorplan-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Layout/Floor Plan</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload property layout or floor plan</span>
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-floorplan" onChange={handleFloorPlanUpload} />
+          <label htmlFor="dt-floorplan" className="cursor-pointer flex flex-col items-center">
+            <Home className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Floor Plan</span>
+            <span className="text-[11px] text-gray-400">PDF only</span>
           </label>
         </div>
         {floorPlanPreview && (
           <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.floorPlan?.name}</p>
-            <button 
-              onClick={() => removeFile("floorPlan")} 
-              className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </FieldDt>
-
-      {/* Builder ID Proof/Company Registration */}
-      <FieldDt label="Builder ID Proof/Company Registration" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-builderid-sellbuilder" onChange={(e) => handleDocumentUpload("builderIdProof", e)} />
-          <label htmlFor="dt-builderid-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Builder ID Proof/Company Registration</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload builder ID or company registration</span>
-          </label>
-        </div>
-        {builderIdPreview && (
-          <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.builderIdProof?.name}</p>
-            <button 
-              onClick={() => removeFile("builderIdProof")} 
-              className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-      </FieldDt>
-
-      {/* Project Brochure/Images */}
-      <FieldDt label="Project Brochure/Images">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" multiple className="hidden" id="dt-brochure-sellbuilder" onChange={(e) => handleDocumentUpload("brochure", e)} />
-          <label htmlFor="dt-brochure-sellbuilder" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Project Brochure/Images</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload project brochure or images</span>
-          </label>
-        </div>
-        {brochurePreview && brochurePreview.length > 0 && (
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {brochurePreview.map((preview, idx) => (
-              <div key={idx} className="relative">
-                <img src={preview} className="w-full h-16 object-cover rounded border" alt={`Brochure ${idx + 1}`} />
-                <button 
-                  onClick={() => removeBrochureImage(idx)} 
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+            <p className="text-[13px] text-green-600">✓ {formData.floorPlan?.name}</p>
+            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
           </div>
         )}
       </FieldDt>
     </>
   );
+
+  // STEP 9: Declaration
+  if (step === 9) return (
+    <>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Signature</h3>
+      </div>
+      <label className="flex items-center gap-2 text-[13px] font-semibold text-[#00695C] mb-2">
+        <PenTool className="w-4 h-4" /> Authorized Signatory <span className="text-red-500">*</span>
+      </label>
+      <p className="text-[12px] text-gray-500 mb-2">Draw your signature in the box below</p>
+      <div className="relative">
+        <canvas
+          id="dt-signatureCanvas"
+          ref={signatureCanvasRef}
+          width="400"
+          height="100"
+          className="signature-canvas w-full h-32 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          onMouseDown={(e) => startDrawing(e, 'dt-signatureCanvas')}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={(e) => startDrawing(e, 'dt-signatureCanvas')}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+        <button
+          type="button"
+          onClick={clearSignature}
+          className="absolute top-2 right-3 bg-[#00695C] text-white px-3 py-0.5 rounded text-xs hover:bg-[#004d42] transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <FieldDt label="Date" required>
+        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Place" required>
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      </FieldDt>
+
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
+      </div>
+
+      <div className="space-y-2.5">
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I confirm that I am the authorized representative of the builder/company.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to comply with all applicable real estate laws and regulations.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
+    </>
+  );
+
+  return null;
 }

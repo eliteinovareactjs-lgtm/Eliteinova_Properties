@@ -53,24 +53,24 @@ const IndividualPage = () => {
       image: independentVillaImg,
       icon: <Home className="w-6 h-6" />
     },
-    { 
-      name: "Residential Apartment", 
-      path: "/individual/residential-apartment", 
-      image: residentialApartmentImg,
-      icon: <Building className="w-6 h-6" />
-    },
+    // { 
+    //   name: "Residential Apartment", 
+    //   path: "/individual/residential-apartment", 
+    //   image: residentialApartmentImg,
+    //   icon: <Building className="w-6 h-6" />
+    // },
     { 
       name: "Duplex Unit", 
       path: "/individual/duplex-residential-unit", 
       image: duplexResidentialImg,
       icon: <Building2 className="w-6 h-6" />
     },
-    { 
-      name: "Row House", 
-      path: "/individual/row-house", 
-      image: rowHouseImg,
-      icon: <Home className="w-6 h-6" />
-    }
+    // { 
+    //   name: "Row House", 
+    //   path: "/individual/row-house", 
+    //   image: rowHouseImg,
+    //   icon: <Home className="w-6 h-6" />
+    // }
   ];
 
   const houseTypes = [

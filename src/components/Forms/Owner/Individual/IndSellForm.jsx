@@ -42,7 +42,7 @@ const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] tex
 const availableAmenities = ["Gated Community", "24/7 Security", "Power Backup", "CCTV Surveillance", "24/7 Water Supply", "Wi-Fi Ready", "Children's Play Area", "Gym / Fitness Center", "Balcony / Terrace", "Lift / Elevator", "Visitor Parking", "Nearby School / Hospital"];
 
 // Sell options - integrated as form fields
-const bedroomOptions = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
+const bedroomOptions = ["Studio", "1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
 const bathroomOptions = ["1", "2", "3", "4+"];
 const furnishingOptions = ["Fully Furnished", "Semi Furnished", "Unfurnished"];
 const parkingOptions = ["1 Car", "2 Cars", "3+ Cars"];
@@ -61,18 +61,19 @@ export default function IndSellForm({ isOpen, onClose }) {
     propertyTitle: "", propertyType: "", propertyAddress: "",
     propertyCity: "", builtUpArea: "", carpetArea: "", bedrooms: "", bathrooms: "",
     furnishingStatus: "", parking: "",
+    // Property Category & Posted By (Step 2)
+    propertyCategory: "individual",
+    postedBy: "owner",
     // Pricing & Amenities (Step 3)
     listingPurpose: "sale", expectedPrice: "", budgetRange: { min: "", max: "" }, priceType: "", maintenance: "",
     availableFrom: "", selectedAmenities: [], otherAmenities: "",
     // Sell Preferences (integrated in step 2)
-    preferredLocation: "",
     sellBedrooms: [],
     sellBathrooms: [],
     sellFurnishing: "",
     sellParking: "",
     gardenSpace: "",
     terrace: "",
-    expectedPriceRange: { min: "", max: "" },
     negotiable: "",
     propertyAge: "",
     propertyCondition: "",
@@ -89,6 +90,7 @@ export default function IndSellForm({ isOpen, onClose }) {
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
     // Communication Preferences (Step 7)
     preferredContactMethod: [], preferredContactTime: "", declarationAccepted: false,
+    declarationAccurate: false, declarationTerms: false,
     // Signature
     signature: null, signatureDate: "", signaturePlace: ""
   });
@@ -193,6 +195,24 @@ export default function IndSellForm({ isOpen, onClose }) {
         alert(`${docType} must be a PDF file`);
         return;
       }
+      if (file.size > maxSize * 1024 * 1024) {
+        alert(`${docType} must be less than ${maxSize}MB`);
+        return;
+      }
+      updateForm(docType, file);
+    }
+  };
+
+  const handlePassportUpload = (docType, e, maxSize = 2) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file type (JPG, JPEG, PNG only)
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert(`${docType} must be a JPG, JPEG, or PNG file`);
+        return;
+      }
+      // Check file size (default 2MB)
       if (file.size > maxSize * 1024 * 1024) {
         alert(`${docType} must be less than ${maxSize}MB`);
         return;
@@ -337,6 +357,7 @@ export default function IndSellForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
+              handlePassportUpload={handlePassportUpload}
               toggleAmenity={toggleAmenity}
               availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
@@ -442,6 +463,7 @@ export default function IndSellForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
+              handlePassportUpload={handlePassportUpload}
               toggleAmenity={toggleAmenity}
               availableAmenities={availableAmenities}
               customAmenitiesList={customAmenitiesList}
@@ -506,7 +528,7 @@ export default function IndSellForm({ isOpen, onClose }) {
 }
 
 // MOBILE CONTENT - SELL
-function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -617,11 +639,11 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
       </Field>
       <Field label="Upload Passport-size Photo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-passport-sell" onChange={(e) => handleDocumentUpload("passportPhoto", e)} />
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-passport-sell" onChange={(e) => handlePassportUpload("passportPhoto", e)} />
           <label htmlFor="m-passport-sell" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
-            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+            <span className="text-[9px] text-gray-400">JPG, JPEG, PNG (Max 2MB)</span>
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.passportPhoto.name}</p>}
@@ -662,6 +684,25 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
       <Field label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </Field>
+      
+      <Field label="Property Category" required>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+            <input type="radio" name="mob-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
+            Individual
+          </label>
+        </div>
+      </Field>
+
+      <Field label="Posted By" required>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+            <input type="radio" name="mob-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
+            Owner
+          </label>
+        </div>
+      </Field>
+
       <Field label="Property Type" required>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
@@ -673,8 +714,8 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
       <Field label="Property Address" required>
         <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
       </Field>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+      <Field label="Property City" required>
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
       </Field>
       <Field label="Area Details" required hint="In square feet">
         <div className="grid grid-cols-2 gap-1.5">
@@ -682,12 +723,29 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
           <input className={inp} type="number" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
         </div>
       </Field>
-      <Field label="Room Details">
-        <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" placeholder="Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      
+      <Field label="Number of Bedrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bedroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-bedrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
+              {option}
+            </label>
+          ))}
         </div>
       </Field>
+
+      <Field label="Number of Bathrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bathroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-bathrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
+              {option}
+            </label>
+          ))}
+        </div>
+      </Field>
+
       <Field label="Furnishing Status" required>
         {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
           <label key={f} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
@@ -714,15 +772,6 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <Field label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </Field>
-      <Field label="Expected Price Range (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.expectedPriceRange.min} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.expectedPriceRange.max} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, max: e.target.value })} />
-        </div>
-      </Field>
       <Field label="Negotiable">
         <div className="flex gap-2">
           {yesNoOptions.map(option => (
@@ -1150,11 +1199,11 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
           <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
       </div>
@@ -1165,7 +1214,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
 }
 
 // DESKTOP CONTENT - SELL
-function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1276,11 +1325,11 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
       </FieldDt>
       <FieldDt label="Upload Passport-size Photo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-passport-sell" onChange={(e) => handleDocumentUpload("passportPhoto", e)} />
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-passport-sell" onChange={(e) => handlePassportUpload("passportPhoto", e)} />
           <label htmlFor="dt-passport-sell" className="cursor-pointer flex flex-col items-center">
             <User className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
-            <span className="text-[11px] text-gray-400">JPG, PNG (Max 2MB)</span>
+            <span className="text-[11px] text-gray-400">JPG, JPEG, PNG (Max 2MB)</span>
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.passportPhoto.name}</p>}
@@ -1321,6 +1370,25 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
       <FieldDt label="Property Title / Name" required>
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </FieldDt>
+      
+      <FieldDt label="Property Category" required>
+        <div className="flex gap-5">
+          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+            <input type="radio" name="dt-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
+            Individual
+          </label>
+        </div>
+      </FieldDt>
+
+      <FieldDt label="Posted By" required>
+        <div className="flex gap-5">
+          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+            <input type="radio" name="dt-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
+            Owner
+          </label>
+        </div>
+      </FieldDt>
+
       <FieldDt label="Property Type" required>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
@@ -1332,8 +1400,8 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
       <FieldDt label="Property Address" required>
         <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address (Flat No., Building, Street, Locality)" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
       </FieldDt>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+      <FieldDt label="Property City" required>
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
       </FieldDt>
       <FieldDt label="Area Details" required hint="Enter values in square feet">
         <div className="grid grid-cols-2 gap-2">
@@ -1341,12 +1409,29 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
           <input className={inp} type="number" placeholder="Carpet Area (sq ft)" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
         </div>
       </FieldDt>
-      <FieldDt label="Room Details">
-        <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" placeholder="No. of Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="No. of Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      
+      <FieldDt label="Number of Bedrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bedroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bedrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
+              {option}
+            </label>
+          ))}
         </div>
       </FieldDt>
+
+      <FieldDt label="Number of Bathrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bathroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bathrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
+              {option}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+
       <FieldDt label="Furnishing Status" required>
         {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
           <label key={f} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
@@ -1372,15 +1457,6 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <FieldDt label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Expected Price Range (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.expectedPriceRange.min} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.expectedPriceRange.max} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, max: e.target.value })} />
-        </div>
-      </FieldDt>
       <FieldDt label="Negotiable">
         <div className="flex gap-5">
           {yesNoOptions.map(option => (
@@ -1802,17 +1878,17 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <div className="space-y-2">
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+      <div className="space-y-1.5">
+        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
         </label>
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
       </div>

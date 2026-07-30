@@ -332,40 +332,23 @@ const LandAndPlotsPage = () => {
         <section className="w-full bg-white overflow-hidden relative">
           <div className="flex flex-col lg:flex-row items-center min-h-[420px] lg:min-h-[440px]">
 
-            {/* LEFT - photo framed in a layered chevron / arrow cut, like the reference banner */}
-            <div className="relative w-full lg:w-[52%] h-[260px] sm:h-[320px] lg:h-[440px] shrink-0">
-              {/* outer teal chevron frame */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)",
-                  background: "linear-gradient(135deg, #00695C, #26A69A)"
-                }}
-              />
-              {/* white gap layer */}
-              <div
-                className="absolute"
-                style={{
-                  top: "10px", left: 0, right: "10px", bottom: "10px",
-                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)",
-                  background: "#ffffff"
-                }}
-              />
-              {/* photo layer */}
-              <div
-                className="absolute overflow-hidden"
-                style={{
-                  top: "20px", left: 0, right: "22px", bottom: "20px",
-                  clipPath: "polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%)"
-                }}
-              >
-                <img
-                  src={backgroundImage}
-                  alt="Premium land and plots"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-            </div>
+            {/* LEFT - diamond/chevron cut photo, no rectangle frame */}
+<div className="relative w-full lg:w-[52%] h-[280px] sm:h-[340px] lg:h-[440px] shrink-0">
+  <div
+    className="relative w-full h-full overflow-hidden group"
+    style={{
+      clipPath: "polygon(0 0, 75% 0, 100% 50%, 75% 100%, 0 100%)",
+      border: "3px solid #26A69A"
+    }}
+  >
+    <img
+      src={backgroundImage}
+      alt="Premium land and plots"
+      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-[#00332C]/50 via-transparent to-transparent" />
+  </div>
+</div>
 
             {/* RIGHT - copy with heading, subheading, description and four diamonds */}
             <div className="relative z-10 flex-1 px-6 sm:px-10 lg:px-14 py-10 lg:py-0 flex flex-col justify-center">

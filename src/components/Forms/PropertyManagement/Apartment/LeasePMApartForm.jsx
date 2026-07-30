@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, Dog, Wind, Droplet, Layers, Layout, Smartphone, Mail, Phone, MessageCircle, Globe, Compass, RefreshCw, Upload } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, User, Mail, Phone, Calendar as CalendarIcon, UserCheck, File, MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, CheckSquare, PenTool, Trash2, Globe, Facebook, Instagram, Linkedin, Youtube, BriefcaseBusiness, Building2, Factory, Store, ShieldCheck } from "lucide-react";
 
-const steps = ["Property Management Details", "Property Details", "Pricing & Amenities", "Media Upload", "Document Upload"];
+const steps = ["Business Details", "Authorized Representative", "Office Address", "Identity & Business Verification", "Property Details", "Pricing & Amenities", "Bank Details", "Social Media", "Documents", "Declaration"];
 const subtitles = [
-  "Enter property management & company information",
-  "Tell us about the apartment",
+  "Enter property management company information",
+  "Authorized representative details",
+  "Office address information",
+  "Verify business identity",
+  "Tell us about your apartment",
   "Set pricing & select amenities",
-  "Upload property photos & video",
-  "Upload required documents"
+  "Bank account details",
+  "Social media & online presence",
+  "Upload company documents",
+  "Confirm & submit"
 ];
 
 const Field = ({ label, required, hint, children }) => (
@@ -33,18 +38,6 @@ const FieldDt = ({ label, required, hint, children }) => (
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 
-const availableAmenities = ["Lift", "Power Backup", "Security", "Water Supply", "Garden", "Gym", "Pool", "Covered Parking", "CCTV Surveillance", "Clubhouse", "Children's Play Area", "Jogging Track", "Visitor Parking", "Smart Home Features", "Wi-Fi Ready"];
-
-const availableServices = [
-  "Tenant Search & Rental Management",
-  "Rental Collection",
-  "Legal/Agreement Support",
-  "Property Management & Repairs",
-  "Security & Facility Management",
-  "Resale Assistance",
-  "Other Services",
-];
-
 const yesNoOptions = ["Yes", "No"];
 const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
 const facingOptions = ["North", "South", "East", "West", "North-East", "North-West", "South-East", "South-West"];
@@ -53,68 +46,80 @@ const leaseDurationOptions = ["6 Months", "1 Year", "2+ Years"];
 const contactTimeOptions = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 8 PM)", "Anytime"];
 
 const apartmentLeaseAmenities = [
-  { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
-  { id: "security247", label: "24/7 Security", icon: <Shield className="w-4 h-4" /> },
-  { id: "cctv", label: "CCTV Surveillance", icon: <Camera className="w-4 h-4" /> },
-  { id: "powerBackup", label: "Power Backup", icon: <Lock className="w-4 h-4" /> },
-  { id: "gym", label: "Gym / Fitness Center", icon: <Dumbbell className="w-4 h-4" /> },
-  { id: "swimmingPool", label: "Swimming Pool", icon: <Waves className="w-4 h-4" /> },
-  { id: "clubhouse", label: "Clubhouse", icon: <Hotel className="w-4 h-4" /> },
-  { id: "playArea", label: "Children's Play Area", icon: <Users className="w-4 h-4" /> },
-  { id: "garden", label: "Garden / Park", icon: <Trees className="w-4 h-4" /> },
-  { id: "joggingTrack", label: "Jogging Track", icon: <Sprout className="w-4 h-4" /> },
-  { id: "visitorParking", label: "Visitor Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "wifi", label: "Wi-Fi / Broadband Ready", icon: <Wifi className="w-4 h-4" /> },
-  { id: "smartHome", label: "Smart Home Features", icon: <Layout className="w-4 h-4" /> }
+  { id: "coveredParking", label: "Covered Parking" },
+  { id: "lift", label: "Lift / Elevator" },
+  { id: "security247", label: "24/7 Security" },
+  { id: "cctv", label: "CCTV Surveillance" },
+  { id: "powerBackup", label: "Power Backup" },
+  { id: "gym", label: "Gym / Fitness Center" },
+  { id: "swimmingPool", label: "Swimming Pool" },
+  { id: "clubhouse", label: "Clubhouse" },
+  { id: "playArea", label: "Children's Play Area" },
+  { id: "garden", label: "Garden / Park" },
+  { id: "joggingTrack", label: "Jogging Track" },
+  { id: "visitorParking", label: "Visitor Parking" },
+  { id: "wifi", label: "Wi-Fi / Broadband Ready" },
+  { id: "smartHome", label: "Smart Home Features" }
 ];
 
 export default function LeasePMApartForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
   const [formData, setFormData] = useState({
-    // Property Management Details
-    companyName: "", officeAddress: "", contactPerson: "", phoneNumber: "", emailId: "",
-    // Property Details
-    propertyType: "Apartment", listingType: "Property Management", purpose: "Lease",
-    city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
+    // Business Details (Step 0)
+    pmCompanyName: "", pmBusinessRegNumber: "", pmReraNumber: "", pmGstNumber: "", pmYearsOfExperience: "", pmCompanyWebsite: "", pmCompanyLogo: null, pmCompanyDescription: "",
+    
+    // Authorized Representative (Step 1)
+    authFullName: "", authDesignation: "", authMobile: "", authEmail: "", authWhatsapp: "", authPhoto: null,
+    
+    // Office Address (Step 2)
+    officeAddress: "", officeCity: "", officeDistrict: "", officeState: "", officePinCode: "", officeLandmark: "",
+    
+    // Identity & Business Verification (Step 3)
+    aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, pmBusinessRegCert: null, pmGstCert: null, pmReraCert: null, officeAddressProof: null,
+    
+    // Property Details (Step 4)
+    propertyType: "Apartment",
+    area: "", landmark: "", nearbyConnectivity: "",
     builtUpAreaMin: "", builtUpAreaMax: "", carpetAreaMin: "", carpetAreaMax: "",
     bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
     facingDirection: "", balcony: "", propertyAge: "", cornerUnit: "",
-    currentStatus: "", selectedServices: [],
-    // Lease Details
-    leaseAmountMin: "", leaseAmountMax: "", refundableDepositMin: "", refundableDepositMax: "",
-    leaseDuration: "", maintenanceIncluded: "", leaseNegotiable: "",
-    ownershipType: "",
-    // Interior Details
     furnishing: "", modularKitchen: "", wardrobes: "", airConditioning: "",
     utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
-    // Tenant Preferences
+    
+    // Pricing & Amenities (Step 5)
+    leaseAmountMin: "", leaseAmountMax: "", budgetRange: { min: "", max: "" }, refundableDepositMin: "", refundableDepositMax: "",
+    leaseDuration: "", maintenanceIncluded: "", leaseNegotiable: "",
     tenantType: [], petFriendly: "", dietaryPreference: "", smokingAllowed: "",
-    // Amenities
     selectedAmenities: [], otherAmenities: "",
-    // Availability
     immediateOccupancy: "", availableFrom: "", leaseRenewalOption: "",
-    // Nearby Access
     nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
     nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
-    // Contact
-    contactVia: "", preferredContactTime: "",
-    // Media
-    propertyImages: [], propertyVideo: null,
-    // Documents - Property Management specific
-    ownershipDoc: null,
-    ownerIdProof: null,
-    managementAgreement: null
+    
+    // Bank Details (Step 6)
+    accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
+    
+    // Social Media (Step 7)
+    website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
+    
+    // Documents (Step 8)
+    pmCompanyLogoDoc: null, pmCompanyBrochure: null, pmBusinessRegCertDoc: null, pmReraCertDoc: null, pmGstCertDoc: null, aadhaarCardDoc: null, panCardDoc: null, officeAddressProofDoc: null,
+    propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
+    
+    // Declaration (Step 9)
+    declarationAccepted: false,
+    signature: null, signatureDate: "", signaturePlace: ""
   });
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreview, setVideoPreview] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
+  const [floorPlanPreview, setFloorPlanPreview] = useState(null);
   const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
-  const [customServicesList, setCustomServicesList] = useState([]);
-  const [ownershipDocPreview, setOwnershipDocPreview] = useState(null);
-  const [ownerIdProofPreview, setOwnerIdProofPreview] = useState(null);
-  const [managementAgreementPreview, setManagementAgreementPreview] = useState(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [signaturePoints, setSignaturePoints] = useState([]);
+  const [allSignaturePoints, setAllSignaturePoints] = useState([]);
+  const [activeCanvas, setActiveCanvas] = useState(null);
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -122,9 +127,10 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const newImages = [...formData.propertyImages, ...files];
+    const limitedFiles = files.slice(0, 3 - formData.propertyImages.length);
+    const newImages = [...formData.propertyImages, ...limitedFiles];
     updateForm("propertyImages", newImages);
-    const newPreviews = files.map(file => URL.createObjectURL(file));
+    const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
   };
 
@@ -136,9 +142,55 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
     setImagePreviews(newPreviews);
   };
 
+  const handleCoverImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Cover image must be less than 2MB");
+        return;
+      }
+      updateForm("coverImage", file);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeCoverImage = () => {
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    updateForm("coverImage", null);
+    setCoverPreview(null);
+  };
+
+  const handleFloorPlanUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert("Floor plan must be a PDF file");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Floor plan must be less than 5MB");
+        return;
+      }
+      updateForm("floorPlan", file);
+      if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
+      setFloorPlanPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeFloorPlan = () => {
+    if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
+    updateForm("floorPlan", null);
+    setFloorPlanPreview(null);
+  };
+
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Video must be less than 10MB");
+        return;
+      }
       updateForm("propertyVideo", file);
       if (videoPreview) URL.revokeObjectURL(videoPreview);
       setVideoPreview(URL.createObjectURL(file));
@@ -151,43 +203,18 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
     setVideoPreview(null);
   };
 
-  const handleDocumentUpload = (docType, e) => {
+  const handleDocumentUpload = (docType, e, maxSize = 5) => {
     const file = e.target.files[0];
     if (file) {
-      updateForm(docType, file);
-      if (docType === "ownershipDoc") {
-        if (ownershipDocPreview) URL.revokeObjectURL(ownershipDocPreview);
-        setOwnershipDocPreview(URL.createObjectURL(file));
-      } else if (docType === "ownerIdProof") {
-        if (ownerIdProofPreview) URL.revokeObjectURL(ownerIdProofPreview);
-        setOwnerIdProofPreview(URL.createObjectURL(file));
-      } else if (docType === "managementAgreement") {
-        if (managementAgreementPreview) URL.revokeObjectURL(managementAgreementPreview);
-        setManagementAgreementPreview(URL.createObjectURL(file));
+      if (file.type !== 'application/pdf') {
+        alert(`${docType} must be a PDF file`);
+        return;
       }
-    }
-  };
-
-  const removeDocument = (docType) => {
-    updateForm(docType, null);
-    if (docType === "ownershipDoc" && ownershipDocPreview) {
-      URL.revokeObjectURL(ownershipDocPreview);
-      setOwnershipDocPreview(null);
-    } else if (docType === "ownerIdProof" && ownerIdProofPreview) {
-      URL.revokeObjectURL(ownerIdProofPreview);
-      setOwnerIdProofPreview(null);
-    } else if (docType === "managementAgreement" && managementAgreementPreview) {
-      URL.revokeObjectURL(managementAgreementPreview);
-      setManagementAgreementPreview(null);
-    }
-  };
-
-  const toggleAmenity = (amenity) => {
-    const current = formData.selectedAmenities;
-    if (current.includes(amenity)) {
-      updateForm("selectedAmenities", current.filter(a => a !== amenity));
-    } else {
-      updateForm("selectedAmenities", [...current, amenity]);
+      if (file.size > maxSize * 1024 * 1024) {
+        alert(`${docType} must be less than ${maxSize}MB`);
+        return;
+      }
+      updateForm(docType, file);
     }
   };
 
@@ -197,15 +224,6 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
       updateForm("selectedAmenities", current.filter(id => id !== amenityId));
     } else {
       updateForm("selectedAmenities", [...current, amenityId]);
-    }
-  };
-
-  const toggleService = (service) => {
-    const current = formData.selectedServices;
-    if (current.includes(service)) {
-      updateForm("selectedServices", current.filter(s => s !== service));
-    } else {
-      updateForm("selectedServices", [...current, service]);
     }
   };
 
@@ -223,22 +241,68 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
     updateForm("selectedAmenities", formData.selectedAmenities.filter(a => a !== amenity));
   };
 
-  const addCustomService = () => {
-    const newService = formData.otherService?.trim();
-    if (newService && !formData.selectedServices.includes(newService) && !customServicesList.includes(newService)) {
-      setCustomServicesList([...customServicesList, newService]);
-      updateForm("selectedServices", [...formData.selectedServices, newService]);
-      updateForm("otherService", "");
+  const toggleArrayItem = (field, value) => {
+    const current = formData[field] || [];
+    if (current.includes(value)) {
+      updateForm(field, current.filter(v => v !== value));
+    } else {
+      updateForm(field, [...current, value]);
     }
   };
 
-  const removeCustomService = (service) => {
-    setCustomServicesList(customServicesList.filter(s => s !== service));
-    updateForm("selectedServices", formData.selectedServices.filter(s => s !== service));
+  // Signature handling
+  const startDrawing = (e, canvasId) => {
+    const canvas = document.getElementById(canvasId);
+    const rect = canvas.getBoundingClientRect();
+    setIsDrawing(true);
+    setActiveCanvas(canvasId);
+    const point = {
+      x: (e.clientX || e.touches[0].clientX) - rect.left,
+      y: (e.clientY || e.touches[0].clientY) - rect.top
+    };
+    setSignaturePoints([point]);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const canvas = document.getElementById(activeCanvas);
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const point = {
+      x: (e.clientX || e.touches[0].clientX) - rect.left,
+      y: (e.clientY || e.touches[0].clientY) - rect.top
+    };
+    setSignaturePoints([...signaturePoints, point]);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    if (signaturePoints.length > 1 && activeCanvas) {
+      setAllSignaturePoints([...allSignaturePoints, [...signaturePoints]]);
+      const canvas = document.getElementById(activeCanvas);
+      const ctx = canvas.getContext('2d');
+      const dataUrl = canvas.toDataURL('image/png');
+      updateForm('signature', dataUrl);
+    }
+    setActiveCanvas(null);
+  };
+
+  const clearSignature = () => {
+    setSignaturePoints([]);
+    setAllSignaturePoints([]);
+    updateForm('signature', null);
+    ['signatureCanvas', 'm-signatureCanvas', 'dt-signatureCanvas'].forEach(id => {
+      const canvas = document.getElementById(id);
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
   };
 
   const handleSubmit = () => {
-    console.log("Lease Property Management Apartment Form submitted:", formData);
+    updateForm('signatureDate', new Date().toLocaleDateString());
+    console.log("Apartment Lease PM Form submitted:", formData);
     onClose();
   };
 
@@ -257,8 +321,8 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏢</div>
-            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Lease Apartment - Property Management</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List apartment for lease by property management</p>
+            <h1 className="text-[13px] font-extrabold text-white tracking-wide relative z-10 text-center">Apartment Lease - Property Management</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5 text-center">List your apartment for lease</p>
           </div>
 
           <div className="text-center px-3 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -290,28 +354,31 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              removeDocument={removeDocument}
-              ownershipDocPreview={ownershipDocPreview}
-              ownerIdProofPreview={ownerIdProofPreview}
-              managementAgreementPreview={managementAgreementPreview}
-              toggleAmenity={toggleAmenity}
               toggleApartmentAmenity={toggleApartmentAmenity}
-              toggleService={toggleService}
-              availableAmenities={availableAmenities}
-              availableServices={availableServices}
               customAmenitiesList={customAmenitiesList}
-              customServicesList={customServicesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              addCustomService={addCustomService}
-              removeCustomService={removeCustomService}
               yesNoOptions={yesNoOptions}
-              furnishingOptions={furnishingOptions}
+              handleCoverImageUpload={handleCoverImageUpload}
+              handleFloorPlanUpload={handleFloorPlanUpload}
+              coverPreview={coverPreview}
+              floorPlanPreview={floorPlanPreview}
+              removeCoverImage={removeCoverImage}
+              removeFloorPlan={removeFloorPlan}
+              startDrawing={startDrawing}
+              draw={draw}
+              stopDrawing={stopDrawing}
+              clearSignature={clearSignature}
+              signaturePoints={signaturePoints}
+              allSignaturePoints={allSignaturePoints}
+              setAllSignaturePoints={setAllSignaturePoints}
+              toggleArrayItem={toggleArrayItem}
+              apartmentLeaseAmenities={apartmentLeaseAmenities}
               facingOptions={facingOptions}
+              furnishingOptions={furnishingOptions}
               tenantTypeOptions={tenantTypeOptions}
               leaseDurationOptions={leaseDurationOptions}
               contactTimeOptions={contactTimeOptions}
-              apartmentLeaseAmenities={apartmentLeaseAmenities}
             />
           </div>
 
@@ -360,8 +427,8 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
             </button>
             <button onClick={onClose} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center z-10 text-white font-bold text-[11px]">✕</button>
             <div className="text-xl mb-0.5 relative z-10">🏢</div>
-            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Lease Apartment - Property Management</h1>
-            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List apartment for lease by property management</p>
+            <h1 className="text-[14px] font-extrabold text-white tracking-wide relative z-10">Apartment Lease - Property Management</h1>
+            <p className="text-[10px] text-white/80 relative z-10 mt-0.5">List your apartment for lease</p>
           </div>
 
           <div className="text-center px-4 py-1.5 bg-gradient-to-r from-teal-50 to-emerald-100 border-b border-teal-200 shrink-0">
@@ -393,28 +460,31 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              removeDocument={removeDocument}
-              ownershipDocPreview={ownershipDocPreview}
-              ownerIdProofPreview={ownerIdProofPreview}
-              managementAgreementPreview={managementAgreementPreview}
-              toggleAmenity={toggleAmenity}
               toggleApartmentAmenity={toggleApartmentAmenity}
-              toggleService={toggleService}
-              availableAmenities={availableAmenities}
-              availableServices={availableServices}
               customAmenitiesList={customAmenitiesList}
-              customServicesList={customServicesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              addCustomService={addCustomService}
-              removeCustomService={removeCustomService}
               yesNoOptions={yesNoOptions}
-              furnishingOptions={furnishingOptions}
+              handleCoverImageUpload={handleCoverImageUpload}
+              handleFloorPlanUpload={handleFloorPlanUpload}
+              coverPreview={coverPreview}
+              floorPlanPreview={floorPlanPreview}
+              removeCoverImage={removeCoverImage}
+              removeFloorPlan={removeFloorPlan}
+              startDrawing={startDrawing}
+              draw={draw}
+              stopDrawing={stopDrawing}
+              clearSignature={clearSignature}
+              signaturePoints={signaturePoints}
+              allSignaturePoints={allSignaturePoints}
+              setAllSignaturePoints={setAllSignaturePoints}
+              toggleArrayItem={toggleArrayItem}
+              apartmentLeaseAmenities={apartmentLeaseAmenities}
               facingOptions={facingOptions}
+              furnishingOptions={furnishingOptions}
               tenantTypeOptions={tenantTypeOptions}
               leaseDurationOptions={leaseDurationOptions}
               contactTimeOptions={contactTimeOptions}
-              apartmentLeaseAmenities={apartmentLeaseAmenities}
             />
           </div>
 
@@ -454,42 +524,257 @@ export default function LeasePMApartForm({ isOpen, onClose }) {
   );
 }
 
-// MOBILE CONTENT - Lease Property Management Apartment
-function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeDocument, ownershipDocPreview, ownerIdProofPreview, managementAgreementPreview, toggleAmenity, toggleApartmentAmenity, toggleService, availableAmenities, availableServices, customAmenitiesList, customServicesList, addCustomAmenity, removeCustomAmenity, addCustomService, removeCustomService, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, leaseDurationOptions, contactTimeOptions, apartmentLeaseAmenities }) {
+// MOBILE CONTENT - LEASE PM APARTMENT
+function MobContentLeasePMApart({ 
+  step, inp, formData, updateForm, 
+  imagePreviews, handleImageUpload, removeImage, 
+  handleVideoUpload, videoPreview, removeVideo, 
+  handleDocumentUpload, toggleApartmentAmenity,
+  customAmenitiesList, addCustomAmenity, removeCustomAmenity, 
+  yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, 
+  coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, 
+  startDrawing, draw, stopDrawing, clearSignature, 
+  signaturePoints, allSignaturePoints, setAllSignaturePoints,
+  toggleArrayItem, apartmentLeaseAmenities, facingOptions, 
+  furnishingOptions, tenantTypeOptions, leaseDurationOptions, contactTimeOptions 
+}) {
   const ta = `${inp} resize-y`;
+  const signatureCanvasRef = useRef(null);
 
-  const toggleArrayItem = (field, value) => {
-    const current = formData[field] || [];
-    if (current.includes(value)) {
-      updateForm(field, current.filter(v => v !== value));
-    } else {
-      updateForm(field, [...current, value]);
+  useEffect(() => {
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      allSignaturePoints.forEach(stroke => {
+        if (stroke.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#00695C';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          stroke.forEach((point, index) => {
+            if (index === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x, point.y);
+            }
+          });
+          ctx.stroke();
+        }
+      });
+      
+      if (signaturePoints.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#00695C';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        signaturePoints.forEach((point, index) => {
+          if (index === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        });
+        ctx.stroke();
+      }
     }
-  };
+  }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Property Management Details
+  // STEP 0: Business Details
   if (step === 0) return (
     <>
-      <Field label="Company/Property Management Name" required>
-        <input className={inp} placeholder="Enter company/property management name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <Field label="Property Management Company Name" required>
+        <input className={inp} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
       </Field>
-      <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[65px]`} placeholder="Enter office address (Street, Area, City, State, PIN)" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <Field label="Business Registration Number" required>
+        <input className={inp} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
       </Field>
-      <Field label="Contact Person Name" required>
-        <input className={inp} placeholder="Enter contact person name" value={formData.contactPerson} onChange={(e) => updateForm("contactPerson", e.target.value)} />
+      <Field label="RERA Registration Number (If Applicable)">
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
       </Field>
-      <Field label="Phone Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.phoneNumber} onChange={(e) => updateForm("phoneNumber", e.target.value)} />
+      <Field label="GST Number (Optional)">
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
       </Field>
-      <Field label="Email ID" required hint="We'll send listing updates to this email">
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+      <Field label="Years of Experience" required>
+        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      </Field>
+      <Field label="Company Website (Optional)">
+        <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
+      </Field>
+      <Field label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-pm-logo" onChange={(e) => handleDocumentUpload("pmCompanyLogo", e, 2)} />
+          <label htmlFor="m-pm-logo" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyLogo && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmCompanyLogo.name}</p>}
+      </Field>
+      <Field label="Company Description" required>
+        <textarea className={`${ta} min-h-[60px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </Field>
     </>
   );
 
-  // STEP 1: Property Details
+  // STEP 1: Authorized Representative
   if (step === 1) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Representative</h3>
+      </div>
+      <Field label="Full Name" required>
+        <input className={inp} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      </Field>
+      <Field label="Designation" required>
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      </Field>
+      <Field label="Mobile Number" required>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      </Field>
+      <Field label="Email Address" required>
+        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      </Field>
+      <Field label="WhatsApp Number">
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+      </Field>
+      <Field label="Profile Photo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <label htmlFor="m-authphoto" className="cursor-pointer flex flex-col items-center">
+            <User className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.authPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authPhoto.name}</p>}
+      </Field>
+    </>
+  );
+
+  // STEP 2: Office Address
+  if (step === 2) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
+      </div>
+      <Field label="Office Address" required>
+        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      </Field>
+      <Field label="City" required>
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      </Field>
+      <Field label="District" required>
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      </Field>
+      <Field label="State" required>
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      </Field>
+      <Field label="PIN Code" required>
+        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      </Field>
+      <Field label="Landmark">
+        <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 3: Identity & Business Verification
+  if (step === 3) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
+      </div>
+      <Field label="Aadhaar Number" required>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      </Field>
+      <Field label="PAN Number" required>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      </Field>
+
+      <Field label="Upload Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-aadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
+          <label htmlFor="m-aadhaar" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Aadhaar</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
+      </Field>
+
+      <Field label="Upload PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pan" onChange={(e) => handleDocumentUpload("panCard", e)} />
+          <label htmlFor="m-pan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload PAN</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
+      </Field>
+
+      <Field label="Upload Business Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-reg" onChange={(e) => handleDocumentUpload("pmBusinessRegCert", e)} />
+          <label htmlFor="m-pm-reg" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Registration</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmBusinessRegCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmBusinessRegCert.name}</p>}
+      </Field>
+
+      <Field label="Upload GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-gst" onChange={(e) => handleDocumentUpload("pmGstCert", e)} />
+          <label htmlFor="m-pm-gst" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload GST</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmGstCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmGstCert.name}</p>}
+      </Field>
+
+      <Field label="Upload RERA Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-rera" onChange={(e) => handleDocumentUpload("pmReraCert", e)} />
+          <label htmlFor="m-pm-rera" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload RERA</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmReraCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmReraCert.name}</p>}
+      </Field>
+
+      <Field label="Upload Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
+          <label htmlFor="m-office-proof" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-6 h-6 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Address Proof</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProof && <p className="text-[10px] text-green-600 mt-1">✓ {formData.officeAddressProof.name}</p>}
+      </Field>
+    </>
+  );
+
+  // STEP 4: Property Details
+  if (step === 4) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -516,7 +801,14 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <h3 className="text-[11px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
       <Field label="Property Type" required>
-        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+        <div className="grid grid-cols-2 gap-1">
+          {["Serviced Apartment", "Residential Apartment", "Gated Community Studio", "Luxury Apartment", "Duplex Apartment", "Condo Apartment", "Penthouse Apartment"].map(type => (
+            <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-property-type" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
+              {type}
+            </label>
+          ))}
+        </div>
       </Field>
       <Field label="Built-up Area" hint="In square feet">
         <div className="flex gap-1">
@@ -533,7 +825,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
       <Field label="Number of Bedrooms">
         {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
           <label key={bhk} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-bhk-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+            <input type="radio" name="mob-bhk" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
             {bhk}
           </label>
         ))}
@@ -541,7 +833,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
       <Field label="Number of Bathrooms">
         {["1", "2", "3", "4+"].map(b => (
           <label key={b} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-bath-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+            <input type="radio" name="mob-bath" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
             {b}
           </label>
         ))}
@@ -556,7 +848,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="grid grid-cols-2 gap-1">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-facing-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="mob-facing" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -566,7 +858,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-balcony-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="mob-balcony" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -579,41 +871,10 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-corner-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              <input type="radio" name="mob-corner" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
               {opt}
             </label>
           ))}
-        </div>
-      </Field>
-
-      <Field label="Current Status" required>
-        {["Vacant", "Occupied", "Under Maintenance"].map(t => (
-          <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
-            <input type="radio" name="mob-status-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.currentStatus === t} onChange={() => updateForm("currentStatus", t)} />
-            {t}
-          </label>
-        ))}
-      </Field>
-
-      <Field label="Management Service Requirement">
-        <div className="flex flex-wrap gap-1 mt-0.5">
-          {availableServices.map(s => (
-            <span key={s} onClick={() => toggleService(s)} className={`px-1.5 py-0.5 text-[10px] rounded-full border cursor-pointer transition-all ${formData.selectedServices.includes(s) ? 'bg-[#00695C] text-white border-[#00695C]' : 'bg-teal-50 text-[#00695C] border-teal-200 hover:bg-teal-100'}`}>
-              {s}
-            </span>
-          ))}
-          {customServicesList.map(s => (
-            <span key={s} className="px-1.5 py-0.5 text-[10px] bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
-              {s}
-              <X className="w-2.5 h-2.5 cursor-pointer hover:text-red-200" onClick={() => removeCustomService(s)} />
-            </span>
-          ))}
-        </div>
-      </Field>
-      <Field label="Other Services">
-        <div className="flex gap-1">
-          <input className={`${inp} flex-1`} placeholder="e.g. Property valuation..." value={formData.otherService} onChange={(e) => updateForm("otherService", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomService()} />
-          <button onClick={addCustomService} className="px-2 py-1 text-[11px] bg-[#00695C] text-white rounded-lg">Add</button>
         </div>
       </Field>
 
@@ -625,7 +886,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="grid grid-cols-2 gap-1">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-furnish-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              <input type="radio" name="mob-furnish" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
               {f}
             </label>
           ))}
@@ -633,12 +894,15 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
       </Field>
       <Field label="Interior Features">
         <div className="grid grid-cols-2 gap-1">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
-            <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[feature.toLowerCase().replace(/ /g, '')] === "yes"} onChange={() => updateForm(feature.toLowerCase().replace(/ /g, ''), formData[feature.toLowerCase().replace(/ /g, '')] === "yes" ? "no" : "yes")} />
-              {feature}
-            </label>
-          ))}
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => {
+            const key = feature.toLowerCase().replace(/ /g, '');
+            return (
+              <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
+                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] === "yes"} onChange={() => updateForm(key, formData[key] === "yes" ? "no" : "yes")} />
+                {feature}
+              </label>
+            );
+          })}
         </div>
       </Field>
       <Field label="Appliances Included">
@@ -647,8 +911,8 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
     </>
   );
 
-  // STEP 2: Pricing & Amenities
-  if (step === 2) return (
+  // STEP 5: Pricing & Amenities
+  if (step === 5) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -660,6 +924,14 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
           <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.leaseAmountMax} onChange={(e) => updateForm("leaseAmountMax", e.target.value)} />
         </div>
       </Field>
+      
+      <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
+        <div className="flex gap-1">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+        </div>
+      </Field>
+
       <Field label="Refundable Deposit">
         <div className="flex gap-1">
           <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.refundableDepositMin} onChange={(e) => updateForm("refundableDepositMin", e.target.value)} />
@@ -670,7 +942,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="grid grid-cols-2 gap-1">
           {leaseDurationOptions.map(d => (
             <label key={d} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-duration-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
+              <input type="radio" name="mob-duration" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
               {d}
             </label>
           ))}
@@ -680,7 +952,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-maint-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.maintenanceIncluded === opt} onChange={() => updateForm("maintenanceIncluded", opt)} />
+              <input type="radio" name="mob-maint" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.maintenanceIncluded === opt} onChange={() => updateForm("maintenanceIncluded", opt)} />
               {opt}
             </label>
           ))}
@@ -690,7 +962,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-negotiable-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseNegotiable === opt} onChange={() => updateForm("leaseNegotiable", opt)} />
+              <input type="radio" name="mob-negotiable" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseNegotiable === opt} onChange={() => updateForm("leaseNegotiable", opt)} />
               {opt}
             </label>
           ))}
@@ -715,7 +987,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-pet-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.petFriendly === opt} onChange={() => updateForm("petFriendly", opt)} />
+              <input type="radio" name="mob-pet" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.petFriendly === opt} onChange={() => updateForm("petFriendly", opt)} />
               {opt}
             </label>
           ))}
@@ -725,7 +997,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {["Veg Only", "No Restriction"].map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-diet-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.dietaryPreference === opt} onChange={() => updateForm("dietaryPreference", opt)} />
+              <input type="radio" name="mob-diet" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.dietaryPreference === opt} onChange={() => updateForm("dietaryPreference", opt)} />
               {opt}
             </label>
           ))}
@@ -735,7 +1007,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-smoking-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.smokingAllowed === opt} onChange={() => updateForm("smokingAllowed", opt)} />
+              <input type="radio" name="mob-smoking" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.smokingAllowed === opt} onChange={() => updateForm("smokingAllowed", opt)} />
               {opt}
             </label>
           ))}
@@ -751,7 +1023,6 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
           {apartmentLeaseAmenities.map(amenity => (
             <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
               <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleApartmentAmenity(amenity.id)} />
-              {amenity.icon}
               {amenity.label}
             </label>
           ))}
@@ -780,7 +1051,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-occupancy-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediateOccupancy === opt} onChange={() => updateForm("immediateOccupancy", opt)} />
+              <input type="radio" name="mob-occupancy" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediateOccupancy === opt} onChange={() => updateForm("immediateOccupancy", opt)} />
               {opt}
             </label>
           ))}
@@ -793,7 +1064,7 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-renewal-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseRenewalOption === opt} onChange={() => updateForm("leaseRenewalOption", opt)} />
+              <input type="radio" name="mob-renewal" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseRenewalOption === opt} onChange={() => updateForm("leaseRenewalOption", opt)} />
               {opt}
             </label>
           ))}
@@ -817,189 +1088,564 @@ function MobContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews
           })}
         </div>
       </Field>
+    </>
+  );
 
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+  // STEP 6: Bank Details
+  if (step === 6) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <Field label="Contact via">
-        <div className="flex gap-4">
-          {["Owner", "Agent", "Builder", "Property Management"].map(opt => (
-            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-contact-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
+      <Field label="Account Holder Name" required>
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </Field>
-      <Field label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-1">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="radio" name="mob-time-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
+      <Field label="Bank Name" required>
+        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      </Field>
+      <Field label="Account Number" required>
+        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      </Field>
+      <Field label="IFSC Code" required>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      </Field>
+      <Field label="UPI ID">
+        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
       </Field>
     </>
   );
 
-  // STEP 3: Media Upload
-  if (step === 3) return (
+  // STEP 7: Social Media
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Media Upload</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
       </div>
-      <p className="text-[10px] text-center text-gray-400 mb-2">📸 Minimum 3 property images required</p>
-      <Field label="Property Images" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-leasepmapart" onChange={handleImageUpload} />
-          <label htmlFor="m-imgs-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <ImagePlus className="mb-1 w-7 h-7 text-[#00695C]" />
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Property Photos</span>
-            <span className="text-[10px] text-gray-400">JPG, PNG supported</span>
+      <Field label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </Field>
+      <Field label="Facebook">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </Field>
+      <Field label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </Field>
+      <Field label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </Field>
+      <Field label="YouTube">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 8: Documents
+  if (step === 8) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Upload Documents</h3>
+      </div>
+      <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
+
+      <Field label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-pm-logo-doc" onChange={(e) => handleDocumentUpload("pmCompanyLogoDoc", e, 2)} />
+          <label htmlFor="m-pm-logo-doc" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmCompanyLogoDoc.name}</p>}
+      </Field>
+
+      <Field label="Business Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-reg-doc" onChange={(e) => handleDocumentUpload("pmBusinessRegCertDoc", e)} />
+          <label htmlFor="m-pm-reg-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Registration</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmBusinessRegCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmBusinessRegCertDoc.name}</p>}
+      </Field>
+
+      <Field label="Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-aadhaar-doc" onChange={(e) => handleDocumentUpload("aadhaarCardDoc", e)} />
+          <label htmlFor="m-aadhaar-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Aadhaar</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCardDoc.name}</p>}
+      </Field>
+
+      <Field label="PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
+          <label htmlFor="m-pan-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload PAN</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCardDoc.name}</p>}
+      </Field>
+
+      <Field label="GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-gst-doc" onChange={(e) => handleDocumentUpload("pmGstCertDoc", e)} />
+          <label htmlFor="m-pm-gst-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload GST</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmGstCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmGstCertDoc.name}</p>}
+      </Field>
+
+      <Field label="RERA Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-rera-doc" onChange={(e) => handleDocumentUpload("pmReraCertDoc", e)} />
+          <label htmlFor="m-pm-rera-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload RERA</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmReraCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmReraCertDoc.name}</p>}
+      </Field>
+
+      <Field label="Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-office-proof-doc" onChange={(e) => handleDocumentUpload("officeAddressProofDoc", e)} />
+          <label htmlFor="m-office-proof-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Address Proof</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProofDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.officeAddressProofDoc.name}</p>}
+      </Field>
+
+      <Field label="Company Profile/Brochure (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-pm-brochure" onChange={(e) => handleDocumentUpload("pmCompanyBrochure", e)} />
+          <label htmlFor="m-pm-brochure" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Brochure</span>
+            <span className="text-[9px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyBrochure && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmCompanyBrochure.name}</p>}
+      </Field>
+
+      {/* Media Upload for Property */}
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Property Media</h3>
+      </div>
+      <Field label="Upload Cover Image" required hint="Max 2MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="m-cover" onChange={handleCoverImageUpload} />
+          <label htmlFor="m-cover" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Cover</span>
+            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {coverPreview && (
+          <div className="mt-1 relative">
+            <img src={coverPreview} alt="Cover" className="w-full h-16 object-cover rounded-lg" />
+            <button onClick={removeCoverImage} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </Field>
+
+      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" multiple className="hidden" id="m-imgs" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
+          <label htmlFor="m-imgs" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <ImagePlus className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Photos</span>
+            <span className="text-[9px] text-gray-400">Max 3 photos</span>
           </label>
         </div>
         {imagePreviews.length > 0 && (
-          <div className="mt-2 grid grid-cols-3 gap-1">
+          <div className="mt-1 grid grid-cols-3 gap-1">
             {imagePreviews.map((preview, idx) => (
               <div key={idx} className="relative">
-                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-16 object-cover rounded-lg" />
+                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-14 object-cover rounded-lg" />
                 <button onClick={() => removeImage(idx)} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
               </div>
             ))}
           </div>
         )}
       </Field>
-      <Field label="Property Video">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid-leasepmapart" onChange={handleVideoUpload} />
-          <label htmlFor="m-vid-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <Video className="mb-1 w-7 h-7 text-[#00695C]" />
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Video Tour</span>
-            <span className="text-[10px] text-gray-400">MP4 or MOV</span>
+
+      <Field label="Upload Property Video (Optional)" hint="Max 10MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="m-vid" onChange={handleVideoUpload} />
+          <label htmlFor="m-vid" className="cursor-pointer flex flex-col items-center">
+            <Video className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Video</span>
+            <span className="text-[9px] text-gray-400">MP4/MOV (Max 10MB)</span>
           </label>
         </div>
         {videoPreview && (
-          <div className="mt-2 relative">
-            <video src={videoPreview} controls className="w-full h-24 object-cover rounded-lg" />
-            <button onClick={removeVideo} className="absolute top-1 right-1 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          <div className="mt-1 relative">
+            <video src={videoPreview} controls className="w-full h-20 object-cover rounded-lg" />
+            <button onClick={removeVideo} className="absolute top-0 right-0 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </Field>
+
+      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="m-floorplan" onChange={handleFloorPlanUpload} />
+          <label htmlFor="m-floorplan" className="cursor-pointer flex flex-col items-center">
+            <Home className="w-5 h-5 text-[#00695C]" />
+            <span className="text-[10px] font-semibold text-[#00695C]">Upload Floor Plan</span>
+            <span className="text-[9px] text-gray-400">PDF only</span>
+          </label>
+        </div>
+        {floorPlanPreview && (
+          <div className="mt-1 relative">
+            <p className="text-[10px] text-green-600">✓ {formData.floorPlan?.name}</p>
+            <button onClick={removeFloorPlan} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
       </Field>
     </>
   );
 
-  // STEP 4: Document Upload - Property Management Version
-  if (step === 4) return (
+  // STEP 9: Declaration
+  if (step === 9) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Documents To Upload</h3>
+        <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <p className="text-[9px] text-gray-400 text-center mb-2">Upload required documents for verification</p>
 
-      {/* Property Ownership Document */}
-      <Field label="Property Ownership Document" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-ownership-leasepmapart" onChange={(e) => handleDocumentUpload("ownershipDoc", e)} />
-          <label htmlFor="m-ownership-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Property Ownership Document</span>
-            <span className="text-[9px] text-gray-400">Upload property papers, registry etc.</span>
-          </label>
-        </div>
-        {ownershipDocPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.ownershipDoc?.name}</p>
-            <button onClick={() => removeDocument("ownershipDoc")} className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center">✕</button>
-          </div>
-        )}
+      <div className="space-y-1.5">
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I confirm that I am the authorized representative of this property management company.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Signature</h3>
+      </div>
+      <label className="flex items-center gap-2 text-[10px] font-semibold text-[#00695C] mb-1">
+        <PenTool className="w-3.5 h-3.5" /> Authorized Signatory <span className="text-red-500">*</span>
+      </label>
+      <p className="text-[10px] text-gray-500 mb-1.5">Draw your signature in the box below</p>
+      <div className="relative">
+        <canvas
+          id="m-signatureCanvas"
+          ref={signatureCanvasRef}
+          width="400"
+          height="100"
+          className="signature-canvas w-full h-24 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          onMouseDown={(e) => startDrawing(e, 'm-signatureCanvas')}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={(e) => startDrawing(e, 'm-signatureCanvas')}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+        <button
+          type="button"
+          onClick={clearSignature}
+          className="absolute top-1 right-1 bg-[#00695C] text-white px-2 py-0.5 rounded text-[10px] hover:bg-[#004d42] transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <Field label="Date" required>
+        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
-
-      {/* ID Proof of Owner */}
-      <Field label="ID Proof of Owner" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-ownerid-leasepmapart" onChange={(e) => handleDocumentUpload("ownerIdProof", e)} />
-          <label htmlFor="m-ownerid-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload ID Proof of Owner</span>
-            <span className="text-[9px] text-gray-400">Upload Aadhar, PAN, Passport etc.</span>
-          </label>
-        </div>
-        {ownerIdProofPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.ownerIdProof?.name}</p>
-            <button onClick={() => removeDocument("ownerIdProof")} className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center">✕</button>
-          </div>
-        )}
-      </Field>
-
-      {/* Management Agreement/Authorization Letter */}
-      <Field label="Management Agreement/Authorization Letter" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="m-agreement-leasepmapart" onChange={(e) => handleDocumentUpload("managementAgreement", e)} />
-          <label htmlFor="m-agreement-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center mb-1">
-              <Upload className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-semibold text-[#00695C]">Upload Management Agreement/Authorization Letter</span>
-            <span className="text-[9px] text-gray-400">Upload signed management agreement</span>
-          </label>
-        </div>
-        {managementAgreementPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[9px] text-green-600 truncate">{formData.managementAgreement?.name}</p>
-            <button onClick={() => removeDocument("managementAgreement")} className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[8px] flex items-center justify-center">✕</button>
-          </div>
-        )}
+      <Field label="Place" required>
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </Field>
     </>
   );
+
+  return null;
 }
 
-// DESKTOP CONTENT - Lease Property Management Apartment
-function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, removeDocument, ownershipDocPreview, ownerIdProofPreview, managementAgreementPreview, toggleAmenity, toggleApartmentAmenity, toggleService, availableAmenities, availableServices, customAmenitiesList, customServicesList, addCustomAmenity, removeCustomAmenity, addCustomService, removeCustomService, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, leaseDurationOptions, contactTimeOptions, apartmentLeaseAmenities }) {
+// DESKTOP CONTENT - LEASE PM APARTMENT
+function DtContentLeasePMApart({ 
+  step, inp, formData, updateForm, 
+  imagePreviews, handleImageUpload, removeImage, 
+  handleVideoUpload, videoPreview, removeVideo, 
+  handleDocumentUpload, toggleApartmentAmenity,
+  customAmenitiesList, addCustomAmenity, removeCustomAmenity, 
+  yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, 
+  coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, 
+  startDrawing, draw, stopDrawing, clearSignature, 
+  signaturePoints, allSignaturePoints, setAllSignaturePoints,
+  toggleArrayItem, apartmentLeaseAmenities, facingOptions, 
+  furnishingOptions, tenantTypeOptions, leaseDurationOptions, contactTimeOptions 
+}) {
   const ta = `${inp} resize-y`;
+  const signatureCanvasRef = useRef(null);
 
-  const toggleArrayItem = (field, value) => {
-    const current = formData[field] || [];
-    if (current.includes(value)) {
-      updateForm(field, current.filter(v => v !== value));
-    } else {
-      updateForm(field, [...current, value]);
+  useEffect(() => {
+    const canvas = signatureCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      allSignaturePoints.forEach(stroke => {
+        if (stroke.length > 1) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#00695C';
+          ctx.lineWidth = 2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          stroke.forEach((point, index) => {
+            if (index === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x, point.y);
+            }
+          });
+          ctx.stroke();
+        }
+      });
+      
+      if (signaturePoints.length > 1) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#00695C';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        signaturePoints.forEach((point, index) => {
+          if (index === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        });
+        ctx.stroke();
+      }
     }
-  };
+  }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Property Management Details
+  // STEP 0: Business Details
   if (step === 0) return (
     <>
-      <FieldDt label="Company/Property Management Name" required>
-        <input className={inp} placeholder="Enter company/property management name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <FieldDt label="Property Management Company Name" required>
+        <input className={inp} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[80px]`} placeholder="Enter office address (Street, Area, City, State, PIN)" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <FieldDt label="Business Registration Number" required>
+        <input className={inp} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Contact Person Name" required>
-        <input className={inp} placeholder="Enter contact person name" value={formData.contactPerson} onChange={(e) => updateForm("contactPerson", e.target.value)} />
+      <FieldDt label="RERA Registration Number (If Applicable)">
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Phone Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.phoneNumber} onChange={(e) => updateForm("phoneNumber", e.target.value)} />
+      <FieldDt label="GST Number (Optional)">
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Email ID" required hint="We'll send listing updates to this email">
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+      <FieldDt label="Years of Experience" required>
+        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Company Website (Optional)">
+        <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-pm-logo" onChange={(e) => handleDocumentUpload("pmCompanyLogo", e, 2)} />
+          <label htmlFor="dt-pm-logo" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Logo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyLogo && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmCompanyLogo.name}</p>}
+      </FieldDt>
+      <FieldDt label="Company Description" required>
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 1: Property Details
+  // STEP 1: Authorized Representative
   if (step === 1) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Representative</h3>
+      </div>
+      <FieldDt label="Full Name" required>
+        <input className={inp} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Designation" required>
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Mobile Number" required>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Email Address" required>
+        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="WhatsApp Number">
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Profile Photo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <label htmlFor="dt-authphoto" className="cursor-pointer flex flex-col items-center">
+            <User className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.authPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authPhoto.name}</p>}
+      </FieldDt>
+    </>
+  );
+
+  // STEP 2: Office Address
+  if (step === 2) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
+      </div>
+      <FieldDt label="Office Address" required>
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="City" required>
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="District" required>
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="State" required>
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="PIN Code" required>
+        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Landmark">
+        <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 3: Identity & Business Verification
+  if (step === 3) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
+      </div>
+      <FieldDt label="Aadhaar Number" required>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="PAN Number" required>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      </FieldDt>
+
+      <FieldDt label="Upload Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-aadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
+          <label htmlFor="dt-aadhaar" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Aadhaar Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pan" onChange={(e) => handleDocumentUpload("panCard", e)} />
+          <label htmlFor="dt-pan" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload PAN Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload Business Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-reg" onChange={(e) => handleDocumentUpload("pmBusinessRegCert", e)} />
+          <label htmlFor="dt-pm-reg" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Registration Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmBusinessRegCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmBusinessRegCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-gst" onChange={(e) => handleDocumentUpload("pmGstCert", e)} />
+          <label htmlFor="dt-pm-gst" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload GST Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmGstCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmGstCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload RERA Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-rera" onChange={(e) => handleDocumentUpload("pmReraCert", e)} />
+          <label htmlFor="dt-pm-rera" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload RERA Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmReraCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmReraCert.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Upload Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
+          <label htmlFor="dt-office-proof" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Address Proof</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProof && <p className="text-[13px] text-green-600 mt-2">✓ {formData.officeAddressProof.name}</p>}
+      </FieldDt>
+    </>
+  );
+
+  // STEP 4: Property Details
+  if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1026,7 +1672,14 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[14px] font-bold text-[#00695C]">🏠 Property Details</h3>
       </div>
       <FieldDt label="Property Type" required>
-        <input className={inp} placeholder="Apartment" value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
+        <div className="grid grid-cols-2 gap-2">
+          {["Serviced Apartment", "Residential Apartment", "Gated Community Studio", "Luxury Apartment", "Duplex Apartment", "Condo Apartment", "Penthouse Apartment"].map(type => (
+            <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-property-type" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
+              {type}
+            </label>
+          ))}
+        </div>
       </FieldDt>
       <FieldDt label="Built-up Area" hint="In square feet">
         <div className="flex gap-2">
@@ -1044,7 +1697,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex flex-wrap gap-3">
           {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
             <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bhk-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
+              <input type="radio" name="dt-bhk" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
               {bhk}
             </label>
           ))}
@@ -1054,7 +1707,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex flex-wrap gap-3">
           {["1", "2", "3", "4+"].map(b => (
             <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bath-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
+              <input type="radio" name="dt-bath" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
               {b}
             </label>
           ))}
@@ -1070,7 +1723,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="grid grid-cols-4 gap-2">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-facing-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="dt-facing" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -1080,7 +1733,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-balcony-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="dt-balcony" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -1093,43 +1746,10 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-corner-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
+              <input type="radio" name="dt-corner" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.cornerUnit === opt} onChange={() => updateForm("cornerUnit", opt)} />
               {opt}
             </label>
           ))}
-        </div>
-      </FieldDt>
-
-      <FieldDt label="Current Status" required>
-        <div className="flex gap-5">
-          {["Vacant", "Occupied", "Under Maintenance"].map(t => (
-            <label key={t} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-status-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.currentStatus === t} onChange={() => updateForm("currentStatus", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-
-      <FieldDt label="Management Service Requirement">
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {availableServices.map(s => (
-            <span key={s} onClick={() => toggleService(s)} className={`px-2 py-1 text-xs sm:text-sm rounded-full border cursor-pointer transition-all ${formData.selectedServices.includes(s) ? 'bg-[#00695C] text-white border-[#00695C]' : 'bg-teal-50 text-[#00695C] border-teal-200 hover:bg-teal-100'}`}>
-              {s}
-            </span>
-          ))}
-          {customServicesList.map(s => (
-            <span key={s} className="px-2 py-1 text-xs sm:text-sm bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
-              {s}
-              <X className="w-3 h-3 cursor-pointer hover:text-red-200" onClick={() => removeCustomService(s)} />
-            </span>
-          ))}
-        </div>
-      </FieldDt>
-      <FieldDt label="Other Services">
-        <div className="flex gap-2">
-          <input className={inp} placeholder="e.g. Property valuation..." value={formData.otherService} onChange={(e) => updateForm("otherService", e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addCustomService()} />
-          <button onClick={addCustomService} className="px-3 py-1 text-sm bg-[#00695C] text-white rounded-lg hover:bg-[#004d42] transition-colors">Add</button>
         </div>
       </FieldDt>
 
@@ -1141,7 +1761,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex flex-wrap gap-3">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-furnish-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
+              <input type="radio" name="dt-furnish" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishing === f} onChange={() => updateForm("furnishing", f)} />
               {f}
             </label>
           ))}
@@ -1166,8 +1786,8 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
     </>
   );
 
-  // STEP 2: Pricing & Amenities
-  if (step === 2) return (
+  // STEP 5: Pricing & Amenities
+  if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1179,6 +1799,14 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
           <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.leaseAmountMax} onChange={(e) => updateForm("leaseAmountMax", e.target.value)} />
         </div>
       </FieldDt>
+      
+      <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
+        <div className="flex gap-2">
+          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+        </div>
+      </FieldDt>
+
       <FieldDt label="Refundable Deposit">
         <div className="flex gap-2">
           <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.refundableDepositMin} onChange={(e) => updateForm("refundableDepositMin", e.target.value)} />
@@ -1189,7 +1817,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex flex-wrap gap-3">
           {leaseDurationOptions.map(d => (
             <label key={d} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-duration-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
+              <input type="radio" name="dt-duration" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
               {d}
             </label>
           ))}
@@ -1199,7 +1827,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-maint-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.maintenanceIncluded === opt} onChange={() => updateForm("maintenanceIncluded", opt)} />
+              <input type="radio" name="dt-maint" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.maintenanceIncluded === opt} onChange={() => updateForm("maintenanceIncluded", opt)} />
               {opt}
             </label>
           ))}
@@ -1209,7 +1837,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseNegotiable === opt} onChange={() => updateForm("leaseNegotiable", opt)} />
+              <input type="radio" name="dt-negotiable" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseNegotiable === opt} onChange={() => updateForm("leaseNegotiable", opt)} />
               {opt}
             </label>
           ))}
@@ -1234,7 +1862,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-pet-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.petFriendly === opt} onChange={() => updateForm("petFriendly", opt)} />
+              <input type="radio" name="dt-pet" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.petFriendly === opt} onChange={() => updateForm("petFriendly", opt)} />
               {opt}
             </label>
           ))}
@@ -1244,7 +1872,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {["Veg Only", "No Restriction"].map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-diet-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.dietaryPreference === opt} onChange={() => updateForm("dietaryPreference", opt)} />
+              <input type="radio" name="dt-diet" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.dietaryPreference === opt} onChange={() => updateForm("dietaryPreference", opt)} />
               {opt}
             </label>
           ))}
@@ -1254,7 +1882,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-smoking-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.smokingAllowed === opt} onChange={() => updateForm("smokingAllowed", opt)} />
+              <input type="radio" name="dt-smoking" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.smokingAllowed === opt} onChange={() => updateForm("smokingAllowed", opt)} />
               {opt}
             </label>
           ))}
@@ -1298,7 +1926,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-occupancy-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediateOccupancy === opt} onChange={() => updateForm("immediateOccupancy", opt)} />
+              <input type="radio" name="dt-occupancy" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediateOccupancy === opt} onChange={() => updateForm("immediateOccupancy", opt)} />
               {opt}
             </label>
           ))}
@@ -1311,7 +1939,7 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-renewal-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseRenewalOption === opt} onChange={() => updateForm("leaseRenewalOption", opt)} />
+              <input type="radio" name="dt-renewal" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseRenewalOption === opt} onChange={() => updateForm("leaseRenewalOption", opt)} />
               {opt}
             </label>
           ))}
@@ -1335,149 +1963,309 @@ function DtContentLeasePMApart({ step, inp, formData, updateForm, imagePreviews,
           })}
         </div>
       </FieldDt>
+    </>
+  );
 
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+  // STEP 6: Bank Details
+  if (step === 6) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">📞 Contact Preference</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <FieldDt label="Contact via">
-        <div className="flex gap-5">
-          {["Owner", "Agent", "Builder", "Property Management"].map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-contact-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.contactVia === opt} onChange={() => updateForm("contactVia", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
+      <FieldDt label="Account Holder Name" required>
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Preferred Contact Time">
-        <div className="grid grid-cols-2 gap-2">
-          {contactTimeOptions.map(t => (
-            <label key={t} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-time-leasepm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.preferredContactTime === t} onChange={() => updateForm("preferredContactTime", t)} />
-              {t}
-            </label>
-          ))}
-        </div>
+      <FieldDt label="Bank Name" required>
+        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Account Number" required>
+        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="IFSC Code" required>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="UPI ID">
+        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 3: Media Upload
-  if (step === 3) return (
+  // STEP 7: Social Media
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Media Upload</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
       </div>
-      <p className="text-[11px] text-center text-gray-400 mb-3">📸 Minimum 3 property images required</p>
-      <FieldDt label="Property Images" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="image/*" multiple className="hidden" id="property-images-leasepmapart" onChange={handleImageUpload} />
-          <label htmlFor="property-images-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <ImagePlus className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Photos</span>
-            <span className="text-[11px] text-gray-400 mt-1">Click to select multiple images (JPG, PNG)</span>
+      <FieldDt label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facebook">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="YouTube">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 8: Documents
+  if (step === 8) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Upload Documents</h3>
+      </div>
+      <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
+
+      <FieldDt label="Company Logo" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-pm-logo-doc" onChange={(e) => handleDocumentUpload("pmCompanyLogoDoc", e, 2)} />
+          <label htmlFor="dt-pm-logo-doc" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmCompanyLogoDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Business Registration Certificate" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-reg-doc" onChange={(e) => handleDocumentUpload("pmBusinessRegCertDoc", e)} />
+          <label htmlFor="dt-pm-reg-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Registration Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmBusinessRegCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmBusinessRegCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Aadhaar Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-aadhaar-doc" onChange={(e) => handleDocumentUpload("aadhaarCardDoc", e)} />
+          <label htmlFor="dt-aadhaar-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Aadhaar Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.aadhaarCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCardDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="PAN Card" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
+          <label htmlFor="dt-pan-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload PAN Card</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 2MB)</span>
+          </label>
+        </div>
+        {formData.panCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCardDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="GST Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-gst-doc" onChange={(e) => handleDocumentUpload("pmGstCertDoc", e)} />
+          <label htmlFor="dt-pm-gst-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload GST Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmGstCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmGstCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="RERA Certificate (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-rera-doc" onChange={(e) => handleDocumentUpload("pmReraCertDoc", e)} />
+          <label htmlFor="dt-pm-rera-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload RERA Certificate</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmReraCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmReraCertDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Office Address Proof" required>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-office-proof-doc" onChange={(e) => handleDocumentUpload("officeAddressProofDoc", e)} />
+          <label htmlFor="dt-office-proof-doc" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Address Proof</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.officeAddressProofDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.officeAddressProofDoc.name}</p>}
+      </FieldDt>
+
+      <FieldDt label="Company Profile/Brochure (Optional)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-pm-brochure" onChange={(e) => handleDocumentUpload("pmCompanyBrochure", e)} />
+          <label htmlFor="dt-pm-brochure" className="cursor-pointer flex flex-col items-center">
+            <FileText className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Profile/Brochure</span>
+            <span className="text-[11px] text-gray-400">PDF (Max 5MB)</span>
+          </label>
+        </div>
+        {formData.pmCompanyBrochure && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmCompanyBrochure.name}</p>}
+      </FieldDt>
+
+      {/* Media Upload for Property */}
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Property Media</h3>
+      </div>
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="dt-cover" onChange={handleCoverImageUpload} />
+          <label htmlFor="dt-cover" className="cursor-pointer flex flex-col items-center">
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Cover Image</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {coverPreview && (
+          <div className="mt-2 relative">
+            <img src={coverPreview} alt="Cover" className="w-full h-20 object-cover rounded-lg" />
+            <button onClick={removeCoverImage} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </FieldDt>
+
+      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
+          <label htmlFor="dt-imgs" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <ImagePlus className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Property Photos</span>
+            <span className="text-[11px] text-gray-400">Max 3 photos</span>
           </label>
         </div>
         {imagePreviews.length > 0 && (
-          <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="mt-2 grid grid-cols-3 gap-2">
             {imagePreviews.map((preview, idx) => (
               <div key={idx} className="relative">
-                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-20 object-cover rounded-lg border border-gray-200" />
-                <button onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
+                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-16 object-cover rounded-lg" />
+                <button onClick={() => removeImage(idx)} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
               </div>
             ))}
           </div>
         )}
       </FieldDt>
-      <FieldDt label="Property Video">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept="video/mp4,video/mov" className="hidden" id="property-video-leasepmapart" onChange={handleVideoUpload} />
-          <label htmlFor="property-video-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <Video className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Video Tour</span>
-            <p className="text-[11px] text-gray-400 mt-1">MP4 or MOV format supported</p>
+
+      <FieldDt label="Upload Property Video (Optional)" hint="Max 10MB">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="video/mp4,video/mov" className="hidden" id="dt-vid" onChange={handleVideoUpload} />
+          <label htmlFor="dt-vid" className="cursor-pointer flex flex-col items-center">
+            <Video className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Video Tour</span>
+            <span className="text-[11px] text-gray-400">MP4/MOV (Max 10MB)</span>
           </label>
         </div>
         {videoPreview && (
-          <div className="mt-3 relative">
-            <video src={videoPreview} controls className="w-full h-32 object-cover rounded-lg border border-gray-200" />
-            <button onClick={removeVideo} className="absolute top-2 right-2 w-6.5 h-6.5 bg-red-500 text-white rounded-full text-[13px] flex items-center justify-center hover:bg-red-600">✕</button>
+          <div className="mt-2 relative">
+            <video src={videoPreview} controls className="w-full h-24 object-cover rounded-lg" />
+            <button onClick={removeVideo} className="absolute top-2 right-2 w-6.5 h-6.5 bg-red-500 text-white rounded-full text-[13px] flex items-center justify-center">✕</button>
+          </div>
+        )}
+      </FieldDt>
+
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept=".pdf" className="hidden" id="dt-floorplan" onChange={handleFloorPlanUpload} />
+          <label htmlFor="dt-floorplan" className="cursor-pointer flex flex-col items-center">
+            <Home className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Floor Plan</span>
+            <span className="text-[11px] text-gray-400">PDF only</span>
+          </label>
+        </div>
+        {floorPlanPreview && (
+          <div className="mt-2 relative">
+            <p className="text-[13px] text-green-600">✓ {formData.floorPlan?.name}</p>
+            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
           </div>
         )}
       </FieldDt>
     </>
   );
 
-  // STEP 4: Document Upload - Property Management Version Desktop
-  if (step === 4) return (
+  // STEP 9: Declaration
+  if (step === 9) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Documents To Upload</h3>
+        <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <p className="text-[10px] text-gray-400 text-center mb-3">Upload required documents for verification</p>
 
-      {/* Property Ownership Document */}
-      <FieldDt label="Property Ownership Document" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-ownership-leasepmapart" onChange={(e) => handleDocumentUpload("ownershipDoc", e)} />
-          <label htmlFor="dt-ownership-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Property Ownership Document</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload property papers, registry etc.</span>
-          </label>
-        </div>
-        {ownershipDocPreview && (
-          <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.ownershipDoc?.name}</p>
-            <button onClick={() => removeDocument("ownershipDoc")} className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
-          </div>
-        )}
+      <div className="space-y-2.5">
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I confirm that I am the authorized representative of this property management company.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Signature</h3>
+      </div>
+      <label className="flex items-center gap-2 text-[13px] font-semibold text-[#00695C] mb-2">
+        <PenTool className="w-4 h-4" /> Authorized Signatory <span className="text-red-500">*</span>
+      </label>
+      <p className="text-[12px] text-gray-500 mb-2">Draw your signature in the box below</p>
+      <div className="relative">
+        <canvas
+          id="dt-signatureCanvas"
+          ref={signatureCanvasRef}
+          width="400"
+          height="100"
+          className="signature-canvas w-full h-32 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          onMouseDown={(e) => startDrawing(e, 'dt-signatureCanvas')}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={(e) => startDrawing(e, 'dt-signatureCanvas')}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+        <button
+          type="button"
+          onClick={clearSignature}
+          className="absolute top-2 right-3 bg-[#00695C] text-white px-3 py-0.5 rounded text-xs hover:bg-[#004d42] transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <FieldDt label="Date" required>
+        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
-
-      {/* ID Proof of Owner */}
-      <FieldDt label="ID Proof of Owner" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-ownerid-leasepmapart" onChange={(e) => handleDocumentUpload("ownerIdProof", e)} />
-          <label htmlFor="dt-ownerid-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload ID Proof of Owner</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload Aadhar, PAN, Passport etc.</span>
-          </label>
-        </div>
-        {ownerIdProofPreview && (
-          <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.ownerIdProof?.name}</p>
-            <button onClick={() => removeDocument("ownerIdProof")} className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
-          </div>
-        )}
-      </FieldDt>
-
-      {/* Management Agreement/Authorization Letter */}
-      <FieldDt label="Management Agreement/Authorization Letter" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="dt-agreement-leasepmapart" onChange={(e) => handleDocumentUpload("managementAgreement", e)} />
-          <label htmlFor="dt-agreement-leasepmapart" className="cursor-pointer flex flex-col items-center">
-            <div className="w-10 h-10 rounded-full bg-[#00695C] flex items-center justify-center mb-2">
-              <Upload className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Management Agreement/Authorization Letter</span>
-            <span className="text-[10px] text-gray-400 mt-1">Upload signed management agreement</span>
-          </label>
-        </div>
-        {managementAgreementPreview && (
-          <div className="mt-2 relative">
-            <p className="text-xs text-green-600">{formData.managementAgreement?.name}</p>
-            <button onClick={() => removeDocument("managementAgreement")} className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
-          </div>
-        )}
+      <FieldDt label="Place" required>
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </FieldDt>
     </>
   );
+
+  return null;
 }
