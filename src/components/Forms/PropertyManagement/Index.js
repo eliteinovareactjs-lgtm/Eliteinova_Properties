@@ -8,3 +8,8 @@ export { default as LeasePMIndForm } from './Individual/LeasePMIndForm';
 export { default as RentPMApartForm } from './Apartment/RentPMApartForm';
 export { default as SellPMApartForm } from './Apartment/SellPMApartForm';
 export { default as LeasePMApartForm } from './Apartment/LeasePMApartForm';
+
+// Export PM Commercial Forms
+export { default as RentPMComForm } from './Commercial/RentPMComForm';
+export { default as SellPMComForm } from './Commercial/SellPMComForm';
+export { default as LeasePMComForm } from './Commercial/LeasePMComForm';

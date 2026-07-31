@@ -56,16 +56,14 @@ export default function SellAgentIndForm({ isOpen, onClose }) {
     propertyTitle: "", propertyType: "", propertyAddress: "", propertyCity: "", builtUpArea: "", carpetArea: "", bedrooms: "", bathrooms: "", furnishingStatus: "", parking: "",
     // Pricing & Amenities (Step 3)
     listingPurpose: "sale", expectedPrice: "", budgetRange: { min: "", max: "" }, priceType: "", maintenance: "", availableFrom: "", selectedAmenities: [], otherAmenities: "",
+    securityDeposit: "",
     // Sell Preferences (integrated in step 2)
-    preferredLocation: "",
     sellBedrooms: [],
     sellBathrooms: [],
     sellFurnishing: "",
     sellParking: "",
     gardenSpace: "",
     terrace: "",
-    expectedPriceRange: { min: "", max: "" },
-    negotiable: "",
     propertyAge: "",
     propertyCondition: "",
     ownershipType: "",
@@ -81,6 +79,8 @@ export default function SellAgentIndForm({ isOpen, onClose }) {
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
     // Declaration (Step 7)
     declarationAccepted: false,
+    declarationAccurate: false,
+    declarationTerms: false,
     // Signature
     signature: null, signatureDate: "", signaturePlace: ""
   });
@@ -663,10 +663,25 @@ function MobContentSellAgent({ step, inp, formData, updateForm, imagePreviews, h
           <input className={inp} type="number" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
         </div>
       </Field>
-      <Field label="Room Details">
-        <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" placeholder="Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      <Field label="Number of Bedrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bedroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-bedrooms-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
+              {option}
+            </label>
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Number of Bathrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bathroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-bathrooms-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
+              {option}
+            </label>
+          ))}
         </div>
       </Field>
       <Field label="Furnishing Status" required>
@@ -695,25 +710,6 @@ function MobContentSellAgent({ step, inp, formData, updateForm, imagePreviews, h
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <Field label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </Field>
-      <Field label="Expected Price Range (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.expectedPriceRange.min} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.expectedPriceRange.max} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Negotiable">
-        <div className="flex gap-2">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-negotiable-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.negotiable === option} onChange={() => updateForm("negotiable", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </Field>
       <Field label="Property Age (Years)">
         <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </Field>
@@ -791,6 +787,11 @@ function MobContentSellAgent({ step, inp, formData, updateForm, imagePreviews, h
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </Field>
+
+      {/* Security Deposit */}
+      <Field label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
 
       <Field label="Price Type">
@@ -1106,11 +1107,11 @@ function MobContentSellAgent({ step, inp, formData, updateForm, imagePreviews, h
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
       </div>
@@ -1272,10 +1273,25 @@ function DtContentSellAgent({ step, inp, formData, updateForm, imagePreviews, ha
           <input className={inp} type="number" placeholder="Carpet Area (sq ft)" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
         </div>
       </FieldDt>
-      <FieldDt label="Room Details">
-        <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" placeholder="No. of Bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", e.target.value)} />
-          <input className={inp} type="number" placeholder="No. of Bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", e.target.value)} />
+      <FieldDt label="Number of Bedrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bedroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bedrooms-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
+              {option}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+
+      <FieldDt label="Number of Bathrooms" required>
+        <div className="flex flex-wrap gap-2">
+          {bathroomOptions.map(option => (
+            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-bathrooms-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
+              {option}
+            </label>
+          ))}
         </div>
       </FieldDt>
       <FieldDt label="Furnishing Status" required>
@@ -1304,25 +1320,6 @@ function DtContentSellAgent({ step, inp, formData, updateForm, imagePreviews, ha
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <FieldDt label="Preferred Location">
-        <input className={inp} placeholder="Enter city, locality, or landmark" value={formData.preferredLocation} onChange={(e) => updateForm("preferredLocation", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Expected Price Range (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.expectedPriceRange.min} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.expectedPriceRange.max} onChange={(e) => updateForm("expectedPriceRange", { ...formData.expectedPriceRange, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Negotiable">
-        <div className="flex gap-5">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-sellagent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.negotiable === option} onChange={() => updateForm("negotiable", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
       <FieldDt label="Property Age (Years)">
         <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </FieldDt>
@@ -1400,6 +1397,11 @@ function DtContentSellAgent({ step, inp, formData, updateForm, imagePreviews, ha
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </FieldDt>
+
+      {/* Security Deposit */}
+      <FieldDt label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
 
       <FieldDt label="Price Type">
@@ -1715,11 +1717,11 @@ function DtContentSellAgent({ step, inp, formData, updateForm, imagePreviews, ha
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
       </div>

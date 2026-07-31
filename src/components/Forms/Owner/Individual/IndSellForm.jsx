@@ -67,6 +67,7 @@ export default function IndSellForm({ isOpen, onClose }) {
     // Pricing & Amenities (Step 3)
     listingPurpose: "sale", expectedPrice: "", budgetRange: { min: "", max: "" }, priceType: "", maintenance: "",
     availableFrom: "", selectedAmenities: [], otherAmenities: "",
+    securityDeposit: "",
     // Sell Preferences (integrated in step 2)
     sellBedrooms: [],
     sellBathrooms: [],
@@ -74,7 +75,6 @@ export default function IndSellForm({ isOpen, onClose }) {
     sellParking: "",
     gardenSpace: "",
     terrace: "",
-    negotiable: "",
     propertyAge: "",
     propertyCondition: "",
     ownershipType: "",
@@ -754,16 +754,6 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <Field label="Negotiable">
-        <div className="flex gap-2">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.negotiable === option} onChange={() => updateForm("negotiable", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </Field>
       <Field label="Property Age (Years)">
         <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </Field>
@@ -841,6 +831,11 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </Field>
+
+      {/* Security Deposit */}
+      <Field label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
 
       <Field label="Price Type">
@@ -1421,16 +1416,6 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
-      <FieldDt label="Negotiable">
-        <div className="flex gap-5">
-          {yesNoOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.negotiable === option} onChange={() => updateForm("negotiable", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
       <FieldDt label="Property Age (Years)">
         <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </FieldDt>
@@ -1508,6 +1493,11 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </FieldDt>
+
+      {/* Security Deposit */}
+      <FieldDt label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
 
       <FieldDt label="Price Type">

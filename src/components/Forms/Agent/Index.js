@@ -7,3 +7,8 @@ export { default as LeaseAgentIndForm } from './Individual/LeaseAgentIndForm';
 export { default as RentAgentApartForm } from './Apartment/RentAgentApartForm';
 export { default as SellAgentApartForm } from './Apartment/SellAgentApartForm';
 export { default as LeaseAgentApartForm } from './Apartment/LeaseAgentApartForm';
+
+// Export Agent Commercial Forms
+export { default as RentAgentComForm } from './Commercial/RentAgentComForm';
+export { default as SellAgentComForm } from './Commercial/SellAgentComForm';
+export { default as LeaseAgentComForm } from './Commercial/LeaseAgentComForm';

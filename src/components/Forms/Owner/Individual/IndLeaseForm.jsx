@@ -74,7 +74,7 @@ export default function IndLeaseForm({ isOpen, onClose }) {
     leaseParking: "",
     gardenSpace: "",
     terrace: "",
-    advanceDeposit: { min: "", max: "" },
+    securityDeposit: "",
     leaseDuration: "",
     occupancyType: "",
     leasePetFriendly: "",
@@ -685,24 +685,6 @@ function MobContentLease({ step, inp, formData, updateForm, imagePreviews, handl
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </Field>
 
-      <Field label="Property Category" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
-            Individual
-          </label>
-        </div>
-      </Field>
-
-      <Field label="Posted By" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
-            Owner
-          </label>
-        </div>
-      </Field>
-
       <Field label="Property Type" required>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
@@ -772,12 +754,6 @@ function MobContentLease({ step, inp, formData, updateForm, imagePreviews, handl
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Lease Preferences</h3>
       </div>
-      <Field label="Advance / Security Deposit (₹)">
-        <div className="flex gap-1">
-          <input className={inp} type="number" placeholder="Min" value={formData.advanceDeposit.min} onChange={(e) => updateForm("advanceDeposit", { ...formData.advanceDeposit, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.advanceDeposit.max} onChange={(e) => updateForm("advanceDeposit", { ...formData.advanceDeposit, max: e.target.value })} />
-        </div>
-      </Field>
       <Field label="Preferred Lease Duration">
         {["1 Year", "2 Years", "3 Years", "5+ Years"].map(duration => (
           <label key={duration} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
@@ -852,6 +828,11 @@ function MobContentLease({ step, inp, formData, updateForm, imagePreviews, handl
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </Field>
+
+      {/* Security Deposit */}
+      <Field label="Security Deposit (₹)" hint="Enter the refundable deposit amount">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
 
       <Field label="Price Type">
@@ -1375,24 +1356,6 @@ function DtContentLease({ step, inp, formData, updateForm, imagePreviews, handle
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </FieldDt>
 
-      <FieldDt label="Property Category" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-category" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyCategory === "individual"} onChange={() => updateForm("propertyCategory", "individual")} />
-            Individual
-          </label>
-        </div>
-      </FieldDt>
-
-      <FieldDt label="Posted By" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-postedby" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.postedBy === "owner"} onChange={() => updateForm("postedBy", "owner")} />
-            Owner
-          </label>
-        </div>
-      </FieldDt>
-
       <FieldDt label="Property Type" required>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
@@ -1461,12 +1424,6 @@ function DtContentLease({ step, inp, formData, updateForm, imagePreviews, handle
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Lease Preferences</h3>
       </div>
-      <FieldDt label="Advance / Security Deposit (₹)">
-        <div className="flex gap-2">
-          <input className={inp} type="number" placeholder="Min" value={formData.advanceDeposit.min} onChange={(e) => updateForm("advanceDeposit", { ...formData.advanceDeposit, min: e.target.value })} />
-          <input className={inp} type="number" placeholder="Max" value={formData.advanceDeposit.max} onChange={(e) => updateForm("advanceDeposit", { ...formData.advanceDeposit, max: e.target.value })} />
-        </div>
-      </FieldDt>
       <FieldDt label="Preferred Lease Duration">
         {["1 Year", "2 Years", "3 Years", "5+ Years"].map(duration => (
           <label key={duration} className="flex items-center gap-2 text-[13px] mb-1.5 cursor-pointer">
@@ -1541,6 +1498,11 @@ function DtContentLease({ step, inp, formData, updateForm, imagePreviews, handle
           <input className={inp} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
           <input className={inp} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
+      </FieldDt>
+
+      {/* Security Deposit */}
+      <FieldDt label="Security Deposit (₹)" hint="Enter the refundable deposit amount">
+        <input className={inp} type="number" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
 
       <FieldDt label="Price Type">
