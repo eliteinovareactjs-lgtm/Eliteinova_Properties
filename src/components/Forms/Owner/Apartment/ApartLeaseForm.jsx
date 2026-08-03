@@ -82,7 +82,7 @@ export default function ApartLeaseForm({ isOpen, onClose }) {
     // Interior Details
     furnishing: "", interiorFeatures: [], appliancesIncluded: [],
     // Pricing & Amenities (Step 3)
-    leaseAmountMin: "", leaseAmountMax: "", budgetRange: { min: "", max: "" }, refundableDepositMin: "", refundableDepositMax: "",
+    leaseAmountMin: "", leaseAmountMax: "", budgetRange: { min: "", max: "" }, securityDepositAmount: "",
     leaseDuration: "", maintenanceIncluded: "", leaseNegotiable: "",
     ownershipType: "",
     // Tenant Preferences
@@ -892,11 +892,8 @@ function MobContentApartLease({ step, inp, formData, updateForm, imagePreviews, 
         </div>
       </Field>
 
-      <Field label="Refundable Deposit">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.refundableDepositMin} onChange={(e) => updateForm("refundableDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.refundableDepositMax} onChange={(e) => updateForm("refundableDepositMax", e.target.value)} />
-        </div>
+      <Field label="Security / Deposit Amount (₹)">
+        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDepositAmount} onChange={(e) => updateForm("securityDepositAmount", e.target.value)} />
       </Field>
       <Field label="Lease Duration">
         <div className="grid grid-cols-2 gap-1">
@@ -1684,11 +1681,8 @@ function DtContentApartLease({ step, inp, formData, updateForm, imagePreviews, h
         </div>
       </FieldDt>
 
-      <FieldDt label="Refundable Deposit">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.refundableDepositMin} onChange={(e) => updateForm("refundableDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.refundableDepositMax} onChange={(e) => updateForm("refundableDepositMax", e.target.value)} />
-        </div>
+      <FieldDt label="Security / Deposit Amount (₹)">
+        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDepositAmount} onChange={(e) => updateForm("securityDepositAmount", e.target.value)} />
       </FieldDt>
       <FieldDt label="Lease Duration">
         <div className="flex flex-wrap gap-3">

@@ -82,7 +82,7 @@ export default function ApartRentForm({ isOpen, onClose }) {
     // Interior Details
     furnishing: "", interiorFeatures: [], appliancesIncluded: [],
     // Pricing & Amenities (Step 3)
-    rentPrice: "", budgetRange: { min: "", max: "" }, securityDepositMin: "", securityDepositMax: "",
+    rentPrice: "", budgetRange: { min: "", max: "" }, securityDeposit: "",
     maintenanceIncluded: "", rentNegotiable: "",
     // Tenant Preferences
     tenantType: [], petFriendly: "", dietaryPreference: "", smokingAllowed: "",
@@ -870,11 +870,8 @@ function MobContentApartRent({ step, inp, formData, updateForm, imagePreviews, h
         </div>
       </Field>
 
-      <Field label="Security Deposit">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
+      <Field label="Security Deposit (₹)">
+        <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
       <Field label="Maintenance Charges Included">
         <div className="flex gap-4">
@@ -1649,11 +1646,8 @@ function DtContentApartRent({ step, inp, formData, updateForm, imagePreviews, ha
         </div>
       </FieldDt>
 
-      <FieldDt label="Security Deposit">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
+      <FieldDt label="Security Deposit (₹)">
+        <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
       <FieldDt label="Maintenance Charges Included">
         <div className="flex gap-5">

@@ -95,6 +95,37 @@ import DairyFarmLandPage from './pages/LandAndPlots/DairyFarmLandPage.jsx';
 import FisheriesAquacultureLandPage from './pages/LandAndPlots/FisheriesAquacultureLandPage';
 import PoultryFarmLandPage from './pages/LandAndPlots/PoultryFarmLandPage';
 
+import IndustrialLandPlotPage from "./pages/LandAndPlots/IndustrialLandPlotPage.jsx";
+import IndustrialPlotPage from './pages/LandAndPlots/IndustrialPlotPage';
+import FactoryLandPage from './pages/LandAndPlots/FactoryLandPage';
+import ManufacturingUnitPlotPage from './pages/LandAndPlots/ManufacturingUnitPlotPage';
+import LogisticsHubLandPage from './pages/LandAndPlots/LogisticsHubLandPage';
+import WarehousePlotPage from './pages/LandAndPlots/WarehousePlotPage';
+import ColdStorageLandPage from './pages/LandAndPlots/ColdStorageLandPage';
+import SEZLandPage from './pages/LandAndPlots/SEZLandPage';
+
+import MixedUseLandPlotPage from './pages/LandAndPlots/MixedUseLandPlotPage';
+import ResidentialCommercialPlotPage from './pages/LandAndPlots/ResidentialCommercialPlotPage';
+import CommercialIndustrialLandPage from './pages/LandAndPlots/CommercialIndustrialLandPage';
+import TownshipDevelopmentLandPage from './pages/LandAndPlots/TownshipDevelopmentLandPage';
+import MultiPurposeDevelopmentLandPage from './pages/LandAndPlots/MultiPurposeDevelopmentLandPage';
+
+import InstitutionalLandPlotPage from './pages/LandAndPlots/InstitutionalLandPlotPage';
+import SchoolCollegeLandPage from './pages/LandAndPlots/SchoolCollegeLandPage';
+import HospitalClinicLandPage from './pages/LandAndPlots/HospitalClinicLandPage';
+import TrainingInstitutePlotPage from './pages/LandAndPlots/TrainingInstitutePlotPage';
+import ReligiousInstitutionLandPage from './pages/LandAndPlots/ReligiousInstitutionLandPage';
+
+import InvestmentLandPlotPage from './pages/LandAndPlots/InvestmentLandPlotPage';
+import HighwayFacingPlotPage from './pages/LandAndPlots/HighwayFacingPlotPage';
+import LakeViewPlotPage from './pages/LandAndPlots/LakeViewPlotPage';
+import HillViewPlotPage from './pages/LandAndPlots/HillViewPlotPage';
+import BeachSidePlotPage from './pages/LandAndPlots/BeachSidePlotPage';
+import RiverSideLandPage from './pages/LandAndPlots/RiverSideLandPage';
+import EcoTourismLandPage from './pages/LandAndPlots/EcoTourismLandPage';
+import LayoutDevelopmentLandPage from './pages/LandAndPlots/LayoutDevelopmentLandPage';
+import FutureInvestmentPlotPage from './pages/LandAndPlots/FutureInvestmentPlotPage';
+
 // Import all form modals
 import OwnerFormModal from "./components/Forms/OwnerFormModal";
 import AgentFormModal from "./components/Forms/AgentFormModal";
@@ -268,6 +299,46 @@ function AppLayout() {
         <Route path="/land-plots/agricultural-land-plots/poultry-farm-land" element={<PoultryFarmLandPage/>} />
         <Route path="/land-plots/agricultural-land-plots/dairy-farm-land" element={<DairyFarmLandPage/>} />
         <Route path="/land-plots/agricultural-land-plots/fisheries-aquaculture-land" element={<FisheriesAquacultureLandPage/>} />
+
+
+        {/* Industrial land  Routes */}
+
+           <Route path="/land-plots/industrial-land-plots" element={<IndustrialLandPlotPage/>} />
+           <Route path="/land-plots/industrial-land-plots/industrial-plot" element={<IndustrialPlotPage/>} />
+           <Route path="land-plots/industrial-land-plots/factory-land" element={<FactoryLandPage/>} />
+           <Route path="/land-plots/industrial-land-plots/manufacturing-unit-plot" element={<ManufacturingUnitPlotPage/>} />
+           <Route path="/land-plots/industrial-land-plots/logistics-hub-land" element={<LogisticsHubLandPage/>} />
+           <Route path="/land-plots/industrial-land-plots/warehouse-plot" element={<WarehousePlotPage/>} />
+           <Route path="/land-plots/industrial-land-plots/cold-storage-land" element={<ColdStorageLandPage/>} />
+           <Route path="/land-plots/industrial-land-plots/sez-land" element={<SEZLandPage/>} />
+
+           {/* Mixed-Use land  Routes */}
+
+           <Route path="/land-plots/mixed-use-land-plots" element={<MixedUseLandPlotPage/>} />
+           <Route path="/land-plots/mixed-use-land-plots/residential-commercial-plot" element={<ResidentialCommercialPlotPage/>} />
+           <Route path="/land-plots/mixed-use-land-plots/commercial-industrial-land" element={<CommercialIndustrialLandPage/>} />
+           <Route path="/land-plots/mixed-use-land-plots/township-development-land" element={<TownshipDevelopmentLandPage/>} />
+           <Route path="/land-plots/mixed-use-land-plots/multi-purpose-development-land" element={<MultiPurposeDevelopmentLandPage/>} />
+
+           {/* Institutional land  Routes */}
+
+           <Route path="/land-plots/institutional-land-plots" element={<InstitutionalLandPlotPage/>} />
+           <Route path="/land-plots/institutional-land-plots/school-college-land" element={<SchoolCollegeLandPage/>} />
+           <Route path="/land-plots/institutional-land-plots/hospital-clinic-land" element={<HospitalClinicLandPage/>} />
+           <Route path="/land-plots/institutional-land-plots/training-institute-plot" element={<TrainingInstitutePlotPage/>} />
+           <Route path="/land-plots/institutional-land-plots/religious-institution-land" element={<ReligiousInstitutionLandPage/>} />
+
+           {/* Investment land  Routes */}
+
+           <Route path="/land-plots/investment-land-plots" element={<InvestmentLandPlotPage/>} />
+           <Route path="/land-plots/investment-land-plots/highway-facing-plot" element={<HighwayFacingPlotPage/>} />
+           <Route path="/land-plots/investment-land-plots/lake-view-plot" element={<LakeViewPlotPage/>} />
+           <Route path="/land-plots/investment-land-plots/hill-view-plot" element={<HillViewPlotPage/>} />
+           <Route path="/land-plots/investment-land-plots/beach-side-plot" element={<BeachSidePlotPage/>} />
+           <Route path="/land-plots/investment-land-plots/river-side-land" element={<RiverSideLandPage/>} />
+           <Route path="/land-plots/investment-land-plots/eco-tourism-land" element={<EcoTourismLandPage/>} />
+           <Route path="/land-plots/investment-land-plots/layout-development-land" element={<LayoutDevelopmentLandPage/>} />
+           <Route path="/land-plots/investment-land-plots/future-investment-plot" element={<FutureInvestmentPlotPage/>} />
           
 
           <Route 

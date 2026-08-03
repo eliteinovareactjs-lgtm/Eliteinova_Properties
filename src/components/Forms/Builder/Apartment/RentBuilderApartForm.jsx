@@ -81,14 +81,14 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
     // Property Details (Step 4)
     propertyType: "Apartment", purpose: "Rent",
     area: "", landmark: "", nearbyConnectivity: "",
-    builtUpAreaMin: "", builtUpAreaMax: "", carpetAreaMin: "", carpetAreaMax: "",
+    builtUpArea: "", carpetArea: "",
     bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
     facingDirection: "", balcony: "", propertyAge: "", cornerUnit: "",
     furnishing: "", modularKitchen: "", wardrobes: "", airConditioning: "",
     utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
     
     // Pricing & Amenities (Step 5)
-    rentMin: "", rentMax: "", budgetRange: { min: "", max: "" }, securityDepositMin: "", securityDepositMax: "",
+    rentMin: "", rentMax: "", budgetRange: { min: "", max: "" }, securityDeposit: "",
     maintenanceIncluded: "", rentNegotiable: "",
     tenantType: [], petFriendly: "", dietaryPreference: "", smokingAllowed: "",
     selectedAmenities: [], otherAmenities: "",
@@ -118,6 +118,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
   const [videoPreview, setVideoPreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [floorPlanPreview, setFloorPlanPreview] = useState(null);
+  const [authPhotoPreview, setAuthPhotoPreview] = useState(null);
   const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [signaturePoints, setSignaturePoints] = useState([]);
@@ -219,6 +220,41 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
       }
       updateForm(docType, file);
     }
+  };
+
+  const handleImageDocUpload = (docType, e, maxSize = 2) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert(`${docType} must be a JPG, JPEG, or PNG file`);
+        return;
+      }
+      if (file.size > maxSize * 1024 * 1024) {
+        alert(`${docType} must be less than ${maxSize}MB`);
+        return;
+      }
+      updateForm(docType, file);
+    }
+  };
+
+  const handleAuthPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Profile photo must be less than 2MB");
+        return;
+      }
+      updateForm("authPhoto", file);
+      if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+      setAuthPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeAuthPhoto = () => {
+    if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+    updateForm("authPhoto", null);
+    setAuthPhotoPreview(null);
   };
 
   const toggleAmenity = (amenityId) => {
@@ -357,6 +393,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
+              handleImageDocUpload={handleImageDocUpload}
               toggleAmenity={toggleAmenity}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
@@ -375,6 +412,9 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -463,6 +503,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
+              handleImageDocUpload={handleImageDocUpload}
               toggleAmenity={toggleAmenity}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
@@ -481,6 +522,9 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -528,7 +572,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
 }
 
 // MOBILE CONTENT - RENT BUILDER APARTMENT
-function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -624,15 +668,20 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
         <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
       </Field>
       <Field label="Profile Photo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="m-authphoto" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto" className="cursor-pointer flex flex-col items-center">
-            <User className="w-6 h-6 text-[#00695C]" />
-            <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
-            <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
+            <User className="mb-1 w-7 h-7 text-[#00695C]" />
+            <span className="text-[11px] font-semibold text-[#00695C]">Upload Profile Photo</span>
+            <span className="text-[10px] text-gray-400">JPG, PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authPhoto.name}</p>}
+        {authPhotoPreview && (
+          <div className="mt-2 relative">
+            <img src={authPhotoPreview} alt="Profile" className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </Field>
     </>
   );
@@ -791,16 +840,10 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
         </div>
       </Field>
       <Field label="Built-up Area" hint="In square feet">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
-        </div>
+        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
       <Field label="Carpet Area" hint="In square feet">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
-        </div>
+        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       <Field label="Number of Bedrooms">
         {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
@@ -912,11 +955,8 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
         </div>
       </Field>
 
-      <Field label="Security Deposit">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
+      <Field label="Security / Deposit Amount (₹)">
+        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
       <Field label="Maintenance Charges Included">
         <div className="flex gap-4">
@@ -1339,7 +1379,7 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
 }
 
 // DESKTOP CONTENT - RENT BUILDER APARTMENT
-function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1436,14 +1476,19 @@ function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePrevi
       </FieldDt>
       <FieldDt label="Profile Photo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-authphoto" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <input type="file" accept="image/*" className="hidden" id="dt-authphoto" onChange={handleAuthPhotoUpload} />
           <label htmlFor="dt-authphoto" className="cursor-pointer flex flex-col items-center">
-            <User className="w-7 h-7 text-[#00695C]" />
-            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
-            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+            <User className="mb-1 w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C]">Upload Profile Photo</span>
+            <span className="text-[11px] text-gray-400">JPG, PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authPhoto.name}</p>}
+        {authPhotoPreview && (
+          <div className="mt-2 relative">
+            <img src={authPhotoPreview} alt="Profile" className="w-24 h-24 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </FieldDt>
     </>
   );
@@ -1602,16 +1647,10 @@ function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePrevi
         </div>
       </FieldDt>
       <FieldDt label="Built-up Area" hint="In square feet">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
-        </div>
+        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </FieldDt>
       <FieldDt label="Carpet Area" hint="In square feet">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
-        </div>
+        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
       <FieldDt label="Number of Bedrooms">
         <div className="flex flex-wrap gap-3">
@@ -1727,11 +1766,8 @@ function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePrevi
         </div>
       </FieldDt>
 
-      <FieldDt label="Security Deposit">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
+      <FieldDt label="Security / Deposit Amount (₹)">
+        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
       <FieldDt label="Maintenance Charges Included">
         <div className="flex gap-5">
