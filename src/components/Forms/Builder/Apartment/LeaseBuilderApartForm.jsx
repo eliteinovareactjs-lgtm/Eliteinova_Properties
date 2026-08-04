@@ -118,6 +118,8 @@ export default function LeaseBuilderApartForm({ isOpen, onClose }) {
   const [videoPreview, setVideoPreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [floorPlanPreview, setFloorPlanPreview] = useState(null);
+  const [authPhotoPreview, setAuthPhotoPreview] = useState(null);
+  const [companyLogoPreview, setCompanyLogoPreview] = useState(null);
   const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [signaturePoints, setSignaturePoints] = useState([]);
@@ -219,6 +221,54 @@ export default function LeaseBuilderApartForm({ isOpen, onClose }) {
       }
       updateForm(docType, file);
     }
+  };
+
+  const handleAuthPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert("Profile photo must be a JPG, JPEG, or PNG file");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Profile photo must be less than 2MB");
+        return;
+      }
+      updateForm("authPhoto", file);
+      if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+      setAuthPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeAuthPhoto = () => {
+    if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+    updateForm("authPhoto", null);
+    setAuthPhotoPreview(null);
+  };
+
+  const handleCompanyLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert("Company logo must be a JPG, JPEG, or PNG file");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Company logo must be less than 2MB");
+        return;
+      }
+      updateForm("companyLogoDoc", file);
+      if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
+      setCompanyLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeCompanyLogo = () => {
+    if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
+    updateForm("companyLogoDoc", null);
+    setCompanyLogoPreview(null);
   };
 
   const toggleApartmentAmenity = (amenityId) => {
@@ -368,6 +418,12 @@ export default function LeaseBuilderApartForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              companyLogoPreview={companyLogoPreview}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -474,6 +530,12 @@ export default function LeaseBuilderApartForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              companyLogoPreview={companyLogoPreview}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -536,6 +598,8 @@ function MobContentLeaseBuilder({
   customAmenitiesList, addCustomAmenity, removeCustomAmenity, 
   yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, 
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, 
+  handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto,
+  handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   toggleArrayItem, apartmentLeaseAmenities, facingOptions, 
@@ -637,14 +701,19 @@ function MobContentLeaseBuilder({
       </Field>
       <Field label="Profile Photo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-authphoto-lease" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <input type="file" accept="image/*" className="hidden" id="m-authphoto-lease" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto-lease" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authPhoto.name}</p>}
+        {authPhotoPreview && (
+          <div className="mt-2 relative">
+            <img src={authPhotoPreview} alt="Profile" className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </Field>
     </>
   );
@@ -1145,14 +1214,19 @@ function MobContentLeaseBuilder({
 
       <Field label="Company Logo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-comp-logo-lease" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="m-comp-logo-lease" onChange={handleCompanyLogoUpload} />
           <label htmlFor="m-comp-logo-lease" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyLogoDoc.name}</p>}
+        {companyLogoPreview && (
+          <div className="mt-1 relative">
+            <img src={companyLogoPreview} alt="Company Logo" className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C] mx-auto" />
+            <button onClick={removeCompanyLogo} className="absolute -top-1 right-[calc(50%-2rem)] w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </Field>
 
       <Field label="Company Profile Brochure (PDF)">
@@ -1419,6 +1493,8 @@ function DtContentLeaseBuilder({
   customAmenitiesList, addCustomAmenity, removeCustomAmenity, 
   yesNoOptions, handleCoverImageUpload, handleFloorPlanUpload, 
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, 
+  handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto,
+  handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   toggleArrayItem, apartmentLeaseAmenities, facingOptions, 
@@ -1520,14 +1596,19 @@ function DtContentLeaseBuilder({
       </FieldDt>
       <FieldDt label="Profile Photo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-authphoto-lease" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <input type="file" accept="image/*" className="hidden" id="dt-authphoto-lease" onChange={handleAuthPhotoUpload} />
           <label htmlFor="dt-authphoto-lease" className="cursor-pointer flex flex-col items-center">
             <User className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authPhoto.name}</p>}
+        {authPhotoPreview && (
+          <div className="mt-2 relative">
+            <img src={authPhotoPreview} alt="Profile" className="w-24 h-24 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </FieldDt>
     </>
   );
@@ -2031,14 +2112,19 @@ function DtContentLeaseBuilder({
 
       <FieldDt label="Company Logo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-comp-logo-lease" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="dt-comp-logo-lease" onChange={handleCompanyLogoUpload} />
           <label htmlFor="dt-comp-logo-lease" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyLogoDoc.name}</p>}
+        {companyLogoPreview && (
+          <div className="mt-2 relative w-20 mx-auto">
+            <img src={companyLogoPreview} alt="Company Logo" className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]" />
+            <button onClick={removeCompanyLogo} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </FieldDt>
 
       <FieldDt label="Company Profile Brochure (PDF)">
