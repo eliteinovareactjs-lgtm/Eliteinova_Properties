@@ -67,7 +67,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Company Details (Step 0)
-    companyName: "", companyRegNumber: "", reraNumber: "", gstNumber: "", yearsOfExperience: "", companyWebsite: "", companyLogo: null, companyProfile: "",
+    companyName: "", companyRegNumber: "", reraNumber: "", gstNumber: "", yearsOfExperience: "", companyWebsite: "", companyLogo: null, companyLogoPreview: null, companyProfile: "",
     
     // Authorized Person (Step 1)
     authFullName: "", authDesignation: "", authMobile: "", authEmail: "", authWhatsapp: "", authPhoto: null,
@@ -80,6 +80,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
     
     // Property Details (Step 4)
     propertyType: "Apartment", purpose: "Rent",
+    propertyCity: "", pinCode: "",
     area: "", landmark: "", nearbyConnectivity: "",
     builtUpArea: "", carpetArea: "",
     bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
@@ -103,8 +104,8 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
     website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
     // Documents (Step 8)
-    companyLogoDoc: null, companyBrochure: null, projectBrochures: [], companyRegCertDoc: null, reraCertDoc: null, gstCertDoc: null, panCardDoc: null, authIdProof: null, officeAddressProof: null,
-    propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
+    companyLogoDoc: null, companyLogoPreview: null, companyBrochure: null, projectBrochures: [], companyRegCertDoc: null, reraCertDoc: null, gstCertDoc: null, panCardDoc: null, authIdProof: null, officeAddressProof: null,
+    propertyImages: [], propertyVideo: null, coverImage: null, coverImagePreview: null, floorPlan: null,
     
     // Declaration (Step 9)
     declarationAccepted: false,
@@ -241,6 +242,11 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
   const handleAuthPhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert('Profile photo must be a JPG, JPEG, or PNG file');
+        return;
+      }
       if (file.size > 2 * 1024 * 1024) {
         alert("Profile photo must be less than 2MB");
         return;
@@ -255,6 +261,31 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
     if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
     updateForm("authPhoto", null);
     setAuthPhotoPreview(null);
+  };
+
+  // Company Logo handlers
+  const handleCompanyLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert('Company logo must be a JPG, JPEG, or PNG file');
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Company logo must be less than 2MB');
+        return;
+      }
+      updateForm("companyLogoDoc", file);
+      if (formData.companyLogoPreview) URL.revokeObjectURL(formData.companyLogoPreview);
+      updateForm("companyLogoPreview", URL.createObjectURL(file));
+    }
+  };
+
+  const removeCompanyLogo = () => {
+    if (formData.companyLogoPreview) URL.revokeObjectURL(formData.companyLogoPreview);
+    updateForm("companyLogoDoc", null);
+    updateForm("companyLogoPreview", null);
   };
 
   const toggleAmenity = (amenityId) => {
@@ -415,6 +446,8 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               handleAuthPhotoUpload={handleAuthPhotoUpload}
               authPhotoPreview={authPhotoPreview}
               removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -525,6 +558,8 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
               handleAuthPhotoUpload={handleAuthPhotoUpload}
               authPhotoPreview={authPhotoPreview}
               removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -572,7 +607,7 @@ export default function RentBuilderApartForm({ isOpen, onClose }) {
 }
 
 // MOBILE CONTENT - RENT BUILDER APARTMENT
-function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, handleCompanyLogoUpload, removeCompanyLogo, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1162,14 +1197,20 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
 
       <Field label="Company Logo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-comp-logo" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-comp-logo" onChange={handleCompanyLogoUpload} />
           <label htmlFor="m-comp-logo" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyLogoDoc.name}</p>}
+        {formData.companyLogoPreview && (
+          <div className="mt-2 relative flex items-center gap-3">
+            <img src={formData.companyLogoPreview} alt="Company Logo" className="w-16 h-16 object-contain rounded-lg border border-gray-200" />
+            <p className="text-[10px] text-green-600">✓ {formData.companyLogoDoc?.name}</p>
+            <button onClick={removeCompanyLogo} className="w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </Field>
 
       <Field label="Company Profile Brochure (PDF)">
@@ -1379,7 +1420,7 @@ function MobContentRentBuilderApart({ step, inp, formData, updateForm, imagePrev
 }
 
 // DESKTOP CONTENT - RENT BUILDER APARTMENT
-function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, tenantTypeOptions, rentalDurationOptions, contactTimeOptions, apartmentRentAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, handleCompanyLogoUpload, removeCompanyLogo, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1973,14 +2014,20 @@ function DtContentRentBuilderApart({ step, inp, formData, updateForm, imagePrevi
 
       <FieldDt label="Company Logo" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-comp-logo" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-comp-logo" onChange={handleCompanyLogoUpload} />
           <label htmlFor="dt-comp-logo" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyLogoDoc.name}</p>}
+        {formData.companyLogoPreview && (
+          <div className="mt-3 relative flex items-center gap-4">
+            <img src={formData.companyLogoPreview} alt="Company Logo" className="w-20 h-20 object-contain rounded-lg border border-gray-200" />
+            <p className="text-[13px] text-green-600">✓ {formData.companyLogoDoc?.name}</p>
+            <button onClick={removeCompanyLogo} className="w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+          </div>
+        )}
       </FieldDt>
 
       <FieldDt label="Company Profile Brochure (PDF)">
