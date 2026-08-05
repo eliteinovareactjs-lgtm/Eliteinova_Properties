@@ -495,14 +495,14 @@ const FarmHousePlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTab
       'Investment Purpose',
       'Resort Development'
     ],
-    sell: [
-      'Farm House Construction',
-      'Weekend Home',
-      'Organic Farming',
-      'Agri Tourism',
-      'Investment Purpose',
-      'Resort Development'
-    ],
+    // sell: [
+    //   'Farm House Construction',
+    //   'Weekend Home',
+    //   'Organic Farming',
+    //   'Agri Tourism',
+    //   'Investment Purpose',
+    //   'Resort Development'
+    // ],
     lease: [
       'Farm House Construction',
       'Weekend Home Setup',
@@ -540,10 +540,11 @@ const FarmHousePlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTab
     { id: 'contact', label: '📞 Contact', icon: <Phone className="w-3.5 h-3.5" /> }
   ];
 
+  // SELL TAB COMMENTED OUT - Only Buy, Rent, Lease available
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3 h-3" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3 h-3" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3 h-3" /> }
   ];
 
@@ -698,27 +699,30 @@ const FarmHousePlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTab
           </div>
         </div>
       );
-    } else if (currentTab === 'Sell') {
-      return (
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
-          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><TrendingUp className="w-3.5 h-3.5" /> Price Details</h3>
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Min Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minSellPrice} onChange={(e) => handleInputChange('minSellPrice', e.target.value)} />
-                <input type="number" placeholder="Max Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxSellPrice} onChange={(e) => handleInputChange('maxSellPrice', e.target.value)} />
-              </div>
-              <input type="number" placeholder="Price Per Acre / Sq.ft (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.preferredPricePerUnit} onChange={(e) => handleInputChange('preferredPricePerUnit', e.target.value)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <YesNoRadioGroup label="Price Negotiable" name="sellPriceNegotiable" value={filters.sellPriceNegotiable} onChange={(val) => handleRadioChange('sellPriceNegotiable', val)} />
-              <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
-              <input type="text" placeholder="Property Tax (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.propertyTax} onChange={(e) => handleInputChange('propertyTax', e.target.value)} />
-            </div>
-          </div>
-        </div>
-      );
-    } else {
+    } 
+    // SELL TAB PRICE SECTION COMMENTED OUT
+    // else if (currentTab === 'Sell') {
+    //   return (
+    //     <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+    //       <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><TrendingUp className="w-3.5 h-3.5" /> Price Details</h3>
+    //       <div className="space-y-2">
+    //         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    //           <div className="grid grid-cols-2 gap-2">
+    //             <input type="number" placeholder="Min Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minSellPrice} onChange={(e) => handleInputChange('minSellPrice', e.target.value)} />
+    //             <input type="number" placeholder="Max Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxSellPrice} onChange={(e) => handleInputChange('maxSellPrice', e.target.value)} />
+    //           </div>
+    //           <input type="number" placeholder="Price Per Acre / Sq.ft (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.preferredPricePerUnit} onChange={(e) => handleInputChange('preferredPricePerUnit', e.target.value)} />
+    //         </div>
+    //         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    //           <YesNoRadioGroup label="Price Negotiable" name="sellPriceNegotiable" value={filters.sellPriceNegotiable} onChange={(val) => handleRadioChange('sellPriceNegotiable', val)} />
+    //           <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
+    //           <input type="text" placeholder="Property Tax (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.propertyTax} onChange={(e) => handleInputChange('propertyTax', e.target.value)} />
+    //         </div>
+    //       </div>
+    //     </div>
+    //   );
+    // } 
+    else {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><FileText className="w-3.5 h-3.5" /> Lease Details</h3>
@@ -878,7 +882,13 @@ const FarmHousePlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTab
   );
 
   const renderSuitableSection = () => {
-    const options = suitableForOptions[currentTab.toLowerCase()] || suitableForOptions.buy;
+    // SELL OPTION REMOVED FROM SUITABLE FOR
+    let options = [];
+    if (currentTab === 'Rent') options = suitableForOptions.rent;
+    else if (currentTab === 'Buy') options = suitableForOptions.buy;
+    // else if (currentTab === 'Sell') options = suitableForOptions.sell;
+    else options = suitableForOptions.lease;
+    
     return (
       <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
         <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Building className="w-3.5 h-3.5" /> Suitable For</h3>
@@ -914,18 +924,21 @@ const FarmHousePlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTab
           </div>
         </div>
       );
-    } else if (currentTab === 'Sell') {
-      return (
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
-          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>
-          <div className="space-y-2">
-            <YesNoRadioGroup label="Ready to Register" name="readyToRegister" value={filters.readyToRegister} onChange={(val) => handleRadioChange('readyToRegister', val)} />
-            <YesNoRadioGroup label="Immediate Possession" name="immediatePossession" value={filters.immediatePossession} onChange={(val) => handleRadioChange('immediatePossession', val)} />
-            <YesNoRadioGroup label="Under Development Layout" name="underDevelopmentAcceptable" value={filters.underDevelopmentAcceptable} onChange={(val) => handleRadioChange('underDevelopmentAcceptable', val)} />
-          </div>
-        </div>
-      );
-    } else {
+    } 
+    // SELL TAB AVAILABILITY SECTION COMMENTED OUT
+    // } else if (currentTab === 'Sell') {
+    //   return (
+    //     <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+    //       <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>
+    //       <div className="space-y-2">
+    //         <YesNoRadioGroup label="Ready to Register" name="readyToRegister" value={filters.readyToRegister} onChange={(val) => handleRadioChange('readyToRegister', val)} />
+    //         <YesNoRadioGroup label="Immediate Possession" name="immediatePossession" value={filters.immediatePossession} onChange={(val) => handleRadioChange('immediatePossession', val)} />
+    //         <YesNoRadioGroup label="Under Development Layout" name="underDevelopmentAcceptable" value={filters.underDevelopmentAcceptable} onChange={(val) => handleRadioChange('underDevelopmentAcceptable', val)} />
+    //       </div>
+    //     </div>
+    //   );
+    // } 
+    else {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>

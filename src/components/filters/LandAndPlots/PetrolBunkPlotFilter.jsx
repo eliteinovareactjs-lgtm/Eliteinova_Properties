@@ -300,7 +300,7 @@ const CheckboxGroup = ({ label, options, values, onChange, columns = 2 }) => (
   </div>
 );
 
-const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, onTabChange }) => {
+const PetrolBunkPlotFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange }) => {
   const [currentTab, setCurrentTab] = useState(activeTab);
   const [activeMainSection, setActiveMainSection] = useState('basic');
   
@@ -361,6 +361,7 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
     { value: 'Any', label: 'Any Time' }
   ];
 
+  // SELL OPTION REMOVED FROM SUITABLE FOR
   const suitableForOptions = {
     rent: [
       'Petrol Pump Setup', 'Diesel Filling Station', 'EV Charging Station',
@@ -372,11 +373,11 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
       'CNG Station', 'Highway Fuel Station', 'Truck Fuel Stop',
       'Service Station', 'Convenience Store Setup'
     ],
-    sell: [
-      'Petrol Pump Setup', 'Diesel Filling Station', 'EV Charging Station',
-      'CNG Station', 'Highway Fuel Station', 'Truck Fuel Stop',
-      'Service Station', 'Convenience Store Setup'
-    ],
+    // sell: [
+    //   'Petrol Pump Setup', 'Diesel Filling Station', 'EV Charging Station',
+    //   'CNG Station', 'Highway Fuel Station', 'Truck Fuel Stop',
+    //   'Service Station', 'Convenience Store Setup'
+    // ],
     lease: [
       'Petrol Pump Setup', 'Diesel Filling Station', 'EV Charging Station',
       'CNG Station', 'Highway Fuel Station', 'Truck Fuel Stop',
@@ -402,10 +403,11 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
     { id: 'contact', label: '📞 Contact', icon: <Phone className="w-3.5 h-3.5" /> }
   ];
 
+  // SELL TAB COMMENTED OUT - Only Buy, Rent, Lease available
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3 h-3" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3 h-3" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3 h-3" /> }
   ];
 
@@ -565,27 +567,30 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
           </div>
         </div>
       );
-    } else if (currentTab === 'Sell') {
-      return (
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
-          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><TrendingUp className="w-3.5 h-3.5" /> Price Details</h3>
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Min Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minSellPrice} onChange={(e) => handleInputChange('minSellPrice', e.target.value)} />
-                <input type="number" placeholder="Max Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxSellPrice} onChange={(e) => handleInputChange('maxSellPrice', e.target.value)} />
-              </div>
-              <input type="number" placeholder="Price Per Sq.ft / Acre (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.pricePerUnit} onChange={(e) => handleInputChange('pricePerUnit', e.target.value)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <YesNoRadioGroup label="Price Negotiable" name="sellPriceNegotiable" value={filters.sellPriceNegotiable} onChange={(val) => handleRadioChange('sellPriceNegotiable', val)} />
-              <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
-              <input type="text" placeholder="Property Tax (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.propertyTax} onChange={(e) => handleInputChange('propertyTax', e.target.value)} />
-            </div>
-          </div>
-        </div>
-      );
-    } else {
+    } 
+    // SELL TAB PRICE SECTION COMMENTED OUT
+    // else if (currentTab === 'Sell') {
+    //   return (
+    //     <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+    //       <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><TrendingUp className="w-3.5 h-3.5" /> Price Details</h3>
+    //       <div className="space-y-2">
+    //         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    //           <div className="grid grid-cols-2 gap-2">
+    //             <input type="number" placeholder="Min Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minSellPrice} onChange={(e) => handleInputChange('minSellPrice', e.target.value)} />
+    //             <input type="number" placeholder="Max Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxSellPrice} onChange={(e) => handleInputChange('maxSellPrice', e.target.value)} />
+    //           </div>
+    //           <input type="number" placeholder="Price Per Sq.ft / Acre (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.pricePerUnit} onChange={(e) => handleInputChange('pricePerUnit', e.target.value)} />
+    //         </div>
+    //         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+    //           <YesNoRadioGroup label="Price Negotiable" name="sellPriceNegotiable" value={filters.sellPriceNegotiable} onChange={(val) => handleRadioChange('sellPriceNegotiable', val)} />
+    //           <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
+    //           <input type="text" placeholder="Property Tax (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.propertyTax} onChange={(e) => handleInputChange('propertyTax', e.target.value)} />
+    //         </div>
+    //       </div>
+    //     </div>
+    //   );
+    // } 
+    else {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><FileText className="w-3.5 h-3.5" /> Lease Details</h3>
@@ -658,19 +663,22 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
               <YesNoRadioGroup label="Lease Agreement Ready" name="leaseAgreementReady" value={filters.leaseAgreementReady} onChange={(val) => handleRadioChange('leaseAgreementReady', val)} />
             )}
           </>
-        ) : currentTab === 'Sell' ? (
-          <>
-            <YesNoRadioGroup label="DTCP Approved" name="dtcpApproved" value={filters.dtcpApproved} onChange={(val) => handleRadioChange('dtcpApproved', val)} />
-            <YesNoRadioGroup label="CMDA Approved" name="cmdaApproved" value={filters.cmdaApproved} onChange={(val) => handleRadioChange('cmdaApproved', val)} />
-            <YesNoRadioGroup label="Commercial Approval Available" name="commercialApproval" value={filters.commercialApproval} onChange={(val) => handleRadioChange('commercialApproval', val)} />
-            <YesNoRadioGroup label="Petroleum License Eligible" name="petroleumLicenseEligible" value={filters.petroleumLicenseEligible} onChange={(val) => handleRadioChange('petroleumLicenseEligible', val)} />
-            <YesNoRadioGroup label="NOC Available" name="nocAvailable" value={filters.nocAvailable} onChange={(val) => handleRadioChange('nocAvailable', val)} />
-            <YesNoRadioGroup label="Patta Available" name="pattaAvailable" value={filters.pattaAvailable} onChange={(val) => handleRadioChange('pattaAvailable', val)} />
-            <YesNoRadioGroup label="Encumbrance Free" name="encumbranceFree" value={filters.encumbranceFree} onChange={(val) => handleRadioChange('encumbranceFree', val)} />
-            <YesNoRadioGroup label="Loan Eligible" name="loanEligible" value={filters.loanEligible} onChange={(val) => handleRadioChange('loanEligible', val)} />
-            <YesNoRadioGroup label="Title Deed Verified" name="titleDeedVerified" value={filters.titleDeedVerified} onChange={(val) => handleRadioChange('titleDeedVerified', val)} />
-          </>
-        ) : currentTab === 'Buy' ? (
+        ) : 
+        // SELL TAB LEGAL SECTION COMMENTED OUT
+        // currentTab === 'Sell' ? (
+        //   <>
+        //     <YesNoRadioGroup label="DTCP Approved" name="dtcpApproved" value={filters.dtcpApproved} onChange={(val) => handleRadioChange('dtcpApproved', val)} />
+        //     <YesNoRadioGroup label="CMDA Approved" name="cmdaApproved" value={filters.cmdaApproved} onChange={(val) => handleRadioChange('cmdaApproved', val)} />
+        //     <YesNoRadioGroup label="Commercial Approval Available" name="commercialApproval" value={filters.commercialApproval} onChange={(val) => handleRadioChange('commercialApproval', val)} />
+        //     <YesNoRadioGroup label="Petroleum License Eligible" name="petroleumLicenseEligible" value={filters.petroleumLicenseEligible} onChange={(val) => handleRadioChange('petroleumLicenseEligible', val)} />
+        //     <YesNoRadioGroup label="NOC Available" name="nocAvailable" value={filters.nocAvailable} onChange={(val) => handleRadioChange('nocAvailable', val)} />
+        //     <YesNoRadioGroup label="Patta Available" name="pattaAvailable" value={filters.pattaAvailable} onChange={(val) => handleRadioChange('pattaAvailable', val)} />
+        //     <YesNoRadioGroup label="Encumbrance Free" name="encumbranceFree" value={filters.encumbranceFree} onChange={(val) => handleRadioChange('encumbranceFree', val)} />
+        //     <YesNoRadioGroup label="Loan Eligible" name="loanEligible" value={filters.loanEligible} onChange={(val) => handleRadioChange('loanEligible', val)} />
+        //     <YesNoRadioGroup label="Title Deed Verified" name="titleDeedVerified" value={filters.titleDeedVerified} onChange={(val) => handleRadioChange('titleDeedVerified', val)} />
+        //   </>
+        // ) : 
+        currentTab === 'Buy' ? (
           <>
             <YesNoRadioGroup label="DTCP Approved Required" name="dtcpApproved" value={filters.dtcpApproved} onChange={(val) => handleRadioChange('dtcpApproved', val)} />
             <YesNoRadioGroup label="CMDA Approved Required" name="cmdaApproved" value={filters.cmdaApproved} onChange={(val) => handleRadioChange('cmdaApproved', val)} />
@@ -716,7 +724,13 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
   );
 
   const renderSuitableSection = () => {
-    const options = suitableForOptions[currentTab.toLowerCase()] || suitableForOptions.lease;
+    // SELL OPTION REMOVED
+    let options = [];
+    if (currentTab === 'Rent') options = suitableForOptions.rent;
+    else if (currentTab === 'Buy') options = suitableForOptions.buy;
+    // else if (currentTab === 'Sell') options = suitableForOptions.sell;
+    else options = suitableForOptions.lease;
+    
     return (
       <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
         <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Fuel className="w-3.5 h-3.5" /> Petrol Bunk Suitability</h3>
@@ -752,18 +766,21 @@ const PetrolBunkPlotFilter = ({ activeTab = 'Lease', onFilterChange, onClose, on
           </div>
         </div>
       );
-    } else if (currentTab === 'Sell') {
-      return (
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
-          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>
-          <div className="space-y-2">
-            <YesNoRadioGroup label="Ready to Register" name="readyToRegister" value={filters.readyToRegister} onChange={(val) => handleRadioChange('readyToRegister', val)} />
-            <YesNoRadioGroup label="Immediate Possession" name="immediatePossession" value={filters.immediatePossession} onChange={(val) => handleRadioChange('immediatePossession', val)} />
-            <YesNoRadioGroup label="Under Development Commercial Layout" name="underDevelopmentLayout" value={filters.underDevelopmentLayout} onChange={(val) => handleRadioChange('underDevelopmentLayout', val)} />
-          </div>
-        </div>
-      );
-    } else {
+    } 
+    // SELL TAB AVAILABILITY SECTION COMMENTED OUT
+    // } else if (currentTab === 'Sell') {
+    //   return (
+    //     <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+    //       <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>
+    //       <div className="space-y-2">
+    //         <YesNoRadioGroup label="Ready to Register" name="readyToRegister" value={filters.readyToRegister} onChange={(val) => handleRadioChange('readyToRegister', val)} />
+    //         <YesNoRadioGroup label="Immediate Possession" name="immediatePossession" value={filters.immediatePossession} onChange={(val) => handleRadioChange('immediatePossession', val)} />
+    //         <YesNoRadioGroup label="Under Development Commercial Layout" name="underDevelopmentLayout" value={filters.underDevelopmentLayout} onChange={(val) => handleRadioChange('underDevelopmentLayout', val)} />
+    //       </div>
+    //     </div>
+    //   );
+    // } 
+    else {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>

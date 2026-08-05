@@ -422,7 +422,7 @@ const DairyFarmLandFilter = ({ activeTab = 'Lease', onFilterChange, onClose, onT
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3 h-3" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3 h-3" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3 h-3" /> }
   ];
 
@@ -871,4 +871,3 @@ const DairyFarmLandFilter = ({ activeTab = 'Lease', onFilterChange, onClose, onT
 };
 
 export default DairyFarmLandFilter;
-

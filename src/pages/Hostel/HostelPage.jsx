@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, ChevronRight, Instagram, Facebook, Twitter, Globe, Users, Phone, ArrowRight, BedDouble } from "lucide-react";
+import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, ChevronRight, Globe, Users, ArrowRight, BedDouble } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Import images for the banner
@@ -143,7 +143,7 @@ const HostelPage = () => {
               style={{
                 left: "50%",
                 right: 0,
-                background: "linear-gradient(135deg, #163C36, #0B211D)",
+                background: "linear-gradient(135deg, #00695C, #26A69A)",
                 clipPath: "polygon(16% 0%, 100% 0%, 100% 100%, 16% 100%, 0% 50%)"
               }}
             >
@@ -157,18 +157,11 @@ const HostelPage = () => {
               />
             </div>
 
-            {/* diagonal sage stripes where light meets dark */}
-            <div className="absolute top-[6%] left-[45%] flex gap-2 -rotate-[24deg] z-10">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="w-2 lg:w-3 h-20 lg:h-24 bg-[#C7CDC1]" />
-              ))}
-            </div>
-
             {/* photo pentagon, framed in white, overlapping the chevron */}
             <div
               className="absolute top-[6%] shadow-2xl bg-white z-20"
               style={{
-                left: "40%",
+                left: "46%",
                 width: "48%",
                 height: "88%",
                 clipPath: "polygon(17% 0%, 83% 0%, 100% 50%, 83% 100%, 17% 100%, 0% 50%)",
@@ -185,18 +178,7 @@ const HostelPage = () => {
           </div>
 
           {/* ===== Content (logo, heading, categories, CTA) ===== */}
-          <div className="relative z-30 flex flex-col justify-center h-full w-full md:w-[54%] lg:w-[52%] max-w-none px-6 md:px-10 lg:px-14 py-10 md:py-8">
-            {/* logo emblem */}
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-11 h-11 rotate-45 border-2 border-[#00695C] rounded-md flex items-center justify-center flex-shrink-0">
-                <BedDouble className="w-5 h-5 -rotate-45 text-[#00695C]" />
-              </div>
-              <div className="leading-tight">
-                <p className="text-[11px] font-bold tracking-wide text-[#143B35]">ELITEINOVA</p>
-                <p className="text-[11px] font-light tracking-wide text-[#4B5C58]">HOSTELS &amp; PG</p>
-              </div>
-            </div>
-
+          <div className="relative z-30 flex flex-col justify-center h-full w-full md:w-[48%] lg:w-[46%] max-w-none px-6 md:px-10 lg:px-14 py-10 md:py-8">
             <h1 className="text-[#143B35] font-black leading-[0.95] mb-2">
               <span className="block text-lg md:text-xl font-light tracking-[0.15em] mb-1">
                 Comfortable
@@ -217,10 +199,10 @@ const HostelPage = () => {
               {bannerDiamonds.map((diamond, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col items-center cursor-pointer group ${index === 0 ? "pr-4 md:pr-5" : "px-4 md:px-5"}`}
+                  className={`flex flex-col items-center cursor-pointer group ${index === 0 ? "pr-4 md:pr-6" : "px-4 md:px-6"}`}
                   onClick={() => handlePropertyCategoryNavigation(diamond.path)}
                 >
-                  <div className="w-14 h-14 md:w-16 md:h-16 rotate-45 rounded-xl overflow-hidden border-[3px] border-[#C9A227] shadow-lg group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(201,162,39,0.35)] transition-all duration-300">
+                  <div className="w-[3.65rem] h-[3.65rem] md:w-[4.6rem] md:h-[4.6rem] rotate-45 rounded-xl overflow-hidden border-[3px] border-[#C9A227] shadow-lg group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(201,162,39,0.35)] transition-all duration-300">
                     <img
                       src={diamond.image}
                       alt={diamond.label}
@@ -228,11 +210,11 @@ const HostelPage = () => {
                     />
                   </div>
 
-                  <div className="w-6 h-6 -mt-3 rounded-full bg-white shadow-md border border-[#C9A227]/50 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-7 h-7 -mt-3.5 rounded-full bg-white shadow-md border border-[#C9A227]/50 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
                     {diamond.icon}
                   </div>
 
-                  <span className="mt-1.5 text-[9px] md:text-[10px] font-bold tracking-wide text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
+                  <span className="mt-1.5 text-[9px] md:text-[11px] font-bold tracking-wide text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
                     {diamond.label.toUpperCase()}
                   </span>
                 </div>
@@ -248,27 +230,6 @@ const HostelPage = () => {
               EXPLORE HOSTELS
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
             </button> */}
-
-            {/* contact row */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#00695C] flex items-center justify-center flex-shrink-0">
-                <Phone className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-[#143B35]">+123 456 789 001</span>
-            </div>
-
-            <div className="mt-3 flex items-center gap-3">
-              <div className="w-7 h-7 rounded-md bg-[#143B35] flex items-center justify-center">
-                <Facebook className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div className="w-7 h-7 rounded-md bg-[#143B35] flex items-center justify-center">
-                <Twitter className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div className="w-7 h-7 rounded-md bg-[#143B35] flex items-center justify-center">
-                <Instagram className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-xs text-[#4B5C58]">/ YourBrandLink</span>
-            </div>
           </div>
 
           {/* ===== Mobile fallback: simple stacked hero ===== */}

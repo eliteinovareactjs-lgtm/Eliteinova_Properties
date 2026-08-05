@@ -414,7 +414,7 @@ const IndustrialCommercialPlotFilter = ({ activeTab = 'Rent', onFilterChange, on
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3 h-3" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3 h-3" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3 h-3" /> }
   ];
 
@@ -918,4 +918,3 @@ const IndustrialCommercialPlotFilter = ({ activeTab = 'Rent', onFilterChange, on
   );
 };
 export default IndustrialCommercialPlotFilter;
-
