@@ -258,8 +258,8 @@ const YesNoRadioGroup = ({ label, name, value, onChange }) => (
   </div>
 );
 
-const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, onClose, onTabChange }) => {
-  const [currentTab, setCurrentTab] = useState('Rent');
+const CommercialIndustrialLandFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange }) => {
+  const [currentTab, setCurrentTab] = useState('Buy');
   const [activeMainSection, setActiveMainSection] = useState('basic');
   
   const [filters, setFilters] = useState({
@@ -269,10 +269,10 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
     // Location Details
     city: '', taluk: '', locality: '', landmark: '', pincode: '',
     mainRoadAccess: '', highwayFrontage: '', cornerProperty: '', nearbyConnectivity: '',
-    // Price/Rent/Lease/Sell Details
+    // Price/Rent/Lease/Buy Details
+    minBudget: '', maxBudget: '', budgetPerUnit: '', loanRequired: '', priceNegotiable: '',
     minRent: '', maxRent: '', minAnnualRent: '', maxAnnualRent: '', rentPerUnit: '',
     securityDeposit: '', advanceAmount: '', rentNegotiable: '',
-    minSellPrice: '', maxSellPrice: '', sellPricePerUnit: '', sellPriceNegotiable: '',
     minLeaseAmount: '', maxLeaseAmount: '', leaseRentPerUnit: '', leaseDuration: '', leaseRenewable: '', leaseNegotiable: '',
     maintenanceCharges: '', camCharges: '', propertyTax: '', propertyTaxResponsibility: '',
     // Land Details
@@ -410,7 +410,7 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
 
   const mainSections = [
     { id: 'basic', label: '📍 Basic', icon: <Home className="w-3.5 h-3.5" /> },
-    { id: 'price', label: currentTab === 'Rent' ? '💰 Rent' : currentTab === 'Sell' ? '💰 Price' : '💰 Lease', icon: <IndianRupee className="w-3.5 h-3.5" /> },
+    { id: 'price', label: currentTab === 'Buy' ? '💰 Budget' : currentTab === 'Rent' ? '💰 Rent' : '💰 Lease', icon: <IndianRupee className="w-3.5 h-3.5" /> },
     { id: 'land', label: '📐 Land', icon: <SquareIcon className="w-3.5 h-3.5" /> },
     { id: 'commercial', label: '🏪 Commercial', icon: <Store className="w-3.5 h-3.5" /> },
     { id: 'industrial', label: '🏭 Industrial', icon: <Factory className="w-3.5 h-3.5" /> },
@@ -426,8 +426,8 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
   ];
 
   const tabs = [
+    { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3 h-3" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3 h-3" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendingUp className="w-3 h-3" /> },
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3 h-3" /> }
   ];
 
@@ -481,9 +481,9 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
       zoneType: [],
       city: '', taluk: '', locality: '', landmark: '', pincode: '',
       mainRoadAccess: '', highwayFrontage: '', cornerProperty: '', nearbyConnectivity: '',
+      minBudget: '', maxBudget: '', budgetPerUnit: '', loanRequired: '', priceNegotiable: '',
       minRent: '', maxRent: '', minAnnualRent: '', maxAnnualRent: '', rentPerUnit: '',
       securityDeposit: '', advanceAmount: '', rentNegotiable: '',
-      minSellPrice: '', maxSellPrice: '', sellPricePerUnit: '', sellPriceNegotiable: '',
       minLeaseAmount: '', maxLeaseAmount: '', leaseRentPerUnit: '', leaseDuration: '', leaseRenewable: '', leaseNegotiable: '',
       maintenanceCharges: '', camCharges: '', propertyTax: '', propertyTaxResponsibility: '',
       totalLandArea: '', landAreaUnit: 'acres', usableLandArea: '', expandableLand: '',
@@ -595,7 +595,26 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
   );
 
   const renderPriceSection = () => {
-    if (currentTab === 'Rent') {
+    if (currentTab === 'Buy') {
+      return (
+        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><DollarSign className="w-3.5 h-3.5" /> Budget Details</h3>
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                <input type="number" placeholder="Min Budget (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minBudget} onChange={(e) => handleInputChange('minBudget', e.target.value)} />
+                <input type="number" placeholder="Max Budget (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxBudget} onChange={(e) => handleInputChange('maxBudget', e.target.value)} />
+              </div>
+              <input type="number" placeholder="Preferred Price Per Sq.ft / Cent / Acre (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.budgetPerUnit} onChange={(e) => handleInputChange('budgetPerUnit', e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <YesNoRadioGroup label="Loan Required" name="loanRequired" value={filters.loanRequired} onChange={(val) => handleRadioChange('loanRequired', val)} />
+              <YesNoRadioGroup label="Price Negotiable" name="priceNegotiable" value={filters.priceNegotiable} onChange={(val) => handleRadioChange('priceNegotiable', val)} />
+            </div>
+          </div>
+        </div>
+      );
+    } else if (currentTab === 'Rent') {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><IndianRupee className="w-3.5 h-3.5" /> Rent Details</h3>
@@ -618,26 +637,6 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
               <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
               <input type="text" placeholder="Common Area Maintenance (CAM) Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.camCharges} onChange={(e) => handleInputChange('camCharges', e.target.value)} />
               <CustomSelect label="Property Tax Responsibility" options={propertyTaxResponsibilityOptions} value={filters.propertyTaxResponsibility} onChange={(val) => handleInputChange('propertyTaxResponsibility', val)} placeholder="Select" />
-            </div>
-          </div>
-        </div>
-      );
-    } else if (currentTab === 'Sell') {
-      return (
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
-          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><TrendingUp className="w-3.5 h-3.5" /> Price Details</h3>
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div className="grid grid-cols-2 gap-2">
-                <input type="number" placeholder="Min Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.minSellPrice} onChange={(e) => handleInputChange('minSellPrice', e.target.value)} />
-                <input type="number" placeholder="Max Price (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maxSellPrice} onChange={(e) => handleInputChange('maxSellPrice', e.target.value)} />
-              </div>
-              <input type="number" placeholder="Price Per Sq.ft / Cent / Acre (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.sellPricePerUnit} onChange={(e) => handleInputChange('sellPricePerUnit', e.target.value)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <YesNoRadioGroup label="Price Negotiable" name="sellPriceNegotiable" value={filters.sellPriceNegotiable} onChange={(val) => handleRadioChange('sellPriceNegotiable', val)} />
-              <input type="text" placeholder="Maintenance Charges (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.maintenanceCharges} onChange={(e) => handleInputChange('maintenanceCharges', e.target.value)} />
-              <input type="text" placeholder="Property Tax (₹)" className="px-2 py-1.5 rounded border border-teal-300 bg-white text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" value={filters.propertyTax} onChange={(e) => handleInputChange('propertyTax', e.target.value)} />
             </div>
           </div>
         </div>
@@ -801,8 +800,8 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
         <YesNoRadioGroup label="Pollution Control Clearance Available" name="pollutionClearance" value={filters.pollutionClearance} onChange={(val) => handleRadioChange('pollutionClearance', val)} />
         <YesNoRadioGroup label="Fire Safety Approval Available" name="fireSafetyApproval" value={filters.fireSafetyApproval} onChange={(val) => handleRadioChange('fireSafetyApproval', val)} />
         <YesNoRadioGroup label="Encumbrance Free" name="encumbranceFree" value={filters.encumbranceFree} onChange={(val) => handleRadioChange('encumbranceFree', val)} />
-        {currentTab === 'Sell' && (
-          <YesNoRadioGroup label="Loan Eligible" name="loanEligible" value={filters.loanEligible} onChange={(val) => handleRadioChange('loanEligible', val)} />
+        {currentTab === 'Buy' && (
+          <YesNoRadioGroup label="Loan Eligible Property Required" name="loanEligible" value={filters.loanEligible} onChange={(val) => handleRadioChange('loanEligible', val)} />
         )}
         <YesNoRadioGroup label="Land Survey Completed" name="landSurveyCompleted" value={filters.landSurveyCompleted} onChange={(val) => handleRadioChange('landSurveyCompleted', val)} />
         <YesNoRadioGroup label="Title Deed Verified" name="titleDeedVerified" value={filters.titleDeedVerified} onChange={(val) => handleRadioChange('titleDeedVerified', val)} />
@@ -817,7 +816,21 @@ const CommercialIndustrialLandFilter = ({ activeTab = 'Rent', onFilterChange, on
   );
 
   const renderAvailabilitySection = () => {
-    if (currentTab === 'Rent' || currentTab === 'Lease') {
+    if (currentTab === 'Buy') {
+      return (
+        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
+          <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability Preference</h3>
+          <div className="space-y-2">
+            <YesNoRadioGroup label="Ready to Register" name="readyToRegister" value={filters.readyToRegister} onChange={(val) => handleRadioChange('readyToRegister', val)} />
+            <YesNoRadioGroup label="Immediate Possession" name="immediatePossession" value={filters.immediatePossession} onChange={(val) => handleRadioChange('immediatePossession', val)} />
+            <YesNoRadioGroup label="Vacant Land Preferred" name="vacantLandAvailable" value={filters.vacantLandAvailable} onChange={(val) => handleRadioChange('vacantLandAvailable', val)} />
+            <YesNoRadioGroup label="Developed Industrial Plot Preferred" name="developedIndustrialPlot" value={filters.developedIndustrialPlot} onChange={(val) => handleRadioChange('developedIndustrialPlot', val)} />
+            <YesNoRadioGroup label="Ready for Commercial Development" name="readyForCommercial" value={filters.readyForCommercial} onChange={(val) => handleRadioChange('readyForCommercial', val)} />
+            <YesNoRadioGroup label="Ready for Industrial Development" name="readyForIndustrial" value={filters.readyForIndustrial} onChange={(val) => handleRadioChange('readyForIndustrial', val)} />
+          </div>
+        </div>
+      );
+    } else if (currentTab === 'Rent' || currentTab === 'Lease') {
       return (
         <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-3 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-2 flex items-center gap-1.5 text-sm"><Calendar className="w-3.5 h-3.5" /> Availability</h3>

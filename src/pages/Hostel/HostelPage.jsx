@@ -164,12 +164,12 @@ const HostelPage = () => {
               ))}
             </div>
 
-            {/* photo hexagon, framed in white, overlapping the chevron */}
+            {/* photo pentagon, framed in white, overlapping the chevron */}
             <div
               className="absolute top-[6%] shadow-2xl bg-white z-20"
               style={{
-                left: "32%",
-                width: "58%",
+                left: "40%",
+                width: "48%",
                 height: "88%",
                 clipPath: "polygon(17% 0%, 83% 0%, 100% 50%, 83% 100%, 17% 100%, 0% 50%)",
                 padding: "10px"

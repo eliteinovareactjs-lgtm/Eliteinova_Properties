@@ -661,7 +661,7 @@ const Header = ({ onPostPropertyClick }) => {
                   }}
                 >
                   <span className="relative inline-block group-hover:scale-105 transition-transform duration-500">
-                    Eliteinova <span className="text-[0.75em]">Properties</span>
+                    Eliteinova <span className="text-[0.75em]">Properties (Vendor to Customer)</span>
                     <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00E5FF]/20 via-[#00FF88]/20 to-[#00E5FF]/20 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-700" />
                   </span>
                 </h1>
