@@ -38,13 +38,13 @@ const DuplexResidentialFilter = ({ activeTab = "Buy", onFilterChange, onClose })
   const [occupancyDetails, setOccupancyDetails] = useState("");
   const [petFriendly, setPetFriendly] = useState("");
 
-  // Sell specific states
-  const [expectedPrice, setExpectedPrice] = useState({ min: "", max: "" });
-  const [negotiable, setNegotiable] = useState("");
-  const [propertyAge, setPropertyAge] = useState("");
-  const [propertyCondition, setPropertyCondition] = useState("");
-  const [ownershipType, setOwnershipType] = useState("");
-  const [loanOutstanding, setLoanOutstanding] = useState("");
+  // Sell specific states (commented out but kept for reference)
+  // const [expectedPrice, setExpectedPrice] = useState({ min: "", max: "" });
+  // const [negotiable, setNegotiable] = useState("");
+  // const [propertyAge, setPropertyAge] = useState("");
+  // const [propertyCondition, setPropertyCondition] = useState("");
+  // const [ownershipType, setOwnershipType] = useState("");
+  // const [loanOutstanding, setLoanOutstanding] = useState("");
 
   // Lease specific states
   const [leaseBudget, setLeaseBudget] = useState({ min: "", max: "" });
@@ -53,7 +53,7 @@ const DuplexResidentialFilter = ({ activeTab = "Buy", onFilterChange, onClose })
   const [occupancyType, setOccupancyType] = useState("");
   const [leasePetFriendly, setLeasePetFriendly] = useState("");
 
-  const propertyTypes = ["Buy", "Rent", "Sell", "Lease"];
+  const propertyTypes = ["Buy", "Rent", /* "Sell", */ "Lease"];
 
   const bedroomOptions = ["2 BHK", "3 BHK", "4 BHK", "5+ BHK"];
   const bathroomOptions = ["1", "2", "3", "4+"];
@@ -163,12 +163,13 @@ const DuplexResidentialFilter = ({ activeTab = "Buy", onFilterChange, onClose })
     setRentalDuration("");
     setOccupancyDetails("");
     setPetFriendly("");
-    setExpectedPrice({ min: "", max: "" });
-    setNegotiable("");
-    setPropertyAge("");
-    setPropertyCondition("");
-    setOwnershipType("");
-    setLoanOutstanding("");
+    // Commented out sell state resets
+    // setExpectedPrice({ min: "", max: "" });
+    // setNegotiable("");
+    // setPropertyAge("");
+    // setPropertyCondition("");
+    // setOwnershipType("");
+    // setLoanOutstanding("");
     setLeaseBudget({ min: "", max: "" });
     setAdvanceDeposit({ min: "", max: "" });
     setLeaseDuration("");
@@ -661,138 +662,13 @@ const DuplexResidentialFilter = ({ activeTab = "Buy", onFilterChange, onClose })
     </>
   );
 
-  const renderSellFilters = () => (
-    <>
-      {renderCommonFilters()}
-
-      {/* Expected Price */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-teal-600" />
-          Expected Selling Price (₹)
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            value={expectedPrice.min}
-            onChange={(e) => setExpectedPrice({ ...expectedPrice, min: e.target.value })}
-            placeholder="Min"
-            className="w-1/2 px-3 py-2 rounded-lg border-2 border-teal-200 bg-white text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 text-teal-900 placeholder-teal-400"
-          />
-          <input
-            type="number"
-            value={expectedPrice.max}
-            onChange={(e) => setExpectedPrice({ ...expectedPrice, max: e.target.value })}
-            placeholder="Max"
-            className="w-1/2 px-3 py-2 rounded-lg border-2 border-teal-200 bg-white text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 text-teal-900 placeholder-teal-400"
-          />
-        </div>
-      </div>
-
-      {/* Negotiable */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-teal-600" />
-          Negotiable
-        </label>
-        <div className="flex gap-2">
-          {yesNoOptions.map((option) => (
-            <label key={option} className="flex items-center gap-2 p-2 rounded-lg border-2 border-teal-200 bg-white hover:border-teal-500 cursor-pointer transition-all duration-300 flex-1 text-center justify-center">
-              <input
-                type="radio"
-                name="negotiable"
-                checked={negotiable === option}
-                onChange={() => setNegotiable(option)}
-                className="w-3.5 h-3.5 text-teal-600 focus:ring-teal-500/30"
-              />
-              <span className="text-sm font-semibold text-teal-900">{option}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Property Age */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <Clock className="w-4 h-4 text-teal-600" />
-          Age of Property (Years)
-        </label>
-        <input
-          type="number"
-          value={propertyAge}
-          onChange={(e) => setPropertyAge(e.target.value)}
-          placeholder="Enter property age"
-          className="w-full px-3 py-2 rounded-lg border-2 border-teal-200 bg-white text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 text-teal-900"
-        />
-      </div>
-
-      {/* Property Condition */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-teal-600" />
-          Property Condition
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {["New", "Good", "Renovated", "Needs Renovation"].map((condition) => (
-            <label key={condition} className="flex items-center gap-2 p-2 rounded-lg border-2 border-teal-200 bg-white hover:border-teal-500 cursor-pointer transition-all duration-300">
-              <input
-                type="radio"
-                name="propertyCondition"
-                checked={propertyCondition === condition}
-                onChange={() => setPropertyCondition(condition)}
-                className="w-3.5 h-3.5 text-teal-600 focus:ring-teal-500/30"
-              />
-              <span className="text-sm font-semibold text-teal-900">{condition}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Ownership Type */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <FileText className="w-4 h-4 text-teal-600" />
-          Ownership Type
-        </label>
-        <div className="flex gap-2">
-          {["Freehold", "Leasehold"].map((type) => (
-            <label key={type} className="flex items-center gap-2 p-2 rounded-lg border-2 border-teal-200 bg-white hover:border-teal-500 cursor-pointer transition-all duration-300 flex-1 text-center justify-center">
-              <input
-                type="radio"
-                name="ownershipType"
-                checked={ownershipType === type}
-                onChange={() => setOwnershipType(type)}
-                className="w-3.5 h-3.5 text-teal-600 focus:ring-teal-500/30"
-              />
-              <span className="text-sm font-semibold text-teal-900">{type}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Loan Outstanding */}
-      <div className="mb-4">
-        <label className="text-sm font-bold text-teal-900 mb-2 block flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-teal-600" />
-          Loan Outstanding
-        </label>
-        <div className="flex gap-2">
-          {yesNoOptions.map((option) => (
-            <label key={option} className="flex items-center gap-2 p-2 rounded-lg border-2 border-teal-200 bg-white hover:border-teal-500 cursor-pointer transition-all duration-300 flex-1 text-center justify-center">
-              <input
-                type="radio"
-                name="loanOutstanding"
-                checked={loanOutstanding === option}
-                onChange={() => setLoanOutstanding(option)}
-                className="w-3.5 h-3.5 text-teal-600 focus:ring-teal-500/30"
-              />
-              <span className="text-sm font-semibold text-teal-900">{option}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-    </>
-  );
+  // Sell filters section commented out
+  // const renderSellFilters = () => (
+  //   <>
+  //     {renderCommonFilters()}
+  //     {/* Sell specific filters */}
+  //   </>
+  // );
 
   const renderLeaseFilters = () => (
     <>
@@ -955,7 +831,7 @@ const DuplexResidentialFilter = ({ activeTab = "Buy", onFilterChange, onClose })
       <div className="p-4 max-h-[500px] overflow-y-auto custom-scrollbar">
         {activePropertyType === "Buy" && renderBuyFilters()}
         {activePropertyType === "Rent" && renderRentFilters()}
-        {activePropertyType === "Sell" && renderSellFilters()}
+        {/* {activePropertyType === "Sell" && renderSellFilters()} */}
         {activePropertyType === "Lease" && renderLeaseFilters()}
       </div>
 

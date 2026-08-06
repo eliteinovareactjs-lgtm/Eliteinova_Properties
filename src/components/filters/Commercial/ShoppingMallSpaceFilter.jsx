@@ -235,7 +235,7 @@ const CustomSelect = ({ label, options, value, onChange, placeholder }) => {
 };
 
 const ShoppingMallSpaceFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange }) => {
-  const [currentTab, setCurrentTab] = useState('Buy');
+  const [currentTab, setCurrentTab] = useState('Buy'); // Already set to 'Buy' as default
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     location: true,
@@ -356,7 +356,7 @@ const ShoppingMallSpaceFilter = ({ activeTab = 'Buy', onFilterChange, onClose, o
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3.5 h-3.5" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3.5 h-3.5" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3.5 h-3.5" /> }
   ];
 

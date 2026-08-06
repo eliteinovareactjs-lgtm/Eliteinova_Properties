@@ -353,7 +353,7 @@ const BusinessCenterFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTa
   const tabs = [
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3.5 h-3.5" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3.5 h-3.5" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3.5 h-3.5" /> }
   ];
 
@@ -756,13 +756,11 @@ const BusinessCenterFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTa
               <AlertCircle className="w-3 h-3 text-teal-600" />
               <span className="text-xs text-teal-700 group-hover:text-teal-600">Fire Safety System</span>
             </label>
-            <label className="flex items-center gap-1.5 cursor-pointer group ">
+            <label className="flex items-center gap-1.5 cursor-pointer group">
               <input type="checkbox" checked={filters.cafeteriaFoodCourt} onChange={(e) => handleCheckboxChange('cafeteriaFoodCourt', e.target.checked)} className="w-3.5 h-3.5 rounded border-2 border-teal-300 bg-white checked:bg-teal-600 checked:border-teal-600 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-teal-600" />
               <Coffee className="w-3 h-3 text-teal-600" />
               <span className="text-xs text-teal-700 group-hover:text-teal-600">Cafeteria / Food Court</span>
             </label>
-
-            
           </div>
         </div>
       )}

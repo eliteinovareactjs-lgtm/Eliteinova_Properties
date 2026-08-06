@@ -430,7 +430,7 @@ const ColdStorageFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabCh
     
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3.5 h-3.5" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3.5 h-3.5" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3.5 h-3.5" /> }
   ];
 
@@ -808,7 +808,7 @@ const ColdStorageFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabCh
               <ParkingCircle className="w-3 h-3 text-teal-600" />
               <span className="text-xs text-teal-700 group-hover:text-teal-600">Vehicle Parking (Truck / Lorry)</span>
             </label>
-            <label className="flex items-center gap-1.5 cursor-pointer group ">
+            <label className="flex items-center gap-1.5 cursor-pointer group">
               <input type="checkbox" checked={filters.twentyFourSevenOperations} onChange={(e) => handleCheckboxChange('twentyFourSevenOperations', e.target.checked)} className="w-3.5 h-3.5 rounded border-2 border-teal-300 bg-white checked:bg-teal-600 checked:border-teal-600 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-teal-600" />
               <Clock className="w-3 h-3 text-teal-600" />
               <span className="text-xs text-teal-700 group-hover:text-teal-600">24/7 Operations Allowed</span>

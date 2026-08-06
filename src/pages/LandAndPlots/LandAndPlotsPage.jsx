@@ -3,6 +3,17 @@ import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark,
 import { useNavigate, useLocation } from "react-router-dom";
 import backgroundImage from "../../assets/landandplots/mainbg.png";
 
+// Category images for the round subcategory circles.
+// NOTE: reusing the shared banner image as a placeholder for every category —
+// swap each of these for a dedicated photo whenever real photography is available.
+import residentialLandImg from "../../assets/landandplots/mainbg.png";
+import commercialLandImg from "../../assets/landandplots/mainbg.png";
+import agriculturalLandImg from "../../assets/landandplots/mainbg.png";
+import industrialLandImg from "../../assets/landandplots/mainbg.png";
+import mixedUseLandImg from "../../assets/landandplots/mainbg.png";
+import institutionalLandImg from "../../assets/landandplots/mainbg.png";
+import investmentLandImg from "../../assets/landandplots/mainbg.png";
+
 const LandAndPlotsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,14 +59,16 @@ const LandAndPlotsPage = () => {
   const landCategories = [
     {
       name: "All",
-      icon: <Compass className="w-3.5 h-3.5" />,
+      icon: <Compass className="w-7 h-7" />,
+      image: null,
       path: "/land-plots",
       isAllButton: true,
       submenus: []
     },
     {
       name: "Residential Land / Plots",
-      icon: <Building className="w-3.5 h-3.5" />,
+      icon: <Building className="w-6 h-6" />,
+      image: residentialLandImg,
       path: "/land-plots/residential-land-plots",
       submenus: [
         "Residential Plot",
@@ -71,7 +84,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Commercial Land / Plots",
-      icon: <Building2 className="w-3.5 h-3.5" />,
+      icon: <Building2 className="w-6 h-6" />,
+      image: commercialLandImg,
       path: "/land-plots/commercial-land-plots",
       submenus: [
         "Commercial Plot",
@@ -88,7 +102,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Agricultural Land",
-      icon: <Sprout className="w-3.5 h-3.5" />,
+      icon: <Sprout className="w-6 h-6" />,
+      image: agriculturalLandImg,
       path: "/land-plots/agricultural-land-plots",
       submenus: [
         "Agricultural Land",
@@ -104,7 +119,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Industrial Land",
-      icon: <Factory className="w-3.5 h-3.5" />,
+      icon: <Factory className="w-6 h-6" />,
+      image: industrialLandImg,
       path: "/land-plots/industrial-land-plots",
       submenus: [
         "Industrial Plot",
@@ -118,7 +134,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Mixed-Use Land",
-      icon: <Layers className="w-3.5 h-3.5" />,
+      icon: <Layers className="w-6 h-6" />,
+      image: mixedUseLandImg,
       path: "/land-plots/mixed-use-land-plots",
       submenus: [
         "Residential + Commercial Plot",
@@ -129,7 +146,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Institutional Land",
-      icon: <School className="w-3.5 h-3.5" />,
+      icon: <School className="w-6 h-6" />,
+      image: institutionalLandImg,
       path: "/land-plots/institutional-land-plots",
       submenus: [
         "School / College Land",
@@ -140,7 +158,8 @@ const LandAndPlotsPage = () => {
     },
     {
       name: "Investment & Special Purpose Land",
-      icon: <Heart className="w-3.5 h-3.5" />,
+      icon: <Heart className="w-6 h-6" />,
+      image: investmentLandImg,
       path: "/land-plots/investment-land-plots",
       submenus: [
         "Highway Facing Plot",
@@ -227,7 +246,7 @@ const LandAndPlotsPage = () => {
 
   useEffect(() => {
     const currentPath = location.pathname;
-    
+
     // First check for main category pages
     const mainCategoryPaths = [
       { path: "/land-plots/residential-land-plots", name: "Residential Land / Plots" },
@@ -238,19 +257,19 @@ const LandAndPlotsPage = () => {
       { path: "/land-plots/institutional-land-plots", name: "Institutional Land" },
       { path: "/land-plots/investment-land-plots", name: "Investment & Special Purpose Land" }
     ];
-    
+
     const mainMatch = mainCategoryPaths.find(item => item.path === currentPath);
     if (mainMatch) {
       setActiveLandType(mainMatch.name);
       return;
     }
-    
+
     // Check All button
     if (currentPath === "/land-plots" || currentPath === "/land-plots/") {
       setActiveLandType("All");
       return;
     }
-    
+
     // Check submenus and other paths
     const activeType = landTypes.find(type => type.path === currentPath);
     if (activeType) {
@@ -276,10 +295,21 @@ const LandAndPlotsPage = () => {
     return landType?.parent || null;
   };
 
+  // Maps a top-level category's display name to the "activeLandType" value used elsewhere
+  const mainCategoryActiveMap = {
+    "Residential Land / Plots": "Residential Land / Plots",
+    "Commercial Land / Plots": "Commercial Land / Plots",
+    "Agricultural Land": "Agricultural Land / Plots",
+    "Industrial Land": "Industrial Land / Plots",
+    "Mixed-Use Land": "Mixed-Use Land / Plots",
+    "Institutional Land": "Institutional Land / Plots",
+    "Investment & Special Purpose Land": "Investment & Special Purpose Land / Plots"
+  };
+
   return (
     <div className="w-full min-h-screen relative">
       {/* Background */}
-      <div 
+      <div
         className="fixed inset-0 z-0"
         style={{
           backgroundImage: `url(${backgroundImage})`,
@@ -418,7 +448,7 @@ const LandAndPlotsPage = () => {
           </div>
         </section>
 
-        {/* Sticky Header with Hover Dropdown Menus */}
+        {/* Sticky Header with Round Category Icons + Hover Submenus */}
         <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500 animate-slide-down">
           <div className="max-w-none mx-auto px-6 py-4">
             <div className="hidden md:block space-y-4">
@@ -472,20 +502,12 @@ const LandAndPlotsPage = () => {
                 </div>
               </div>
 
-              {/* Main Categories with Hover Dropdown */}
-              <div className="flex flex-wrap gap-2">
+              {/* ====== LAND CATEGORIES - Round icons (hostel-page style) with hover submenu ====== */}
+              <div className="flex flex-wrap items-start justify-center gap-5 md:gap-8 pt-2">
                 {landCategories.map((category) => {
-                  const mainCategoryActiveMap = {
-  "Residential Land / Plots": "Residential Land / Plots",
-  "Commercial Land / Plots": "Commercial Land / Plots",
-  "Agricultural Land": "Agricultural Land / Plots",
-  "Industrial Land": "Industrial Land / Plots",
-  "Mixed-Use Land": "Mixed-Use Land / Plots",
-  "Institutional Land": "Institutional Land / Plots",
-  "Investment & Special Purpose Land": "Investment & Special Purpose Land / Plots",
-};
-const isActive = activeLandType === (mainCategoryActiveMap[category.name] || category.name);
-                  
+                  const isActive =
+                    activeLandType === (mainCategoryActiveMap[category.name] || category.name);
+
                   return (
                     <div
                       key={category.name}
@@ -493,7 +515,8 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
                       onMouseEnter={() => !category.isAllButton && setHoveredCategory(category.name)}
                       onMouseLeave={() => !category.isAllButton && setHoveredCategory(null)}
                     >
-                      <button
+                      <div
+                        className="group cursor-pointer flex flex-col items-center transition-all duration-300 hover:scale-105"
                         onClick={() => {
                           if (category.isAllButton) {
                             handleNavigation(category.path, "All");
@@ -501,34 +524,53 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
                             handleNavigation(category.path, category.name);
                           }
                         }}
-                        className={`group relative px-4 py-2 rounded-lg font-semibold text-sm shadow-xl transition-all duration-500 whitespace-nowrap transform hover:-translate-y-1 hover:scale-105 overflow-hidden flex items-center gap-2 ${
-                          isActive
-                            ? "text-teal-800 bg-white shadow-none ring-2 ring-teal-600" 
-                            : "text-white/90 hover:text-white"
-                        }`}
-                        style={{
-                          background: isActive
-                            ? "#E8F5F2" 
-                            : "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)",
-                          backgroundSize: "200% 200%",
-                          border: "none"
-                        }}
                       >
-                        <div className={`absolute inset-0 animate-gradient-shift-slow ${isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-100 transition-opacity duration-500'}`}></div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                        <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                        <span className="relative z-10 flex items-center gap-2">
-                          {category.icon}
+                        <div
+                          className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg ${
+                            isActive
+                              ? 'border-[#00695C] shadow-[0_0_25px_rgba(0,105,92,0.35)]'
+                              : 'border-gray-300 hover:border-[#00695C]'
+                          }`}
+                        >
+                          {category.isAllButton ? (
+                            <div
+                              className={`w-full h-full flex items-center justify-center transition-colors duration-300 ${
+                                isActive ? 'bg-[#00695C]' : 'bg-gray-100 group-hover:bg-[#D1E2DB]'
+                              }`}
+                            >
+                              {React.cloneElement(category.icon, {
+                                className: `w-7 h-7 md:w-9 md:h-9 transition-colors duration-300 ${
+                                  isActive ? 'text-white' : 'text-[#00695C]'
+                                }`
+                              })}
+                            </div>
+                          ) : (
+                            <>
+                              <img
+                                src={category.image}
+                                alt={category.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                              {isActive && (
+                                <div className="absolute inset-0 bg-[#00695C]/25" />
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        <span
+                          className={`mt-1.5 text-[10px] sm:text-xs md:text-sm font-semibold text-center max-w-[110px] leading-tight transition-colors duration-300 ${
+                            isActive ? 'text-[#00695C]' : 'text-[#143B35] group-hover:text-[#00695C]'
+                          }`}
+                        >
                           {category.name}
                         </span>
-                        {!category.isAllButton && (
-                          <ChevronDown className={`w-3 h-3 transition-transform duration-300 relative z-10 ${hoveredCategory === category.name ? 'rotate-180' : ''}`} />
-                        )}
-                      </button>
+                      </div>
 
-                      {/* Submenu Dropdown */}
+                      {/* Submenu Dropdown - appears on hover under the round icon */}
                       {!category.isAllButton && hoveredCategory === category.name && category.submenus.length > 0 && (
-                        <div className="absolute top-full left-0 mt-1 bg-teal-50/95 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-50 min-w-[240px] border border-teal-200/30 animate-slide-down-fast">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-50 min-w-[240px] border border-teal-200/30 animate-slide-down-fast">
                           <div className="py-2 max-h-[400px] overflow-y-auto">
                             {category.submenus.map((submenu) => {
                               const landType = landTypes.find(t => t.name === submenu);
@@ -564,23 +606,16 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
               </div>
             </div>
 
-            {/* Mobile View */}
+            {/* Mobile View - round icons in a horizontal scroll, tap to open submenu below */}
             <div className="md:hidden space-y-4">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
                 {landCategories.map((category) => {
-                  const mainCategoryActiveMap = {
-  "Residential Land / Plots": "Residential Land / Plots",
-  "Commercial Land / Plots": "Commercial Land / Plots",
-  "Agricultural Land": "Agricultural Land / Plots",
-  "Industrial Land": "Industrial Land / Plots",
-  "Mixed-Use Land": "Mixed-Use Land / Plots",
-  "Institutional Land": "Institutional Land / Plots",
-  "Investment & Special Purpose Land": "Investment & Special Purpose Land / Plots",
-};
-const isActive = activeLandType === (mainCategoryActiveMap[category.name] || category.name);
+                  const isActive =
+                    activeLandType === (mainCategoryActiveMap[category.name] || category.name);
                   return (
-                    <button
+                    <div
                       key={category.name}
+                      className="flex-shrink-0 flex flex-col items-center"
                       onClick={() => {
                         if (category.isAllButton) {
                           handleNavigation(category.path, "All");
@@ -588,22 +623,33 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
                           setHoveredCategory(hoveredCategory === category.name ? null : category.name);
                         }
                       }}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all duration-300 whitespace-nowrap flex items-center gap-1 ${
-                        isActive
-                          ? "bg-white text-teal-800 ring-2 ring-teal-600 shadow-md"
-                          : "bg-gradient-to-r from-teal-600 to-teal-500 text-white/90 hover:text-white"
-                      }`}
                     >
-                      {category.icon}
-                      {category.name}
-                      {!category.isAllButton && (
-                        <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${hoveredCategory === category.name ? 'rotate-180' : ''}`} />
-                      )}
-                    </button>
+                      <div
+                        className={`relative w-14 h-14 rounded-full overflow-hidden border-[3px] flex items-center justify-center transition-all duration-300 shadow-md ${
+                          isActive ? 'border-[#00695C]' : 'border-gray-300'
+                        }`}
+                      >
+                        {category.isAllButton ? (
+                          <div className={`w-full h-full flex items-center justify-center ${isActive ? 'bg-[#00695C]' : 'bg-gray-100'}`}>
+                            {React.cloneElement(category.icon, {
+                              className: `w-5 h-5 ${isActive ? 'text-white' : 'text-[#00695C]'}`
+                            })}
+                          </div>
+                        ) : (
+                          <>
+                            <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                            {isActive && <div className="absolute inset-0 bg-[#00695C]/25" />}
+                          </>
+                        )}
+                      </div>
+                      <span className={`mt-1 text-[9px] font-semibold text-center max-w-[70px] leading-tight ${isActive ? 'text-[#00695C]' : 'text-[#143B35]'}`}>
+                        {category.name}
+                      </span>
+                    </div>
                   );
                 })}
               </div>
-              
+
               {/* Mobile Submenu */}
               {hoveredCategory && (
                 <div className="bg-teal-50 rounded-xl p-2 border border-teal-200">
@@ -800,7 +846,7 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
                         >
                           <input type="checkbox" className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300" />
                           <span className="flex items-center gap-2 text-sm text-teal-800 group-hover:text-teal-900 group-hover:font-medium transition-all duration-300">
-                            {category.icon}
+                            {React.cloneElement(category.icon, { className: "w-4 h-4" })}
                             {category.name}
                           </span>
                         </label>
@@ -996,18 +1042,18 @@ const isActive = activeLandType === (mainCategoryActiveMap[category.name] || cat
           background: linear-gradient(to right, #00695C, #26A69A);
           border-radius: 10px;
         }
-        .lg\:custom-scrollbar::-webkit-scrollbar {
+        .lg\\:custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
-        .lg\:custom-scrollbar::-webkit-scrollbar-track {
+        .lg\\:custom-scrollbar::-webkit-scrollbar-track {
           background: linear-gradient(to bottom, transparent, rgba(0, 105, 92, 0.1), transparent);
           border-radius: 10px;
         }
-        .lg\:custom-scrollbar::-webkit-scrollbar-thumb {
+        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb {
           background: linear-gradient(to bottom, #00695C, #26A69A);
           border-radius: 10px;
         }
-        .lg\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, #004D40, #00796B);
           box-shadow: 0 0 10px rgba(0, 105, 92, 0.5);
         }

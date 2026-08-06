@@ -367,7 +367,7 @@ const ClinicFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange 
     
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3.5 h-3.5" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3.5 h-3.5" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> }, // Commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3.5 h-3.5" /> }
   ];
 

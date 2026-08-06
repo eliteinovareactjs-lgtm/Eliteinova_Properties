@@ -130,7 +130,7 @@ const DuplexApartmentFilter = ({ activeTab = 'Rent', onFilterChange, onClose }) 
   const tabs = [
     { id: 'Rent', icon: <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, label: 'Rent' },
     { id: 'Buy', icon: <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, label: 'Buy' },
-    { id: 'Sell', icon: <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, label: 'Sell' },
+    // { id: 'Sell', icon: <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, label: 'Sell' }, // Commented out
     { id: 'Lease', icon: <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />, label: 'Lease' }
   ];
 
@@ -392,38 +392,38 @@ const DuplexApartmentFilter = ({ activeTab = 'Rent', onFilterChange, onClose }) 
     </>
   );
 
-  // SELL Tab Filters
-  const renderSellFilters = () => (
-    <>
-      <FilterSection title="📋 Basic Details">
-        <InputField label="Property Type" placeholder="Duplex Apartment" type="text" />
-        <InputField label="Purpose" placeholder="Sell" type="text" />
-        <SelectInput label="Listing Type" options={['Owner', 'Agent', 'Builder']} />
-      </FilterSection>
-      <FilterSection title="📍 Location Details"><LocationDetailsSection /></FilterSection>
-      <FilterSection title="💰 Price Details">
-        <InputRange label="Selling Price" minPlaceholder="Min ₹" maxPlaceholder="Max ₹" />
-        <RadioGroup label="Price Negotiable" options={['Yes', 'No']} />
-        <NumberInputField label="Maintenance Charges" placeholder="Enter amount" />
-        <NumberInputField label="Property Tax" placeholder="Enter amount" />
-      </FilterSection>
-      <FilterSection title="🏠 Property Details"><PropertyDetailsSection showOwnership={true} /></FilterSection>
-      <FilterSection title="🪑 Interior Details"><InteriorDetailsSection showHomeOffice={true} showAppliances={true} /></FilterSection>
-      <FilterSection title="✨ Amenities"><AmenitiesSection showSmartFeatures={true} /></FilterSection>
-      <FilterSection title="📅 Availability">
-        <RadioGroup label="Ready to Move" options={['Yes', 'No']} />
-        <RadioGroup label="Under Construction" options={['Yes', 'No']} />
-        <RadioGroup label="Immediate Possession" options={['Yes', 'No']} />
-      </FilterSection>
-      <FilterSection title="⚖️ Legal Details">
-        <RadioGroup label="Title Deed Verified" options={['Yes', 'No']} />
-        <RadioGroup label="Loan Eligible" options={['Yes', 'No']} />
-        <RadioGroup label="RERA Approved" options={['Yes', 'No']} />
-      </FilterSection>
-      <FilterSection title="📍 Nearby Access"><NearbyAccessSection /></FilterSection>
-      <FilterSection title="📞 Contact Preference"><ContactPreferenceSection includeBuilder={true} /></FilterSection>
-    </>
-  );
+  // SELL Tab Filters (commented out but kept for reference)
+  // const renderSellFilters = () => (
+  //   <>
+  //     <FilterSection title="📋 Basic Details">
+  //       <InputField label="Property Type" placeholder="Duplex Apartment" type="text" />
+  //       <InputField label="Purpose" placeholder="Sell" type="text" />
+  //       <SelectInput label="Listing Type" options={['Owner', 'Agent', 'Builder']} />
+  //     </FilterSection>
+  //     <FilterSection title="📍 Location Details"><LocationDetailsSection /></FilterSection>
+  //     <FilterSection title="💰 Price Details">
+  //       <InputRange label="Selling Price" minPlaceholder="Min ₹" maxPlaceholder="Max ₹" />
+  //       <RadioGroup label="Price Negotiable" options={['Yes', 'No']} />
+  //       <NumberInputField label="Maintenance Charges" placeholder="Enter amount" />
+  //       <NumberInputField label="Property Tax" placeholder="Enter amount" />
+  //     </FilterSection>
+  //     <FilterSection title="🏠 Property Details"><PropertyDetailsSection showOwnership={true} /></FilterSection>
+  //     <FilterSection title="🪑 Interior Details"><InteriorDetailsSection showHomeOffice={true} showAppliances={true} /></FilterSection>
+  //     <FilterSection title="✨ Amenities"><AmenitiesSection showSmartFeatures={true} /></FilterSection>
+  //     <FilterSection title="📅 Availability">
+  //       <RadioGroup label="Ready to Move" options={['Yes', 'No']} />
+  //       <RadioGroup label="Under Construction" options={['Yes', 'No']} />
+  //       <RadioGroup label="Immediate Possession" options={['Yes', 'No']} />
+  //     </FilterSection>
+  //     <FilterSection title="⚖️ Legal Details">
+  //       <RadioGroup label="Title Deed Verified" options={['Yes', 'No']} />
+  //       <RadioGroup label="Loan Eligible" options={['Yes', 'No']} />
+  //       <RadioGroup label="RERA Approved" options={['Yes', 'No']} />
+  //     </FilterSection>
+  //     <FilterSection title="📍 Nearby Access"><NearbyAccessSection /></FilterSection>
+  //     <FilterSection title="📞 Contact Preference"><ContactPreferenceSection includeBuilder={true} /></FilterSection>
+  //   </>
+  // );
 
   // LEASE Tab Filters
   const renderLeaseFilters = () => (
@@ -508,7 +508,7 @@ const DuplexApartmentFilter = ({ activeTab = 'Rent', onFilterChange, onClose }) 
           <div className="overflow-visible">
             {currentTab === 'Rent' && renderRentFilters()}
             {currentTab === 'Buy' && renderBuyFilters()}
-            {currentTab === 'Sell' && renderSellFilters()}
+            {/* {currentTab === 'Sell' && renderSellFilters()} */}
             {currentTab === 'Lease' && renderLeaseFilters()}
           </div>
         </div>

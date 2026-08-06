@@ -126,6 +126,12 @@ import EcoTourismLandPage from './pages/LandAndPlots/EcoTourismLandPage';
 import LayoutDevelopmentLandPage from './pages/LandAndPlots/LayoutDevelopmentLandPage';
 import FutureInvestmentPlotPage from './pages/LandAndPlots/FutureInvestmentPlotPage';
 
+//Hostel
+import GirlsHostelPage from "./pages/Hostel/GirlsHostelPage";
+import BoysHostelPage from "./pages/Hostel/BoysHostelPage.jsx";
+import CoLivingSpacePage from "./pages/Hostel/CoLivingSpacePage.jsx";
+import WorkingProfessionalHostelPage from "./pages/Hostel/WorkingProfessionalHostelPage.jsx";
+
 // Import all form modals
 import OwnerFormModal from "./components/Forms/OwnerFormModal";
 import AgentFormModal from "./components/Forms/AgentFormModal";
@@ -218,11 +224,6 @@ function AppLayout() {
           <Route path="/lease" element={<LeasePage />} />
           <Route path="/sell" element={<SellPage />} /> */}
 
-          {/* Hostel Type Routes */}
-          <Route path="/hostel/girls-hostel" element={<HostelPage />} />
-          <Route path="/hostel/boys-hostel" element={<HostelPage />} />
-          <Route path="/hostel/co-living-space" element={<HostelPage />} />
-          <Route path="/hostel/working-professional-hostel" element={<HostelPage />} />
 
           {/* Individual House Type Routes */}
           <Route path="/individual/independent-house" element={<IndependentHousePage />} />
@@ -340,6 +341,12 @@ function AppLayout() {
            <Route path="/land-plots/investment-land-plots/layout-development-land" element={<LayoutDevelopmentLandPage/>} />
            <Route path="/land-plots/investment-land-plots/future-investment-plot" element={<FutureInvestmentPlotPage/>} />
           
+          {/* Hostel */}
+
+          <Route path="/hostel/girls-hostel" element={<GirlsHostelPage/>} />
+          <Route path="/hostel/boys-hostel" element={<BoysHostelPage/>} />
+          <Route path="/hostel/co-living-hostel" element={<CoLivingSpacePage/>} />
+          <Route path="/hostel/working-professional-hostel" element={<WorkingProfessionalHostelPage/>} />
 
           <Route 
             path="/post-property" 

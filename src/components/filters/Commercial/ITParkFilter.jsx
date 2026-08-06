@@ -255,7 +255,7 @@ const CustomSelect = ({ label, options, value, onChange, placeholder }) => {
 // ==================== MAIN COMPONENT ====================
 
 const ITParkFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange }) => {
-  const [currentTab, setCurrentTab] = useState('Buy');
+  const [currentTab, setCurrentTab] = useState('Buy'); // Set Buy as default active tab
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     location: true,
@@ -378,7 +378,7 @@ const ITParkFilter = ({ activeTab = 'Buy', onFilterChange, onClose, onTabChange 
     
     { id: 'Buy', label: 'Buy', icon: <DollarSign className="w-3.5 h-3.5" /> },
     { id: 'Rent', label: 'Rent', icon: <IndianRupee className="w-3.5 h-3.5" /> },
-    { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> },
+    // { id: 'Sell', label: 'Sell', icon: <TrendUpIcon className="w-3.5 h-3.5" /> }, // Sell tab commented out
     { id: 'Lease', label: 'Lease', icon: <FileText className="w-3.5 h-3.5" /> }
   ];
 
