@@ -122,7 +122,9 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
     
     // Declaration & Signature (Step 7)
-    declarationAccepted: false,
+    declaration1: false,
+    declaration2: false,
+    declaration3: false,
     signature: null, signatureDate: "", signaturePlace: ""
   });
 
@@ -344,11 +346,17 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
     });
   };
 
-  const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
-    console.log("Lease Agent Commercial Form submitted:", formData);
-    onClose();
-  };
+ const handleSubmit = () => {
+  // Check if all declarations are accepted
+  if (!formData.declaration1 || !formData.declaration2 || !formData.declaration3) {
+    alert("Please accept all declarations before submitting.");
+    return;
+  }
+  
+  updateForm('signatureDate', new Date().toLocaleDateString());
+  console.log("Lease Agent Commercial Form submitted:", formData);
+  onClose();
+};
 
   if (!isOpen) return null;
 
@@ -1066,16 +1074,41 @@ function MobContentLeaseAgentCom({
         {formData.panCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCardDoc.name}</p>}
       </Field>
 
-      <Field label="Agency Logo" hint="Optional">
+      <Field label="Agency Logo" hint="Optional (JPG, PNG max 2MB)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-logo-lease-com" onChange={(e) => handleDocumentUpload("agencyLogo", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="m-logo-lease-com" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 2 * 1024 * 1024) {
+                alert("Logo must be less than 2MB");
+                return;
+              }
+              updateForm("agencyLogo", file);
+            }
+          }} />
           <label htmlFor="m-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <Building className="w-6 h-6 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.agencyLogo && <p className="text-[10px] text-green-600 mt-1">✓ {formData.agencyLogo.name}</p>}
+        {formData.agencyLogo && (
+          <div className="mt-2 relative inline-block">
+            <img 
+              src={URL.createObjectURL(formData.agencyLogo)} 
+              alt="Agency Logo" 
+              className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C]"
+            />
+            <button 
+              onClick={() => {
+                updateForm("agencyLogo", null);
+              }} 
+              className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </Field>
 
       <Field label="RERA Certificate" hint="Optional">
@@ -1266,15 +1299,30 @@ function MobContentLeaseAgentCom({
       </div>
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" 
+            checked={formData.declaration1 || false} 
+            onChange={() => updateForm("declaration1", !formData.declaration1)} 
+          />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" 
+            checked={formData.declaration2 || false} 
+            onChange={() => updateForm("declaration2", !formData.declaration2)} 
+          />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" 
+            checked={formData.declaration3 || false} 
+            onChange={() => updateForm("declaration3", !formData.declaration3)} 
+          />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
       </div>
@@ -1773,16 +1821,41 @@ function DtContentLeaseAgentCom({
         {formData.panCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCardDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Agency Logo" hint="Optional">
+      <FieldDt label="Agency Logo" hint="Optional (JPG, PNG max 2MB)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-logo-lease-com" onChange={(e) => handleDocumentUpload("agencyLogo", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="dt-logo-lease-com" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 2 * 1024 * 1024) {
+                alert("Logo must be less than 2MB");
+                return;
+              }
+              updateForm("agencyLogo", file);
+            }
+          }} />
           <label htmlFor="dt-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <Building className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Logo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.agencyLogo && <p className="text-[13px] text-green-600 mt-2">✓ {formData.agencyLogo.name}</p>}
+        {formData.agencyLogo && (
+          <div className="mt-2 relative inline-block">
+            <img 
+              src={URL.createObjectURL(formData.agencyLogo)} 
+              alt="Agency Logo" 
+              className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]"
+            />
+            <button 
+              onClick={() => {
+                updateForm("agencyLogo", null);
+              }} 
+              className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </FieldDt>
 
       <FieldDt label="RERA Certificate" hint="Optional">
@@ -1973,15 +2046,30 @@ function DtContentLeaseAgentCom({
       </div>
       <div className="space-y-2">
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" 
+            checked={formData.declaration1 || false} 
+            onChange={() => updateForm("declaration1", !formData.declaration1)} 
+          />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" 
+            checked={formData.declaration2 || false} 
+            onChange={() => updateForm("declaration2", !formData.declaration2)} 
+          />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+          <input 
+            type="checkbox" 
+            className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" 
+            checked={formData.declaration3 || false} 
+            onChange={() => updateForm("declaration3", !formData.declaration3)} 
+          />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
       </div>

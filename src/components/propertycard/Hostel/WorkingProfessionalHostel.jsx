@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WorkingProfessionalHostelData } from "../../data/Hostel/WorkingProfessionalHostelData";
 
-const PAGE_NAME = "Boys Hostel";
+const PAGE_NAME = "WorkingProfessional Hostel";
 
 // Helper: split price into amount + unit
 const splitPrice = (price) => {

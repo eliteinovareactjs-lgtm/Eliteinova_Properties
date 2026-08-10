@@ -661,16 +661,41 @@ function MobContentLeaseBuilderCom({
       <Field label="WhatsApp Number">
         <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
       </Field>
-      <Field label="Profile Photo" required>
+      <Field label="Profile Photo" required hint="JPG, PNG max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-authphoto-lease-com" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
+          <input type="file" accept="image/*" className="hidden" id="m-authphoto-lease-com" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 2 * 1024 * 1024) {
+                alert("Profile photo must be less than 2MB");
+                return;
+              }
+              updateForm("authPhoto", file);
+            }
+          }} />
           <label htmlFor="m-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authPhoto.name}</p>}
+        {formData.authPhoto && (
+          <div className="mt-2 relative inline-block">
+            <img 
+              src={URL.createObjectURL(formData.authPhoto)} 
+              alt="Profile" 
+              className="w-16 h-16 object-cover rounded-full border-2 border-[#00695C]"
+            />
+            <button 
+              onClick={() => {
+                updateForm("authPhoto", null);
+              }} 
+              className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </Field>
     </>
   );
@@ -1064,16 +1089,41 @@ function MobContentLeaseBuilderCom({
       </div>
       <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
 
-      <Field label="Company Logo" required>
+      <Field label="Company Logo" required hint="JPG, PNG max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-comp-logo-lease-com" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="m-comp-logo-lease-com" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 2 * 1024 * 1024) {
+                alert("Company logo must be less than 2MB");
+                return;
+              }
+              updateForm("companyLogoDoc", file);
+            }
+          }} />
           <label htmlFor="m-comp-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyLogoDoc.name}</p>}
+        {formData.companyLogoDoc && (
+          <div className="mt-2 relative inline-block">
+            <img 
+              src={URL.createObjectURL(formData.companyLogoDoc)} 
+              alt="Company Logo" 
+              className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C]"
+            />
+            <button 
+              onClick={() => {
+                updateForm("companyLogoDoc", null);
+              }} 
+              className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </Field>
 
       <Field label="Company Profile Brochure (PDF)">
@@ -1302,19 +1352,19 @@ function MobContentLeaseBuilderCom({
 
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized || false} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate || false} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationCompliance || false} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms || false} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
       </div>
@@ -1434,17 +1484,42 @@ function DtContentLeaseBuilderCom({
       <FieldDt label="WhatsApp Number">
         <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Profile Photo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-authphoto-lease-com" onChange={(e) => handleDocumentUpload("authPhoto", e)} />
-          <label htmlFor="dt-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
-            <User className="w-7 h-7 text-[#00695C]" />
-            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
-            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
-          </label>
-        </div>
-        {formData.authPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authPhoto.name}</p>}
-      </FieldDt>
+      <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB">
+  <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+    <input type="file" accept="image/*" className="hidden" id="dt-authphoto-lease-com" onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          alert("Profile photo must be less than 2MB");
+          return;
+        }
+        updateForm("authPhoto", file);
+      }
+    }} />
+    <label htmlFor="dt-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
+      <User className="w-7 h-7 text-[#00695C]" />
+      <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
+      <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+    </label>
+  </div>
+  {formData.authPhoto && (
+    <div className="mt-2 relative inline-block">
+      <img 
+        src={URL.createObjectURL(formData.authPhoto)} 
+        alt="Profile" 
+        className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]"
+      />
+      <button 
+        onClick={() => {
+          updateForm("authPhoto", null);
+        }} 
+        className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600"
+      >
+        ✕
+      </button>
+    </div>
+  )}
+</FieldDt>
     </>
   );
 
@@ -1837,16 +1912,41 @@ function DtContentLeaseBuilderCom({
       </div>
       <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
 
-      <FieldDt label="Company Logo" required>
+      <FieldDt label="Company Logo" required hint="JPG, PNG max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-comp-logo-lease-com" onChange={(e) => handleDocumentUpload("companyLogoDoc", e, 2)} />
+          <input type="file" accept="image/*" className="hidden" id="dt-comp-logo-lease-com" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 2 * 1024 * 1024) {
+                alert("Company logo must be less than 2MB");
+                return;
+              }
+              updateForm("companyLogoDoc", file);
+            }
+          }} />
           <label htmlFor="dt-comp-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyLogoDoc.name}</p>}
+        {formData.companyLogoDoc && (
+          <div className="mt-2 relative inline-block">
+            <img 
+              src={URL.createObjectURL(formData.companyLogoDoc)} 
+              alt="Company Logo" 
+              className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]"
+            />
+            <button 
+              onClick={() => {
+                updateForm("companyLogoDoc", null);
+              }} 
+              className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </FieldDt>
 
       <FieldDt label="Company Profile Brochure (PDF)">
@@ -2075,19 +2175,19 @@ function DtContentLeaseBuilderCom({
 
       <div className="space-y-2.5">
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized || false} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate || false} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationCompliance || false} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms || false} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
       </div>

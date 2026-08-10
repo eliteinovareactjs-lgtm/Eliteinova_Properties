@@ -21,6 +21,14 @@ import { RentAgentApartForm, SellAgentApartForm, LeaseAgentApartForm } from "../
 // Import Agent Commercial Forms
 import { RentAgentComForm, SellAgentComForm, LeaseAgentComForm } from "../Forms/Agent/Index.js";
 
+// ============ IMPORT AGENT HOSTEL FORMS ============
+// Import Agent Hostel Forms
+import { 
+  RentAgentHostelForm, 
+  SellAgentHostelForm, 
+  LeaseAgentHostelForm 
+} from "../Forms/Agent/Index.js";
+
 // Import Builder Forms
 import { RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
 
@@ -38,6 +46,14 @@ import { RentPMApartForm, SellPMApartForm, LeasePMApartForm } from "../Forms/Pro
 
 // Import Property Management Commercial Forms
 import { RentPMComForm, SellPMComForm, LeasePMComForm } from "../Forms/PropertyManagement/Index.js";
+
+// ============ IMPORT HOSTEL FORMS ============
+// Hostel Forms (Owner) - Now properly imported from Owner/Index.js
+import { 
+  HostelRentForm, 
+  HostelSellForm, 
+  HostelLeaseForm 
+} from "../Forms/Owner/Index.js";
 
 const Header = ({ onPostPropertyClick }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -69,6 +85,32 @@ const Header = ({ onPostPropertyClick }) => {
   const [showComRentForm, setShowComRentForm] = useState(false);
   const [showComSellForm, setShowComSellForm] = useState(false);
   const [showComLeaseForm, setShowComLeaseForm] = useState(false);
+
+  // ============ HOSTEL FORM STATES (OWNER) ============
+  const [showHostelActionPopup, setShowHostelActionPopup] = useState(false);
+  const [showHostelRentForm, setShowHostelRentForm] = useState(false);
+  const [showHostelSellForm, setShowHostelSellForm] = useState(false);
+  const [showHostelLeaseForm, setShowHostelLeaseForm] = useState(false);
+
+  // ============ HOSTEL FORM STATES (AGENT) ============
+  const [showAgentHostelActionPopup, setShowAgentHostelActionPopup] = useState(false);
+  const [showAgentHostelRentForm, setShowAgentHostelRentForm] = useState(false);
+  const [showAgentHostelSellForm, setShowAgentHostelSellForm] = useState(false);
+  const [showAgentHostelLeaseForm, setShowAgentHostelLeaseForm] = useState(false);
+
+  // ============ HOSTEL FORM STATES (BUILDER) ============
+  // Uncomment when builder hostel forms are available
+  // const [showBuilderHostelActionPopup, setShowBuilderHostelActionPopup] = useState(false);
+  // const [showBuilderHostelRentForm, setShowBuilderHostelRentForm] = useState(false);
+  // const [showBuilderHostelSellForm, setShowBuilderHostelSellForm] = useState(false);
+  // const [showBuilderHostelLeaseForm, setShowBuilderHostelLeaseForm] = useState(false);
+
+  // ============ HOSTEL FORM STATES (PROPERTY MANAGEMENT) ============
+  // Uncomment when PM hostel forms are available
+  // const [showPMHostelActionPopup, setShowPMHostelActionPopup] = useState(false);
+  // const [showPMHostelRentForm, setShowPMHostelRentForm] = useState(false);
+  // const [showPMHostelSellForm, setShowPMHostelSellForm] = useState(false);
+  // const [showPMHostelLeaseForm, setShowPMHostelLeaseForm] = useState(false);
 
   // State for Agent forms
   const [showAgentActionPopup, setShowAgentActionPopup] = useState(false);
@@ -195,6 +237,80 @@ const Header = ({ onPostPropertyClick }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============ HOSTEL HANDLERS (OWNER) ============
+  const handleHostelActionClick = (action) => {
+    setShowHostelActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowHostelRentForm(true);
+        break;
+      case "Sell":
+        setShowHostelSellForm(true);
+        break;
+      case "Lease":
+        setShowHostelLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // ============ HOSTEL HANDLERS (AGENT) ============
+  const handleAgentHostelActionClick = (action) => {
+    setShowAgentHostelActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowAgentHostelRentForm(true);
+        break;
+      case "Sell":
+        setShowAgentHostelSellForm(true);
+        break;
+      case "Lease":
+        setShowAgentHostelLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // ============ HOSTEL HANDLERS (BUILDER) ============
+  // Uncomment when builder hostel forms are available
+  // const handleBuilderHostelActionClick = (action) => {
+  //   setShowBuilderHostelActionPopup(false);
+  //   switch(action) {
+  //     case "Rent":
+  //       setShowBuilderHostelRentForm(true);
+  //       break;
+  //     case "Sell":
+  //       setShowBuilderHostelSellForm(true);
+  //       break;
+  //     case "Lease":
+  //       setShowBuilderHostelLeaseForm(true);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+
+  // ============ HOSTEL HANDLERS (PROPERTY MANAGEMENT) ============
+  // Uncomment when PM hostel forms are available
+  // const handlePMHostelActionClick = (action) => {
+  //   setShowPMHostelActionPopup(false);
+  //   switch(action) {
+  //     case "Rent":
+  //       setShowPMHostelRentForm(true);
+  //       break;
+  //     case "Sell":
+  //       setShowPMHostelSellForm(true);
+  //       break;
+  //     case "Lease":
+  //       setShowPMHostelLeaseForm(true);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+
   // Handle Post Property submenu click
   const handlePostSubmenuClick = (role, propertyType) => {
     setActiveDropdown(null);
@@ -202,6 +318,27 @@ const Header = ({ onPostPropertyClick }) => {
     setSelectedRole(role);
     setSelectedPropertyType(propertyType);
 
+    // ============ HOSTEL HANDLING ============
+    if (propertyType === "Hostel") {
+      if (role === "Owner") {
+        setShowHostelActionPopup(true);
+      } else if (role === "Agent") {
+        setShowAgentHostelActionPopup(true);
+      } else if (role === "Builder") {
+        // Uncomment when builder hostel forms are available
+        // setShowBuilderHostelActionPopup(true);
+        alert("Builder Hostel forms coming soon! Please use Owner role for now.");
+      } else if (role === "Property Management") {
+        // Uncomment when PM hostel forms are available
+        // setShowPMHostelActionPopup(true);
+        alert("Property Management Hostel forms coming soon! Please use Owner role for now.");
+      } else {
+        setShowRoleSelectionPopup(true);
+      }
+      return;
+    }
+
+    // Existing property type handling...
     if (propertyType === "Individual") {
       if (role === "Agent") {
         setShowAgentActionPopup(true);
@@ -239,7 +376,7 @@ const Header = ({ onPostPropertyClick }) => {
         setShowRoleSelectionPopup(true);
       }
     } else {
-      // Land & Plots, Hostel - show role selection
+      // Land & Plots - show role selection
       setShowRoleSelectionPopup(true);
     }
   };
@@ -248,6 +385,25 @@ const Header = ({ onPostPropertyClick }) => {
     setShowRoleSelectionPopup(false);
     setSelectedRole(role);
     
+    // ============ HOSTEL HANDLING ============
+    if (selectedPropertyType === "Hostel") {
+      if (role === "Owner") {
+        setShowHostelActionPopup(true);
+      } else if (role === "Agent") {
+        setShowAgentHostelActionPopup(true);
+      } else if (role === "Builder") {
+        // Uncomment when builder hostel forms are available
+        // setShowBuilderHostelActionPopup(true);
+        alert("Builder Hostel forms coming soon! Please use Owner role for now.");
+      } else if (role === "Property Management") {
+        // Uncomment when PM hostel forms are available
+        // setShowPMHostelActionPopup(true);
+        alert("Property Management Hostel forms coming soon! Please use Owner role for now.");
+      }
+      return;
+    }
+
+    // Existing role handling...
     if (selectedPropertyType === "Individual") {
       if (role === "Owner") {
         setShowOwnerActionPopup(true);
@@ -279,7 +435,7 @@ const Header = ({ onPostPropertyClick }) => {
         setShowPMComActionPopup(true);
       }
     } else {
-      // Land & Plots, Hostel
+      // Land & Plots
       alert(`${selectedPropertyType} - ${role} form coming soon!`);
     }
   };
@@ -979,7 +1135,7 @@ const Header = ({ onPostPropertyClick }) => {
         </nav>
       </header>
 
-      {/* Role Selection Popup */}
+      {/* ============ ROLE SELECTION POPUP ============ */}
       {showRoleSelectionPopup && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowRoleSelectionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1041,7 +1197,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Owner Individual Action Popup */}
+      {/* ============ OWNER INDIVIDUAL ACTION POPUP ============ */}
       {showOwnerActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowOwnerActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1091,7 +1247,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Owner Apartment Action Popup */}
+      {/* ============ OWNER APARTMENT ACTION POPUP ============ */}
       {showApartActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowApartActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1141,7 +1297,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Owner Commercial Action Popup */}
+      {/* ============ OWNER COMMERCIAL ACTION POPUP ============ */}
       {showComActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowComActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1191,7 +1347,107 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Agent Individual Action Popup */}
+      {/* ============ HOSTEL ACTION POPUP (OWNER) ============ */}
+      {showHostelActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowHostelActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Owner - Hostel Action
+              </h2>
+              <button 
+                onClick={() => setShowHostelActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Hostel Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleHostelActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏨</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleHostelActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleHostelActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ HOSTEL ACTION POPUP (AGENT) ============ */}
+      {showAgentHostelActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentHostelActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Agent - Hostel Action
+              </h2>
+              <button 
+                onClick={() => setShowAgentHostelActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Hostel Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleAgentHostelActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏨</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentHostelActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentHostelActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ AGENT INDIVIDUAL ACTION POPUP ============ */}
       {showAgentActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1241,7 +1497,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Agent Apartment Action Popup */}
+      {/* ============ AGENT APARTMENT ACTION POPUP ============ */}
       {showAgentApartActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentApartActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1291,7 +1547,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Agent Commercial Action Popup */}
+      {/* ============ AGENT COMMERCIAL ACTION POPUP ============ */}
       {showAgentComActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentComActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1341,7 +1597,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Builder Individual Action Popup */}
+      {/* ============ BUILDER INDIVIDUAL ACTION POPUP ============ */}
       {showBuilderActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1391,7 +1647,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Builder Apartment Action Popup */}
+      {/* ============ BUILDER APARTMENT ACTION POPUP ============ */}
       {showBuilderApartActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderApartActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1441,7 +1697,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Builder Commercial Action Popup */}
+      {/* ============ BUILDER COMMERCIAL ACTION POPUP ============ */}
       {showBuilderComActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderComActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1491,7 +1747,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Property Management Individual Action Popup */}
+      {/* ============ PROPERTY MANAGEMENT INDIVIDUAL ACTION POPUP ============ */}
       {showPMActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1541,7 +1797,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Property Management Apartment Action Popup */}
+      {/* ============ PROPERTY MANAGEMENT APARTMENT ACTION POPUP ============ */}
       {showPMApartActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMApartActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1591,7 +1847,7 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
-      {/* Property Management Commercial Action Popup */}
+      {/* ============ PROPERTY MANAGEMENT COMMERCIAL ACTION POPUP ============ */}
       {showPMComActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMComActionPopup(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
@@ -1641,6 +1897,8 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
+      {/* ============ RENDER ALL FORMS ============ */}
+      
       {/* Owner Forms */}
       <IndRentForm isOpen={showOwnerRentForm} onClose={() => setShowOwnerRentForm(false)} />
       <IndSellForm isOpen={showOwnerSellForm} onClose={() => setShowOwnerSellForm(false)} />
@@ -1653,6 +1911,16 @@ const Header = ({ onPostPropertyClick }) => {
       <ComRentForm isOpen={showComRentForm} onClose={() => setShowComRentForm(false)} />
       <ComSellForm isOpen={showComSellForm} onClose={() => setShowComSellForm(false)} />
       <ComLeaseForm isOpen={showComLeaseForm} onClose={() => setShowComLeaseForm(false)} />
+
+      {/* ============ HOSTEL FORMS (OWNER) ============ */}
+      <HostelRentForm isOpen={showHostelRentForm} onClose={() => setShowHostelRentForm(false)} />
+      <HostelSellForm isOpen={showHostelSellForm} onClose={() => setShowHostelSellForm(false)} />
+      <HostelLeaseForm isOpen={showHostelLeaseForm} onClose={() => setShowHostelLeaseForm(false)} />
+
+      {/* ============ HOSTEL FORMS (AGENT) ============ */}
+      <RentAgentHostelForm isOpen={showAgentHostelRentForm} onClose={() => setShowAgentHostelRentForm(false)} />
+      <SellAgentHostelForm isOpen={showAgentHostelSellForm} onClose={() => setShowAgentHostelSellForm(false)} />
+      <LeaseAgentHostelForm isOpen={showAgentHostelLeaseForm} onClose={() => setShowAgentHostelLeaseForm(false)} />
 
       {/* Agent Forms */}
       <RentAgentIndForm isOpen={showAgentRentForm} onClose={() => setShowAgentRentForm(false)} />

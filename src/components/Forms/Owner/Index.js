@@ -21,6 +21,6 @@ export { default as ComLeaseForm } from './Commercial/ComLeaseForm';
 // export { default as LandLeaseForm } from './Land/LandLeaseForm';
 
 // Hostel Forms (Owner) - Placeholders
-// export { default as HostelRentForm } from './Hostel/HostelRentForm';
-// export { default as HostelSellForm } from './Hostel/HostelSellForm';
-// export { default as HostelLeaseForm } from './Hostel/HostelLeaseForm';
+export { default as HostelRentForm } from './Hostel/HostelRentForm';
+export { default as HostelSellForm } from './Hostel/HostelSellForm';
+export { default as HostelLeaseForm } from './Hostel/HostelLeaseForm';

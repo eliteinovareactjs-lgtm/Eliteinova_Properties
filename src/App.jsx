@@ -345,7 +345,7 @@ function AppLayout() {
 
           <Route path="/hostel/girls-hostel" element={<GirlsHostelPage/>} />
           <Route path="/hostel/boys-hostel" element={<BoysHostelPage/>} />
-          <Route path="/hostel/co-living-hostel" element={<CoLivingSpacePage/>} />
+          <Route path="/hostel/co-living-space" element={<CoLivingSpacePage/>} />
           <Route path="/hostel/working-professional-hostel" element={<WorkingProfessionalHostelPage/>} />
 
           <Route 
