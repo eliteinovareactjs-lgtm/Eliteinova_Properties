@@ -13,3 +13,8 @@ export { default as LeasePMApartForm } from './Apartment/LeasePMApartForm';
 export { default as RentPMComForm } from './Commercial/RentPMComForm';
 export { default as SellPMComForm } from './Commercial/SellPMComForm';
 export { default as LeasePMComForm } from './Commercial/LeasePMComForm';
+
+// Export PM Hostel Forms
+export { default as RentPMHostelForm } from './Hostel/RentPMHostelForm';
+export { default as SellPMHostelForm } from './Hostel/SellPMHostelForm';
+export { default as LeasePMHostelForm } from './Hostel/LeasePMHostelForm';

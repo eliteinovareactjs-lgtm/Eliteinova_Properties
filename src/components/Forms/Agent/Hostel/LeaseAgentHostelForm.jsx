@@ -59,13 +59,13 @@ const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] tex
 const yesNoOptions = ["Yes", "No"];
 const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
 const facingOptions = ["North", "South", "East", "West", "North-East", "North-West", "South-East", "South-West"];
-const tenantTypeOptions = ["Students", "Working Professionals", "Family", "Corporate", "Company Lease"];
+const tenantTypeOptions = ["Students", "Working Professionals"];
 const leaseDurationOptions = ["6 Months", "1 Year", "2 Years", "3 Years", "5+ Years"];
 const contactTimeOptions = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 8 PM)", "Anytime"];
 const roomTypeOptions = ["Single", "Double", "Triple", "4-Sharing", "Dormitory", "Studio"];
 const bathroomOptions = ["Attached", "Common", "Shared"];
 const genderOptions = ["Male", "Female", "Other"];
-const hostelTypeOptions = ["Boys Hostel", "Girls Hostel", "Co-Living Space", "Working Professional Hostel", "Student Hostel", "Luxury Hostel"];
+const hostelTypeOptions = ["Boys Hostel", "Girls Hostel", "Co-Living Space", "Working Professional Hostel"];
 
 // Lease-specific options
 const paymentFrequencyOptions = ["Monthly", "Quarterly", "Half-Yearly", "Yearly"];
