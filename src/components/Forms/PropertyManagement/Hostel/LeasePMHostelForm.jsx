@@ -152,7 +152,10 @@ export default function LeasePMHostelForm({ isOpen, onClose }) {
     propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
     
     // Declaration (Step 9)
-    declarationAccepted: false,
+    declaration1: false,
+    declaration2: false,
+    declaration3: false,
+    declaration4: false,
     signature: null, signatureDate: "", signaturePlace: ""
   });
 
@@ -1589,25 +1592,6 @@ function MobContentLeasePMHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
       </div>
 
-      <div className="space-y-1.5">
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the authorized representative of this property management company.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I certify that all information and documents provided are true and accurate.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
-      </div>
-
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Signature</h3>
@@ -1645,6 +1629,25 @@ function MobContentLeasePMHostel({
       <Field label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </Field>
+
+      <div className="space-y-1.5">
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
+          <span>I confirm that I am the authorized representative of this property management company.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
+          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
+        </label>
+        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
     </>
   );
 
@@ -2601,25 +2604,6 @@ function DtContentLeasePMHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
       </div>
 
-      <div className="space-y-2.5">
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the authorized representative of this property management company.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I certify that all information and documents provided are true and accurate.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
-      </div>
-
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Signature</h3>
@@ -2657,6 +2641,25 @@ function DtContentLeasePMHostel({
       <FieldDt label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </FieldDt>
+
+      <div className="space-y-2.5">
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
+          <span>I confirm that I am the authorized representative of this property management company.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
+          <span>I certify that all information and documents provided are true and accurate.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
+          <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
+        </label>
+        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
+          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+        </label>
+      </div>
     </>
   );
 

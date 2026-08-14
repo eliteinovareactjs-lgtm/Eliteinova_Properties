@@ -147,7 +147,10 @@ export default function RentBuilderHostelForm({ isOpen, onClose }) {
     propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
     
     // Declaration (Step 9)
-    declarationAccepted: false,
+    declaration1: false,
+    declaration2: false,
+    declaration3: false,
+    declaration4: false,
     signature: null, signatureDate: "", signaturePlace: ""
   });
 
@@ -1608,21 +1611,21 @@ function MobContentRentBuilderHostel({
 
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the authorized representative of the builder/company.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I certify that all information and documents provided are true and accurate.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to comply with all applicable real estate laws and regulations.</span>
-        </label>
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
+        <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
+        <span>I confirm that I am the authorized representative of the builder/company.</span>
+      </label>
+      <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
+        <span>I certify that all information and documents provided are true and accurate.</span>
+      </label>
+      <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
+        <span>I agree to comply with all applicable real estate laws and regulations.</span>
+      </label>
+      <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
+        <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+      </label>
       </div>
     </>
   );
@@ -2598,21 +2601,21 @@ function DtContentRentBuilderHostel({
 
       <div className="space-y-2.5">
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the authorized representative of the builder/company.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I certify that all information and documents provided are true and accurate.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to comply with all applicable real estate laws and regulations.</span>
-        </label>
-        <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
+        <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
+        <span>I confirm that I am the authorized representative of the builder/company.</span>
+      </label>
+      <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
+        <span>I certify that all information and documents provided are true and accurate.</span>
+      </label>
+      <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
+        <span>I agree to comply with all applicable real estate laws and regulations.</span>
+      </label>
+      <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
+        <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
+        <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+      </label>
       </div>
     </>
   );
