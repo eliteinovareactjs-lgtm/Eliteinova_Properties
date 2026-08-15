@@ -13,23 +13,31 @@ const subtitles = [
   "Set preferences & confirm"
 ];
 
-const Field = ({ label, required, hint, children }) => (
+const Field = ({ label, required, hint, error, children }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error ? (
+      <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>
+    ) : hint ? (
+      <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>
+    ) : null}
   </div>
 );
 
-const FieldDt = ({ label, required, hint, children }) => (
+const FieldDt = ({ label, required, hint, error, children }) => (
   <div className="mb-2.5">
     <label className="block text-[13px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error ? (
+      <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>
+    ) : hint ? (
+      <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>
+    ) : null}
   </div>
 );
 
@@ -43,6 +51,7 @@ const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
 const facingOptions = ["North", "South", "East", "West", "North-East", "North-West", "South-East", "South-West"];
 const ownershipOptions = ["Freehold", "Leasehold"];
 const contactTimeOptions = ["Morning (9 AM - 12 PM)", "Afternoon (12 PM - 4 PM)", "Evening (4 PM - 8 PM)", "Anytime"];
+const bankOptions = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"];
 
 const apartmentSellAmenities = [
   { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
@@ -81,7 +90,7 @@ export default function ApartSellForm({ isOpen, onClose }) {
     // Interior Details
     furnishing: "", interiorFeatures: [],
     // Pricing & Amenities (Step 3)
-    sellPriceMin: "", sellPriceMax: "", budgetRange: { min: "", max: "" }, securityDeposit: "", priceNegotiable: "", maintenanceCharges: "", propertyTax: "",
+    sellPrice: "", budgetRange: { min: "", max: "" }, securityDeposit: "", priceNegotiable: "Fixed", maintenanceCharges: "", propertyTax: "",
     ownershipType: "",
     // Legal Details
     titleDeedVerified: "", loanEligible: "", reraApproved: "",
@@ -90,8 +99,7 @@ export default function ApartSellForm({ isOpen, onClose }) {
     // Availability
     readyToMove: "", underConstruction: "", immediatePossession: "",
     // Nearby Access
-    nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
-    nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
+    nearbyPlaces: [],
     // Media (Step 4)
     propertyImages: [], propertyVideo: null, coverImage: null,
     // Legal Documents (Step 5)
@@ -119,9 +127,20 @@ export default function ApartSellForm({ isOpen, onClose }) {
   const [allSignaturePoints, setAllSignaturePoints] = useState([]);
   const [activeCanvas, setActiveCanvas] = useState(null);
 
+  const [errors, setErrors] = useState({});
+
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   };
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -320,24 +339,85 @@ export default function ApartSellForm({ isOpen, onClose }) {
   };
 
   const clearSignature = () => {
-    setSignaturePoints([]);
-    setAllSignaturePoints([]);
-    updateForm('signature', null);
-    ['signatureCanvas', 'm-signatureCanvas', 'dt-signatureCanvas'].forEach(id => {
-      const canvas = document.getElementById(id);
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    });
-  };
+  setSignaturePoints([]);
+  setAllSignaturePoints([]);
+  updateForm('signature', null);
+  ['signatureCanvas', 'm-signatureCanvas', 'dt-signatureCanvas'].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+};
 
-  const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
+const validateStep = (s) => {
+  const e = {};
+  if (s === 0) {
+    if (!formData.ownerName.trim()) e.ownerName = "Full name is required";
+    if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
+    if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
+    if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
+    if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
+    if (!formData.gender) e.gender = "Please select your gender";
+  }
+  if (s === 1) {
+    if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) e.aadhaarNumber = "Aadhaar number must be exactly 12 digits";
+    if (!formData.aadhaarNumber.match(/^[0-9]{12}$/)) e.aadhaarNumber = "Aadhaar number must contain only numbers";
+    if (!formData.aadhaarCard) e.aadhaarCard = "Aadhaar card upload is required";
+    if (!formData.passportPhoto) e.passportPhoto = "Passport-size photo is required";
+    if (!formData.addressLine1.trim()) e.addressLine1 = "Address Line 1 is required";
+    if (!formData.ownerCity.trim()) e.ownerCity = "City is required";
+    if (!formData.district.trim()) e.district = "District is required";
+    if (!formData.state.trim()) e.state = "State is required";
+    if (!formData.ownerPinCode.trim()) e.ownerPinCode = "PIN code is required";
+  }
+  if (s === 2) {
+    if (!formData.area.trim()) e.area = "Property city is required";
+    if (!formData.landmark.trim()) e.landmark = "Area/Locality is required";
+    if (!formData.propertyType) e.propertyType = "Please select a property type";
+    if (!formData.builtUpArea) e.builtUpArea = "Built-up area is required";
+    if (!formData.bedrooms) e.bedrooms = "Please select number of bedrooms";
+    if (!formData.bathrooms) e.bathrooms = "Please select number of bathrooms";
+  }
+  if (s === 3) {
+    if (!formData.sellPrice) e.sellPrice = "Selling price is required";
+  }
+  if (s === 4) {
+    if (!formData.coverImage) e.coverImage = "Cover image is required";
+    if (formData.propertyImages.length === 0) e.propertyImages = "At least one property photo is required";
+  }
+  if (s === 5) {
+    if (!formData.floorPlan) e.floorPlan = "Floor plan is required";
+  }
+  if (s === 6) {
+    if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
+    if (!formData.accountNumber) e.accountNumber = "Account number is required";
+    if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
+    if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
+    if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+  }
+  if (s === 7) {
+    if (!formData.signature) e.signature = "Please draw your signature";
+    if (!formData.signatureDate) e.signatureDate = "Date is required";
+    if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
+    if (!formData.declarationAccepted1) e.declarationAccepted1 = "You must confirm this to proceed";
+    if (!formData.declarationAccepted2) e.declarationAccepted2 = "You must confirm this to proceed";
+    if (!formData.declarationAccepted3) e.declarationAccepted3 = "You must agree to proceed";
+  }
+  return e;
+};
+
+const handleSubmit = () => {
+  try {
     const allDeclarationsAccepted = formData.declarationAccepted1 && formData.declarationAccepted2 && formData.declarationAccepted3;
     console.log("Apartment Sell Form submitted:", { ...formData, allDeclarationsAccepted });
     onClose();
-  };
+  } catch (err) {
+    console.error("Submit failed:", err);
+    alert("Something went wrong while submitting. Please try again.");
+  }
+};
 
   if (!isOpen) return null;
 
@@ -401,6 +481,7 @@ export default function ApartSellForm({ isOpen, onClose }) {
               contactTimeOptions={contactTimeOptions}
               apartmentSellAmenities={apartmentSellAmenities}
               toggleArrayItem={toggleArrayItem}
+              bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
               handleFloorPlanUpload={handleFloorPlanUpload}
               coverPreview={coverPreview}
@@ -408,6 +489,8 @@ export default function ApartSellForm({ isOpen, onClose }) {
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
               toggleContactMethod={toggleContactMethod}
+              isValidEmail={isValidEmail}
+              errors={errors}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -444,7 +527,12 @@ export default function ApartSellForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}
+                onClick={() => {
+                  const stepErrors = validateStep(step);
+                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
+                  setErrors({});
+                  step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
+                }}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -510,6 +598,7 @@ export default function ApartSellForm({ isOpen, onClose }) {
               contactTimeOptions={contactTimeOptions}
               apartmentSellAmenities={apartmentSellAmenities}
               toggleArrayItem={toggleArrayItem}
+              bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
               handleFloorPlanUpload={handleFloorPlanUpload}
               coverPreview={coverPreview}
@@ -517,6 +606,8 @@ export default function ApartSellForm({ isOpen, onClose }) {
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
               toggleContactMethod={toggleContactMethod}
+              isValidEmail={isValidEmail}
+              errors={errors}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -552,7 +643,12 @@ export default function ApartSellForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}>
+                onClick={() => {
+                  const stepErrors = validateStep(step);
+                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
+                  setErrors({});
+                  step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
+                }}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -564,7 +660,7 @@ export default function ApartSellForm({ isOpen, onClose }) {
 }
 
 // MOBILE CONTENT
-function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, toggleArrayItem, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -615,17 +711,21 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
     <>
       <Field label="Full Name" required>
         <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => updateForm("ownerName", e.target.value)} />
+        {errors.ownerName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerName}</p>}
       </Field>
       <Field label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value)} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        {errors.contactNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.contactNumber}</p>}
       </Field>
       <Field label="Email Address" required hint="We'll send listing updates to this email">
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </Field>
-      <Field label="Date of Birth">
+      <Field label="Date of Birth" required>
         <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
+        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </Field>
-      <Field label="Gender">
+      <Field label="Gender" required>
         <div className="flex gap-4">
           {["Male", "Female", "Other"].map(g => (
             <label key={g} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
@@ -634,6 +734,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
             </label>
           ))}
         </div>
+        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </Field>
     </>
   );
@@ -646,7 +747,8 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity Verification</h3>
       </div>
       <Field label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+        <input className={inp} inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
+        {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
       </Field>
       <Field label="PAN Number">
         <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
@@ -661,6 +763,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
           </label>
         </div>
         {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
+        {errors.aadhaarCard && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCard}</p>}
       </Field>
       <Field label="Upload PAN Card (Optional)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
@@ -683,6 +786,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.passportPhoto.name}</p>}
+        {errors.passportPhoto && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.passportPhoto}</p>}
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -691,21 +795,23 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
       </div>
       <Field label="Address Line 1" required>
         <input className={inp} placeholder="House number, building, street" value={formData.addressLine1} onChange={(e) => updateForm("addressLine1", e.target.value)} />
-      </Field>
-      <Field label="Address Line 2">
-        <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
+        {errors.addressLine1 && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.addressLine1}</p>}
       </Field>
       <Field label="Owner City" required>
         <input className={inp} placeholder="Enter owner's city" value={formData.ownerCity} onChange={(e) => updateForm("ownerCity", e.target.value)} />
+        {errors.ownerCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerCity}</p>}
       </Field>
       <Field label="District" required>
         <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
+        {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
       </Field>
       <Field label="State" required>
         <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
+        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
       </Field>
       <Field label="Owner PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.ownerPinCode} onChange={(e) => updateForm("ownerPinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.ownerPinCode} onChange={(e) => updateForm("ownerPinCode", e.target.value.slice(0, 6))} />
+        {errors.ownerPinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerPinCode}</p>}
       </Field>
     </>
   );
@@ -719,9 +825,11 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
       </div>
       <Field label="Property City" required>
         <input className={inp} placeholder="Enter property city name" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        {errors.area && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.area}</p>}
       </Field>
       <Field label="Area / Locality" required>
         <input className={inp} placeholder="Enter area or locality" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
+        {errors.landmark && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landmark}</p>}
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -744,31 +852,34 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
             </label>
           ))}
         </div>
+        {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </Field>
-      
       <Field label="Built-up Area" required hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
       </Field>
       
       <Field label="Carpet Area" hint="In square feet">
         <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       
-      <Field label="Number of Bedrooms">
+      <Field label="Number of Bedrooms" required>
         {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
           <label key={bhk} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-bhk-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
             {bhk}
           </label>
         ))}
+        {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </Field>
-      <Field label="Number of Bathrooms">
+      <Field label="Number of Bathrooms" required>
         {["1", "2", "3", "4+"].map(b => (
           <label key={b} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-bath-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
             {b}
           </label>
         ))}
+        {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </Field>
       <Field label="Floor Number">
         <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
@@ -855,11 +966,9 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
-      <Field label="Selling Price" required>
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.sellPriceMin} onChange={(e) => updateForm("sellPriceMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
-        </div>
+      <Field label="Selling Price (₹)" required>
+        <input className={inp} type="number" min="0" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", e.target.value)} />
+        {errors.sellPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.sellPrice}</p>}
       </Field>
       
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
@@ -873,9 +982,9 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
         <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
 
-      <Field label="Price Negotiable">
+      <Field label="Price Negotiable" required>
         <div className="flex gap-4">
-          {yesNoOptions.map(opt => (
+          {["Fixed", "Negotiable"].map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
               <input type="radio" name="mob-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
               {opt}
@@ -996,15 +1105,19 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
       </div>
       <Field label="Nearby Places">
         <div className="grid grid-cols-2 gap-1">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+            <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
+                const current = formData.nearbyPlaces || [];
+                if (current.includes(place)) {
+                  updateForm("nearbyPlaces", current.filter(p => p !== place));
+                } else {
+                  updateForm("nearbyPlaces", [...current, place]);
+                }
+              }} />
+              {place}
+            </label>
+          ))}
         </div>
       </Field>
     </>
@@ -1034,8 +1147,8 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
             <button onClick={removeCoverImage} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
+        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </Field>
-
       <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-sell" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
@@ -1055,6 +1168,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
             ))}
           </div>
         )}
+        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </Field>
 
       <Field label="Upload Property Video (Optional)" hint="Max 10MB">
@@ -1100,6 +1214,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
             <button onClick={removeFloorPlan} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
+        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </Field>
 
       <Field label="Sale Deed">
@@ -1212,15 +1327,21 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
       <p className="text-[9px] text-gray-400 mb-2">Enter your bank details for sale proceeds</p>
       <Field label="Account Holder Name" required>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </Field>
-      <Field label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <Field label="Bank Name">
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank (optional)</option>
+          {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
       </Field>
       <Field label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </Field>
       <Field label="IFSC Code" required>
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1288,11 +1409,14 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
           Clear
         </button>
       </div>
+      {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
       <Field label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </Field>
       <Field label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </Field>
 
       {/* Declaration - Independent Checkboxes */}
@@ -1305,14 +1429,17 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
           <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
         </label>
+        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted1}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
+        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted2}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted3}</p>}
       </div>
     </>
   );
@@ -1321,7 +1448,7 @@ function MobContentApartSell({ step, inp, formData, updateForm, imagePreviews, h
 }
 
 // DESKTOP CONTENT
-function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, toggleArrayItem, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, toggleApartmentAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, furnishingOptions, facingOptions, ownershipOptions, contactTimeOptions, apartmentSellAmenities, toggleArrayItem, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1372,17 +1499,21 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
     <>
       <FieldDt label="Full Name" required>
         <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => updateForm("ownerName", e.target.value)} />
+        {errors.ownerName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerName}</p>}
       </FieldDt>
       <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value)} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        {errors.contactNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.contactNumber}</p>}
       </FieldDt>
       <FieldDt label="Email Address" required hint="We'll send listing updates to this email">
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </FieldDt>
-      <FieldDt label="Date of Birth">
+      <FieldDt label="Date of Birth" required>
         <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
+        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </FieldDt>
-      <FieldDt label="Gender">
+      <FieldDt label="Gender" required>
         <div className="flex gap-5">
           {["Male", "Female", "Other"].map(g => (
             <label key={g} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1391,6 +1522,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             </label>
           ))}
         </div>
+        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </FieldDt>
     </>
   );
@@ -1403,7 +1535,8 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity Verification</h3>
       </div>
       <FieldDt label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+        <input className={inp} inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
+        {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
       </FieldDt>
       <FieldDt label="PAN Number">
         <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
@@ -1418,6 +1551,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
           </label>
         </div>
         {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
+        {errors.aadhaarCard && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCard}</p>}
       </FieldDt>
       <FieldDt label="Upload PAN Card (Optional)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1440,6 +1574,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.passportPhoto.name}</p>}
+        {errors.passportPhoto && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.passportPhoto}</p>}
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -1448,21 +1583,26 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
       </div>
       <FieldDt label="Address Line 1" required>
         <input className={inp} placeholder="House number, building, street" value={formData.addressLine1} onChange={(e) => updateForm("addressLine1", e.target.value)} />
+        {errors.addressLine1 && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.addressLine1}</p>}
       </FieldDt>
       <FieldDt label="Address Line 2">
         <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
       </FieldDt>
       <FieldDt label="Owner City" required>
         <input className={inp} placeholder="Enter owner's city" value={formData.ownerCity} onChange={(e) => updateForm("ownerCity", e.target.value)} />
+        {errors.ownerCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerCity}</p>}
       </FieldDt>
       <FieldDt label="District" required>
         <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
+        {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
       </FieldDt>
       <FieldDt label="State" required>
         <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
+        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
       </FieldDt>
       <FieldDt label="Owner PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.ownerPinCode} onChange={(e) => updateForm("ownerPinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.ownerPinCode} onChange={(e) => updateForm("ownerPinCode", e.target.value.slice(0, 6))} />
+        {errors.ownerPinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerPinCode}</p>}
       </FieldDt>
     </>
   );
@@ -1476,15 +1616,17 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
       </div>
       <FieldDt label="Property City" required>
         <input className={inp} placeholder="Enter property city name" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        {errors.area && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.area}</p>}
       </FieldDt>
       <FieldDt label="Area / Locality" required>
         <input className={inp} placeholder="Enter area or locality" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
+        {errors.landmark && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landmark}</p>}
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
       </FieldDt>
       <FieldDt label="Property PIN Code">
-        <input className={inp} placeholder="Enter property PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter property PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -1501,17 +1643,16 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             </label>
           ))}
         </div>
+        {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </FieldDt>
-      
       <FieldDt label="Built-up Area" required hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
       </FieldDt>
-      
       <FieldDt label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
-      
-      <FieldDt label="Number of Bedrooms">
+      <FieldDt label="Number of Bedrooms" required>
         <div className="flex flex-wrap gap-3">
           {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
             <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1520,8 +1661,9 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             </label>
           ))}
         </div>
+        {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </FieldDt>
-      <FieldDt label="Number of Bathrooms">
+      <FieldDt label="Number of Bathrooms" required>
         <div className="flex flex-wrap gap-3">
           {["1", "2", "3", "4+"].map(b => (
             <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1530,6 +1672,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             </label>
           ))}
         </div>
+        {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </FieldDt>
       <FieldDt label="Floor Number">
         <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
@@ -1616,11 +1759,9 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
-      <FieldDt label="Selling Price" required>
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.sellPriceMin} onChange={(e) => updateForm("sellPriceMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.sellPriceMax} onChange={(e) => updateForm("sellPriceMax", e.target.value)} />
-        </div>
+      <FieldDt label="Selling Price (₹)" required>
+        <input className={inp} type="number" min="0" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", e.target.value)} />
+        {errors.sellPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.sellPrice}</p>}
       </FieldDt>
       
       <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
@@ -1634,16 +1775,16 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
         <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
 
-      <FieldDt label="Price Negotiable">
-        <div className="flex gap-5">
-          {yesNoOptions.map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
+      <Field label="Price Negotiable" required>
+        <div className="flex gap-4">
+          {["Fixed", "Negotiable"].map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-negotiable-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceNegotiable === opt} onChange={() => updateForm("priceNegotiable", opt)} />
               {opt}
             </label>
           ))}
         </div>
-      </FieldDt>
+      </Field>
       <FieldDt label="Maintenance Charges">
         <input className={inp} type="number" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", e.target.value)} />
       </FieldDt>
@@ -1756,15 +1897,19 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
       </div>
       <FieldDt label="Nearby Places">
         <div className="grid grid-cols-2 gap-2">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+            <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
+                const current = formData.nearbyPlaces || [];
+                if (current.includes(place)) {
+                  updateForm("nearbyPlaces", current.filter(p => p !== place));
+                } else {
+                  updateForm("nearbyPlaces", [...current, place]);
+                }
+              }} />
+              {place}
+            </label>
+          ))}
         </div>
       </FieldDt>
     </>
@@ -1794,8 +1939,8 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             <button onClick={removeCoverImage} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
+        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </FieldDt>
-
       <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-sell" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
@@ -1815,6 +1960,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             ))}
           </div>
         )}
+        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </FieldDt>
 
       <FieldDt label="Upload Property Video (Optional)" hint="Max 10MB">
@@ -1860,6 +2006,7 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
             <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
+        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </FieldDt>
 
       <FieldDt label="Sale Deed">
@@ -1972,15 +2119,21 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
       <p className="text-[11px] text-gray-400 mb-3">Enter your bank details for sale proceeds</p>
       <FieldDt label="Account Holder Name" required>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </FieldDt>
-      <FieldDt label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <FieldDt label="Bank Name">
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank (optional)</option>
+          {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
       </FieldDt>
       <FieldDt label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </FieldDt>
       <FieldDt label="IFSC Code" required>
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2048,11 +2201,14 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
           Clear
         </button>
       </div>
+      {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
       <FieldDt label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </FieldDt>
       <FieldDt label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </FieldDt>
 
       {/* Declaration - Independent Checkboxes */}
@@ -2065,14 +2221,17 @@ function DtContentApartSell({ step, inp, formData, updateForm, imagePreviews, ha
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
           <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
         </label>
+        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted1}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
+        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted2}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted3}</p>}
       </div>
     </>
   );
