@@ -32,23 +32,31 @@ const subtitles = [
   "Confirm & submit"
 ];
 
-const Field = ({ label, required, hint, children }) => (
+const Field = ({ label, required, hint, error, children }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error ? (
+      <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>
+    ) : hint ? (
+      <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>
+    ) : null}
   </div>
 );
 
-const FieldDt = ({ label, required, hint, children }) => (
+const FieldDt = ({ label, required, hint, error, children }) => (
   <div className="mb-2.5">
     <label className="block text-[13px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error ? (
+      <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>
+    ) : hint ? (
+      <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>
+    ) : null}
   </div>
 );
 
@@ -73,6 +81,7 @@ const propertyTypeOptions = [
   "Condo Apartment", 
   "Penthouse Apartment"
 ];
+const bankOptions = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"];
 
 const apartmentRentAmenities = [
   { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
@@ -99,7 +108,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     fullName: "", mobileNumber: "", emailId: "", dateOfBirth: "", gender: "", profilePhoto: null,
 
     // Business Information (Step 1)
-    agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", serviceAreas: "",
+    agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", serviceAreas: [],
     officeAddress: "",
     
     // Property Details (Step 2) - Location + Details & Interior combined
@@ -107,18 +116,16 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     propertyType: "", bedrooms: "", bathrooms: "", floorNumber: "", totalFloors: "",
     facingDirection: "", balcony: "", propertyAge: "", cornerUnit: "",
     builtUpArea: "", carpetArea: "",
-    furnishing: "", modularKitchen: "", wardrobes: "", airConditioning: "",
-    utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
+    furnishing: "", interiorFeatures: [], appliancesIncluded: [],
     
     // Pricing & Amenities (Step 3)
-    rentMin: "", rentMax: "", budgetRange: { min: "", max: "" }, 
+    rentPrice: "", budgetRange: { min: "", max: "" }, 
     securityDeposit: "",
-    maintenanceIncluded: "", rentNegotiable: "",
+    maintenanceIncluded: "", rentNegotiable: "Fixed",
     tenantType: [], petFriendly: "", dietaryPreference: "", smokingAllowed: "",
     selectedAmenities: [], otherAmenities: "",
     immediateMoveIn: "", availableFrom: "", minimumRentalDuration: "",
-    nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
-    nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
+    nearbyPlaces: [],
     contactVia: "", preferredContactTime: "",
     
     // Media Upload (Step 4)
@@ -150,9 +157,20 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
   const [allSignaturePoints, setAllSignaturePoints] = useState([]);
   const [activeCanvas, setActiveCanvas] = useState(null);
 
+  const [errors, setErrors] = useState({});
+
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   };
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -361,12 +379,70 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     });
   };
 
-  const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
-    console.log("Rent Agent Apartment Form submitted:", formData);
-    onClose();
+  const validateStep = (s) => {
+    const e = {};
+    if (s === 0) {
+      if (!formData.fullName.trim()) e.fullName = "Full name is required";
+      if (!formData.mobileNumber || formData.mobileNumber.length !== 10) e.mobileNumber = "Enter a valid 10-digit mobile number";
+      if (!formData.mobileNumber.match(/^[0-9]{10}$/)) e.mobileNumber = "Mobile number must contain only digits";
+      if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
+      if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
+      if (!formData.gender) e.gender = "Please select your gender";
+    }
+    if (s === 1) {
+      if (!formData.agencyName.trim()) e.agencyName = "Agency name is required";
+      if (!formData.yearsExperience) e.yearsExperience = "Years of experience is required";
+      if (formData.yearsExperience < 0) e.yearsExperience = "Years of experience cannot be negative";
+      if (!formData.serviceAreas || formData.serviceAreas.length === 0) e.serviceAreas = "Please select at least one service area";
+      if (!formData.officeAddress.trim()) e.officeAddress = "Office address is required";
+    }
+    if (s === 2) {
+      if (!formData.city.trim()) e.city = "City is required";
+      if (!formData.area.trim()) e.area = "Area/Locality is required";
+      if (!formData.propertyType) e.propertyType = "Please select a property type";
+      if (!formData.bedrooms) e.bedrooms = "Please select number of bedrooms";
+      if (!formData.bathrooms) e.bathrooms = "Please select number of bathrooms";
+    }
+    if (s === 3) {
+      if (!formData.rentPrice) e.rentPrice = "Monthly rent is required";
+    }
+    if (s === 4) {
+      if (!formData.coverImage) e.coverImage = "Cover image is required";
+      if (formData.propertyImages.length === 0) e.propertyImages = "At least one property photo is required";
+    }
+    if (s === 5) {
+      if (!formData.aadhaarCardDoc) e.aadhaarCardDoc = "Aadhaar card is required";
+      if (!formData.panCardDoc) e.panCardDoc = "PAN card is required";
+      if (!formData.floorPlan) e.floorPlan = "Floor plan is required";
+      if (!formData.rentalAgreement) e.rentalAgreement = "Rental agreement is required";
+    }
+    if (s === 6) {
+      if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
+      if (!formData.accountNumber) e.accountNumber = "Account number is required";
+      if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
+      if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
+      if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+    }
+    if (s === 7) {
+      if (!formData.signature) e.signature = "Please draw your signature";
+      if (!formData.signatureDate) e.signatureDate = "Date is required";
+      if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
+      if (!formData.declarationAccepted1) e.declarationAccepted1 = "You must confirm this to proceed";
+      if (!formData.declarationAccepted2) e.declarationAccepted2 = "You must confirm this to proceed";
+      if (!formData.declarationAccepted3) e.declarationAccepted3 = "You must agree to proceed";
+    }
+    return e;
   };
 
+  const handleSubmit = () => {
+  try {
+    console.log("Rent Agent Apartment Form submitted:", formData);
+    onClose();
+  } catch (err) {
+    console.error("Submit failed:", err);
+    alert("Something went wrong while submitting. Please try again.");
+  }
+};
   if (!isOpen) return null;
 
   return (
@@ -429,6 +505,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               contactTimeOptions={contactTimeOptions}
               apartmentRentAmenities={apartmentRentAmenities}
               toggleArrayItem={toggleArrayItem}
+              bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
               handleFloorPlanUpload={handleFloorPlanUpload}
               coverPreview={coverPreview}
@@ -438,6 +515,8 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               handleProfilePhotoUpload={handleProfilePhotoUpload}
               profilePhotoPreview={profilePhotoPreview}
               removeProfilePhoto={removeProfilePhoto}
+              isValidEmail={isValidEmail}
+              errors={errors}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -478,7 +557,12 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}
+                onClick={() => {
+                  const stepErrors = validateStep(step);
+                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
+                  setErrors({});
+                  step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
+                }}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -544,6 +628,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               contactTimeOptions={contactTimeOptions}
               apartmentRentAmenities={apartmentRentAmenities}
               toggleArrayItem={toggleArrayItem}
+              bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
               handleFloorPlanUpload={handleFloorPlanUpload}
               coverPreview={coverPreview}
@@ -553,6 +638,8 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               handleProfilePhotoUpload={handleProfilePhotoUpload}
               profilePhotoPreview={profilePhotoPreview}
               removeProfilePhoto={removeProfilePhoto}
+              isValidEmail={isValidEmail}
+              errors={errors}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -592,7 +679,12 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}>
+                onClick={() => {
+                  const stepErrors = validateStep(step);
+                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
+                  setErrors({});
+                  step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
+                }}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -614,13 +706,15 @@ function MobContentRentAgentApart({
   yesNoOptions, furnishingOptions, facingOptions,
   tenantTypeOptions, rentalDurationOptions, contactTimeOptions,
   apartmentRentAmenities, toggleArrayItem,
+  bankOptions,
   handleCoverImageUpload, handleFloorPlanUpload,
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan,
   handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto,
+  isValidEmail, errors,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions
-}) {
+})  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -671,17 +765,21 @@ function MobContentRentAgentApart({
     <>
       <Field label="Full Name" required>
         <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
+        {errors.fullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.fullName}</p>}
       </Field>
       <Field label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        {errors.mobileNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.mobileNumber}</p>}
       </Field>
       <Field label="Email Address" required>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </Field>
-      <Field label="Date of Birth">
+      <Field label="Date of Birth" required>
         <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
+        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </Field>
-      <Field label="Gender">
+      <Field label="Gender" required>
         <div className="flex gap-4">
           {genderOptions.map(g => (
             <label key={g} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
@@ -690,6 +788,7 @@ function MobContentRentAgentApart({
             </label>
           ))}
         </div>
+        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </Field>
       <Field label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -719,24 +818,43 @@ function MobContentRentAgentApart({
       </div>
       <Field label="Agency Name" required>
         <input className={inp} placeholder="Enter your agency name" value={formData.agencyName} onChange={(e) => updateForm("agencyName", e.target.value)} />
-      </Field>
-      <Field label="RERA Registration Number" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
-      </Field>
-      <Field label="GST Number" hint="Optional">
-        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
+        {errors.agencyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agencyName}</p>}
       </Field>
       <Field label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
-      </Field>
-      <Field label="Number of Active Listings">
-        <input className={inp} type="number" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
+        {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
       </Field>
       <Field label="Service Areas" required>
-        <input className={inp} placeholder="Enter cities/localities you serve" value={formData.serviceAreas} onChange={(e) => updateForm("serviceAreas", e.target.value)} />
+        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
+          const options = e.target.options;
+          const values = [];
+          for (let i = 0; i < options.length; i++) {
+            if (options[i].selected) values.push(options[i].value);
+          }
+          updateForm("serviceAreas", values);
+        }}>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Pune">Pune</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Surat">Surat</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Indore">Indore</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Chandigarh">Chandigarh</option>
+          <option value="Other">Other</option>
+        </select>
+        {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </Field>
       <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[65px]`} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        {errors.officeAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officeAddress}</p>}
       </Field>
     </>
   );
@@ -750,9 +868,11 @@ function MobContentRentAgentApart({
       </div>
       <Field label="City" required>
         <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
       </Field>
       <Field label="Area / Locality" required>
         <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        {errors.area && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.area}</p>}
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
@@ -769,36 +889,39 @@ function MobContentRentAgentApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">🏠 Property Specifications</h3>
       </div>
       <Field label="Property Type" required>
-        <div className="grid grid-cols-2 gap-1">
-          {propertyTypeOptions.map(type => (
-            <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-property-type" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
-              {type}
-            </label>
-          ))}
-        </div>
-      </Field>
+      <div className="grid grid-cols-2 gap-1">
+        {propertyTypeOptions.map(type => (
+          <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
+            <input type="radio" name="mob-property-type" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyType === type} onChange={() => updateForm("propertyType", type)} />
+            {type}
+          </label>
+        ))}
+      </div>
+      {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
+    </Field>
       <Field label="Built-up Area" hint="In square feet">
         <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
       <Field label="Carpet Area" hint="In square feet">
         <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
-      <Field label="Number of Bedrooms">
+      <Field label="Number of Bedrooms" required>
         {bedroomOptions.map(bhk => (
           <label key={bhk} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-bhk-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
             {bhk}
           </label>
         ))}
+        {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </Field>
-      <Field label="Number of Bathrooms">
+      <Field label="Number of Bathrooms" required>
         {bathroomOptions.map(b => (
           <label key={b} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-bath-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
             {b}
           </label>
         ))}
+        {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </Field>
       <Field label="Floor Number">
         <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
@@ -856,19 +979,37 @@ function MobContentRentAgentApart({
       </Field>
       <Field label="Interior Features">
         <div className="grid grid-cols-2 gap-1">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => {
-            const key = feature.toLowerCase().replace(/ /g, '');
-            return (
-              <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] === "yes"} onChange={() => updateForm(key, formData[key] === "yes" ? "no" : "yes")} />
-                {feature}
-              </label>
-            );
-          })}
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
+            <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => {
+                const current = formData.interiorFeatures || [];
+                if (current.includes(feature)) {
+                  updateForm("interiorFeatures", current.filter(f => f !== feature));
+                } else {
+                  updateForm("interiorFeatures", [...current, feature]);
+                }
+              }} />
+              {feature}
+            </label>
+          ))}
         </div>
       </Field>
       <Field label="Appliances Included">
-        <input className={inp} placeholder="e.g., Refrigerator, AC, Washing Machine, Microwave" value={formData.appliancesIncluded} onChange={(e) => updateForm("appliancesIncluded", e.target.value)} />
+        <div className="grid grid-cols-2 gap-1">
+          {["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"].map(appliance => (
+            <label key={appliance} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => {
+                const current = formData.appliancesIncluded || [];
+                if (current.includes(appliance)) {
+                  updateForm("appliancesIncluded", current.filter(a => a !== appliance));
+                } else {
+                  updateForm("appliancesIncluded", [...current, appliance]);
+                }
+              }} />
+              {appliance}
+            </label>
+          ))}
+        </div>
       </Field>
     </>
   );
@@ -880,11 +1021,9 @@ function MobContentRentAgentApart({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">💰 Rent Details</h3>
       </div>
-      <Field label="Monthly Rent Range" required>
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.rentMin} onChange={(e) => updateForm("rentMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.rentMax} onChange={(e) => updateForm("rentMax", e.target.value)} />
-        </div>
+      <Field label="Monthly Rent (₹)" required>
+        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.rentPrice} onChange={(e) => updateForm("rentPrice", e.target.value)} />
+        {errors.rentPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.rentPrice}</p>}
       </Field>
       <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-1">
@@ -905,9 +1044,9 @@ function MobContentRentAgentApart({
           ))}
         </div>
       </Field>
-      <Field label="Rent Negotiable">
+      <Field label="Rent Negotiable" required>
         <div className="flex gap-4">
-          {yesNoOptions.map(opt => (
+          {["Fixed", "Negotiable"].map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
               <input type="radio" name="mob-negotiable-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentNegotiable === opt} onChange={() => updateForm("rentNegotiable", opt)} />
               {opt}
@@ -1025,15 +1164,19 @@ function MobContentRentAgentApart({
       </div>
       <Field label="Nearby Places">
         <div className="grid grid-cols-2 gap-1">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+            <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
+                const current = formData.nearbyPlaces || [];
+                if (current.includes(place)) {
+                  updateForm("nearbyPlaces", current.filter(p => p !== place));
+                } else {
+                  updateForm("nearbyPlaces", [...current, place]);
+                }
+              }} />
+              {place}
+            </label>
+          ))}
         </div>
       </Field>
     </>
@@ -1063,8 +1206,8 @@ function MobContentRentAgentApart({
             <button onClick={removeCoverImage} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
+        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </Field>
-
       <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-apart" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
@@ -1084,6 +1227,7 @@ function MobContentRentAgentApart({
             ))}
           </div>
         )}
+        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </Field>
 
       <Field label="Upload Property Video (Optional)" hint="Max 10MB">
@@ -1124,8 +1268,8 @@ function MobContentRentAgentApart({
           </label>
         </div>
         {formData.aadhaarCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCardDoc.name}</p>}
+        {errors.aadhaarCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCardDoc}</p>}
       </Field>
-
       <Field label="PAN Card" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
@@ -1136,6 +1280,7 @@ function MobContentRentAgentApart({
           </label>
         </div>
         {formData.panCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCardDoc.name}</p>}
+        {errors.panCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.panCardDoc}</p>}
       </Field>
 
       <Field label="Agency Logo" hint="Optional">
@@ -1201,6 +1346,7 @@ function MobContentRentAgentApart({
             <button onClick={removeFloorPlan} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
+        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </Field>
 
       <Field label="Rental Agreement" required>
@@ -1213,6 +1359,7 @@ function MobContentRentAgentApart({
           </label>
         </div>
         {formData.rentalAgreement && <p className="text-[10px] text-green-600 mt-1">✓ {formData.rentalAgreement.name}</p>}
+        {errors.rentalAgreement && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.rentalAgreement}</p>}
       </Field>
 
       <Field label="Property Tax Receipt">
@@ -1251,15 +1398,21 @@ function MobContentRentAgentApart({
       <p className="text-[9px] text-gray-400 mb-2">Enter your bank details for payments</p>
       <Field label="Account Holder Name" required>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </Field>
-      <Field label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <Field label="Bank Name">
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank (optional)</option>
+          {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
       </Field>
       <Field label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </Field>
       <Field label="IFSC Code" required>
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1303,11 +1456,14 @@ function MobContentRentAgentApart({
           Clear
         </button>
       </div>
+      {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
       <Field label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </Field>
       <Field label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1319,14 +1475,17 @@ function MobContentRentAgentApart({
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
+        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted1}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
+        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted2}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
+        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted3}</p>}
       </div>
     </>
   );
@@ -1345,13 +1504,15 @@ function DtContentRentAgentApart({
   yesNoOptions, furnishingOptions, facingOptions,
   tenantTypeOptions, rentalDurationOptions, contactTimeOptions,
   apartmentRentAmenities, toggleArrayItem,
+  bankOptions,
   handleCoverImageUpload, handleFloorPlanUpload,
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan,
   handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto,
+  isValidEmail, errors,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions
-}) {
+})  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1402,17 +1563,21 @@ function DtContentRentAgentApart({
     <>
       <FieldDt label="Full Name" required>
         <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
+        {errors.fullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.fullName}</p>}
       </FieldDt>
       <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        {errors.mobileNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.mobileNumber}</p>}
       </FieldDt>
       <FieldDt label="Email Address" required>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
+        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </FieldDt>
-      <FieldDt label="Date of Birth">
+      <FieldDt label="Date of Birth" required>
         <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
+        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </FieldDt>
-      <FieldDt label="Gender">
+      <FieldDt label="Gender" required>
         <div className="flex gap-5">
           {genderOptions.map(g => (
             <label key={g} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1421,6 +1586,7 @@ function DtContentRentAgentApart({
             </label>
           ))}
         </div>
+        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </FieldDt>
       <FieldDt label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1450,24 +1616,43 @@ function DtContentRentAgentApart({
       </div>
       <FieldDt label="Agency Name" required>
         <input className={inp} placeholder="Enter your agency name" value={formData.agencyName} onChange={(e) => updateForm("agencyName", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="RERA Registration Number" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="GST Number" hint="Optional">
-        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
+        {errors.agencyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agencyName}</p>}
       </FieldDt>
       <FieldDt label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Number of Active Listings">
-        <input className={inp} type="number" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
+        {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
       </FieldDt>
       <FieldDt label="Service Areas" required>
-        <input className={inp} placeholder="Enter cities/localities you serve" value={formData.serviceAreas} onChange={(e) => updateForm("serviceAreas", e.target.value)} />
+        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
+          const options = e.target.options;
+          const values = [];
+          for (let i = 0; i < options.length; i++) {
+            if (options[i].selected) values.push(options[i].value);
+          }
+          updateForm("serviceAreas", values);
+        }}>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Pune">Pune</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Surat">Surat</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Indore">Indore</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Chandigarh">Chandigarh</option>
+          <option value="Other">Other</option>
+        </select>
+        {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </FieldDt>
       <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[80px]`} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        {errors.officeAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officeAddress}</p>}
       </FieldDt>
     </>
   );
@@ -1481,9 +1666,11 @@ function DtContentRentAgentApart({
       </div>
       <FieldDt label="City" required>
         <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
       </FieldDt>
       <FieldDt label="Area / Locality" required>
         <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        {errors.area && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.area}</p>}
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
@@ -1508,6 +1695,7 @@ function DtContentRentAgentApart({
             </label>
           ))}
         </div>
+        {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </FieldDt>
       <FieldDt label="Built-up Area" hint="In square feet">
         <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
@@ -1515,7 +1703,7 @@ function DtContentRentAgentApart({
       <FieldDt label="Carpet Area" hint="In square feet">
         <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Number of Bedrooms">
+      <FieldDt label="Number of Bedrooms" required>
         <div className="flex flex-wrap gap-3">
           {bedroomOptions.map(bhk => (
             <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1524,8 +1712,9 @@ function DtContentRentAgentApart({
             </label>
           ))}
         </div>
+        {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </FieldDt>
-      <FieldDt label="Number of Bathrooms">
+      <FieldDt label="Number of Bathrooms" required>
         <div className="flex flex-wrap gap-3">
           {bathroomOptions.map(b => (
             <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1534,6 +1723,7 @@ function DtContentRentAgentApart({
             </label>
           ))}
         </div>
+        {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </FieldDt>
       <FieldDt label="Floor Number">
         <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
@@ -1591,19 +1781,37 @@ function DtContentRentAgentApart({
       </FieldDt>
       <FieldDt label="Interior Features">
         <div className="grid grid-cols-2 gap-2">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => {
-            const key = feature.toLowerCase().replace(/ /g, '');
-            return (
-              <label key={feature} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] === "yes"} onChange={() => updateForm(key, formData[key] === "yes" ? "no" : "yes")} />
-                {feature}
-              </label>
-            );
-          })}
+          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
+            <label key={feature} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => {
+                const current = formData.interiorFeatures || [];
+                if (current.includes(feature)) {
+                  updateForm("interiorFeatures", current.filter(f => f !== feature));
+                } else {
+                  updateForm("interiorFeatures", [...current, feature]);
+                }
+              }} />
+              {feature}
+            </label>
+          ))}
         </div>
       </FieldDt>
       <FieldDt label="Appliances Included">
-        <input className={inp} placeholder="e.g., Refrigerator, AC, Washing Machine, Microwave" value={formData.appliancesIncluded} onChange={(e) => updateForm("appliancesIncluded", e.target.value)} />
+        <div className="grid grid-cols-2 gap-2">
+          {["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"].map(appliance => (
+            <label key={appliance} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => {
+                const current = formData.appliancesIncluded || [];
+                if (current.includes(appliance)) {
+                  updateForm("appliancesIncluded", current.filter(a => a !== appliance));
+                } else {
+                  updateForm("appliancesIncluded", [...current, appliance]);
+                }
+              }} />
+              {appliance}
+            </label>
+          ))}
+        </div>
       </FieldDt>
     </>
   );
@@ -1615,11 +1823,9 @@ function DtContentRentAgentApart({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">💰 Rent Details</h3>
       </div>
-      <FieldDt label="Monthly Rent Range" required>
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.rentMin} onChange={(e) => updateForm("rentMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.rentMax} onChange={(e) => updateForm("rentMax", e.target.value)} />
-        </div>
+      <FieldDt label="Monthly Rent (₹)" required>
+        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.rentPrice} onChange={(e) => updateForm("rentPrice", e.target.value)} />
+        {errors.rentPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.rentPrice}</p>}
       </FieldDt>
       <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-2">
@@ -1640,9 +1846,9 @@ function DtContentRentAgentApart({
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Rent Negotiable">
+      <FieldDt label="Rent Negotiable" required>
         <div className="flex gap-5">
-          {yesNoOptions.map(opt => (
+          {["Fixed", "Negotiable"].map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-negotiable-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentNegotiable === opt} onChange={() => updateForm("rentNegotiable", opt)} />
               {opt}
@@ -1759,15 +1965,19 @@ function DtContentRentAgentApart({
       </div>
       <FieldDt label="Nearby Places">
         <div className="grid grid-cols-2 gap-2">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
+          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+            <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
+                const current = formData.nearbyPlaces || [];
+                if (current.includes(place)) {
+                  updateForm("nearbyPlaces", current.filter(p => p !== place));
+                } else {
+                  updateForm("nearbyPlaces", [...current, place]);
+                }
+              }} />
+              {place}
+            </label>
+          ))}
         </div>
       </FieldDt>
     </>
@@ -1797,8 +2007,8 @@ function DtContentRentAgentApart({
             <button onClick={removeCoverImage} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
+        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </FieldDt>
-
       <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-apart" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
@@ -1818,6 +2028,7 @@ function DtContentRentAgentApart({
             ))}
           </div>
         )}
+        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </FieldDt>
 
       <FieldDt label="Upload Property Video (Optional)" hint="Max 10MB">
