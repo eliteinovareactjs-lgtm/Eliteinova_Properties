@@ -36,23 +36,40 @@ const subtitles = [
   "Confirm & submit"
 ];
 
-const Field = ({ label, required, hint, children }) => (
+// Bank options for dropdown
+const bankOptions = [
+  "State Bank of India",
+  "HDFC Bank",
+  "ICICI Bank",
+  "Axis Bank",
+  "Kotak Mahindra Bank",
+  "Yes Bank",
+  "Bank of Baroda",
+  "Punjab National Bank",
+  "Canara Bank",
+  "Union Bank of India",
+  "Other"
+];
+
+const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
     {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
 );
 
-const FieldDt = ({ label, required, hint, children }) => (
+const FieldDt = ({ label, required, hint, children, error }) => (
   <div className="mb-2.5">
     <label className="block text-[13px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
     {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
   </div>
 );
 
@@ -68,6 +85,7 @@ const commercialTypeOptions = [
   "Clinic", "Petrol Bunk"
 ];
 const businessTypeOptions = ["Retail", "Office", "Food & Beverage", "Warehouse", "Service", "Manufacturing"];
+const priceTypeOptions = ["Fixed", "Negotiable"];
 
 const commercialLeaseAmenities = [
   { id: "powerBackup", label: "Power Backup" },
@@ -86,6 +104,7 @@ const commercialLeaseAmenities = [
 
 export default function LeaseBuilderComForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     // Company Details (Step 0)
@@ -102,14 +121,14 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
     
     // Property Details (Step 4)
     propertyTitle: "", commercialType: "", propertyAddress: "", propertyCity: "", 
-    builtUpAreaMin: "", builtUpAreaMax: "", carpetAreaMin: "", carpetAreaMax: "",
+    builtUpArea: "", carpetArea: "",
     floorNumber: "", totalFloors: "", facingDirection: "", propertyAge: "",
     frontageWidth: "", ceilingHeight: "", furnishing: "", powerLoad: "",
     parkingCapacity: "", businessType: "", leaseTerm: "",
     
     // Pricing & Amenities (Step 5)
-    listingPurpose: "lease", leaseAmountMin: "", leaseAmountMax: "", budgetRange: { min: "", max: "" }, 
-    securityDepositMin: "", securityDepositMax: "", priceType: "", maintenance: "", 
+    listingPurpose: "lease", leaseAmount: "",
+    securityDeposit: "", priceType: "", maintenance: "", 
     availableFrom: "", selectedAmenities: [], otherAmenities: "",
     immediateOccupancy: "", leaseNegotiable: "", leaseRenewalOption: "",
     
@@ -133,14 +152,145 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
   const [videoPreview, setVideoPreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [floorPlanPreview, setFloorPlanPreview] = useState(null);
+  const [authPhotoPreview, setAuthPhotoPreview] = useState(null);
+  const [companyLogoPreview, setCompanyLogoPreview] = useState(null);
   const [customAmenitiesList, setCustomAmenitiesList] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [signaturePoints, setSignaturePoints] = useState([]);
   const [allSignaturePoints, setAllSignaturePoints] = useState([]);
   const [activeCanvas, setActiveCanvas] = useState(null);
 
+  // Validation functions
+  const validateStep = (stepNumber) => {
+    const newErrors = {};
+    
+    if (stepNumber === 0) {
+      if (!formData.companyName.trim()) newErrors.companyName = "Company name is required";
+      if (!formData.companyRegNumber.trim()) newErrors.companyRegNumber = "Company registration number is required";
+      if (!formData.reraNumber.trim()) newErrors.reraNumber = "RERA registration number is required";
+      if (!formData.yearsOfExperience || parseFloat(formData.yearsOfExperience) <= 0) {
+        newErrors.yearsOfExperience = "Years of experience is required";
+      }
+      if (!formData.companyProfile.trim()) newErrors.companyProfile = "Company profile is required";
+    }
+    
+    if (stepNumber === 1) {
+      if (!formData.authFullName.trim()) newErrors.authFullName = "Full name is required";
+      if (!formData.authDesignation.trim()) newErrors.authDesignation = "Designation is required";
+      if (!formData.authMobile.trim()) {
+        newErrors.authMobile = "Mobile number is required";
+      } else if (!/^[0-9]{10}$/.test(formData.authMobile)) {
+        newErrors.authMobile = "Enter a valid 10-digit mobile number";
+      }
+      if (!formData.authEmail.trim()) {
+        newErrors.authEmail = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.authEmail)) {
+        newErrors.authEmail = "Enter a valid email address";
+      }
+      if (!formData.authPhoto) newErrors.authPhoto = "Profile photo is required";
+    }
+    
+    if (stepNumber === 2) {
+      if (!formData.officeAddress.trim()) newErrors.officeAddress = "Office address is required";
+      if (!formData.officeCity.trim()) newErrors.officeCity = "City is required";
+      if (!formData.officeDistrict.trim()) newErrors.officeDistrict = "District is required";
+      if (!formData.officeState.trim()) newErrors.officeState = "State is required";
+      if (!formData.officePinCode.trim()) {
+        newErrors.officePinCode = "PIN code is required";
+      } else if (!/^[0-9]{6}$/.test(formData.officePinCode)) {
+        newErrors.officePinCode = "Enter a valid 6-digit PIN code";
+      }
+    }
+    
+    if (stepNumber === 3) {
+      if (!formData.aadhaarNumber.trim()) {
+        newErrors.aadhaarNumber = "Aadhaar number is required";
+      } else if (!/^[0-9]{12}$/.test(formData.aadhaarNumber)) {
+        newErrors.aadhaarNumber = "Enter a valid 12-digit Aadhaar number";
+      }
+      if (!formData.panNumber.trim()) {
+        newErrors.panNumber = "PAN number is required";
+      } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNumber)) {
+        newErrors.panNumber = "Enter a valid PAN number (e.g., ABCDE1234F)";
+      }
+      if (!formData.aadhaarCard) newErrors.aadhaarCard = "Aadhaar card upload is required";
+      if (!formData.panCard) newErrors.panCard = "PAN card upload is required";
+      if (!formData.companyRegCert) newErrors.companyRegCert = "Company registration certificate is required";
+      if (!formData.reraCert) newErrors.reraCert = "RERA certificate is required";
+    }
+    
+    if (stepNumber === 4) {
+      if (!formData.propertyTitle.trim()) newErrors.propertyTitle = "Property title is required";
+      if (!formData.commercialType) newErrors.commercialType = "Commercial type is required";
+      if (!formData.propertyAddress.trim()) newErrors.propertyAddress = "Property address is required";
+      if (!formData.propertyCity.trim()) newErrors.propertyCity = "Property city is required";
+      if (!formData.builtUpArea || parseFloat(formData.builtUpArea) <= 0) {
+        newErrors.builtUpArea = "Built-up area is required";
+      }
+      if (!formData.businessType) newErrors.businessType = "Business type is required";
+    }
+    
+    if (stepNumber === 5) {
+      if (!formData.leaseAmount || parseFloat(formData.leaseAmount) <= 0) {
+        newErrors.leaseAmount = "Lease amount is required";
+      }
+      if (!formData.priceType) newErrors.priceType = "Price type is required";
+      if (!formData.immediateOccupancy) newErrors.immediateOccupancy = "Please specify occupancy availability";
+    }
+    
+    if (stepNumber === 6) {
+      if (!formData.accountHolderName.trim()) newErrors.accountHolderName = "Account holder name is required";
+      if (!formData.bankName) newErrors.bankName = "Bank name is required";
+      if (!formData.accountNumber.trim()) {
+        newErrors.accountNumber = "Account number is required";
+      } else if (!/^[0-9]{9,18}$/.test(formData.accountNumber)) {
+        newErrors.accountNumber = "Enter a valid account number (9-18 digits)";
+      }
+      if (!formData.ifscCode.trim()) {
+        newErrors.ifscCode = "IFSC code is required";
+      } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.ifscCode)) {
+        newErrors.ifscCode = "Enter a valid IFSC code (e.g., HDFC0001234)";
+      }
+    }
+    
+    if (stepNumber === 8) {
+      if (!formData.companyLogoDoc) newErrors.companyLogoDoc = "Company logo is required";
+      if (!formData.authIdProof) newErrors.authIdProof = "Authorized signatory ID proof is required";
+      if (!formData.officeAddressProof) newErrors.officeAddressProof = "Office address proof is required";
+      if (!formData.coverImage) newErrors.coverImage = "Cover image is required";
+      if (formData.propertyImages.length === 0) newErrors.propertyImages = "At least one property photo is required";
+      if (!formData.floorPlan) newErrors.floorPlan = "Floor plan is required";
+      if (!formData.leaseAgreement) newErrors.leaseAgreement = "Lease agreement is required";
+      if (!formData.tradeLicense) newErrors.tradeLicense = "Trade license is required";
+      if (!formData.fireSafetyCertificate) newErrors.fireSafetyCertificate = "Fire safety certificate is required";
+    }
+    
+    if (stepNumber === 9) {
+      if (!formData.signature) newErrors.signature = "Signature is required";
+      if (!formData.signatureDate) newErrors.signatureDate = "Date is required";
+      if (!formData.signaturePlace.trim()) newErrors.signaturePlace = "Place is required";
+      if (!formData.declarationAuthorized) newErrors.declarationAuthorized = "Please confirm you are the authorized representative";
+      if (!formData.declarationAccurate) newErrors.declarationAccurate = "Please certify the information is accurate";
+      if (!formData.declarationCompliance) newErrors.declarationCompliance = "Please agree to comply with regulations";
+      if (!formData.declarationTerms) newErrors.declarationTerms = "Please accept the terms";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep(step + 1);
+      setErrors({});
+    }
+  };
+
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -150,6 +300,9 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
     updateForm("propertyImages", newImages);
     const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
+    if (errors.propertyImages) {
+      setErrors(prev => ({ ...prev, propertyImages: undefined }));
+    }
   };
 
   const removeImage = (index) => {
@@ -170,6 +323,9 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
       updateForm("coverImage", file);
       if (coverPreview) URL.revokeObjectURL(coverPreview);
       setCoverPreview(URL.createObjectURL(file));
+      if (errors.coverImage) {
+        setErrors(prev => ({ ...prev, coverImage: undefined }));
+      }
     }
   };
 
@@ -193,6 +349,9 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
       updateForm("floorPlan", file);
       if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
       setFloorPlanPreview(URL.createObjectURL(file));
+      if (errors.floorPlan) {
+        setErrors(prev => ({ ...prev, floorPlan: undefined }));
+      }
     }
   };
 
@@ -233,16 +392,64 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
         return;
       }
       updateForm(docType, file);
+      if (errors[docType]) {
+        setErrors(prev => ({ ...prev, [docType]: undefined }));
+      }
     }
   };
 
-  const toggleAmenity = (amenity) => {
-    const current = formData.selectedAmenities;
-    if (current.includes(amenity)) {
-      updateForm("selectedAmenities", current.filter(a => a !== amenity));
-    } else {
-      updateForm("selectedAmenities", [...current, amenity]);
+  const handleAuthPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert("Profile photo must be a JPG, JPEG, or PNG file");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Profile photo must be less than 2MB");
+        return;
+      }
+      updateForm("authPhoto", file);
+      if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+      setAuthPhotoPreview(URL.createObjectURL(file));
+      if (errors.authPhoto) {
+        setErrors(prev => ({ ...prev, authPhoto: undefined }));
+      }
     }
+  };
+
+  const removeAuthPhoto = () => {
+    if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
+    updateForm("authPhoto", null);
+    setAuthPhotoPreview(null);
+  };
+
+  const handleCompanyLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        alert("Company logo must be a JPG, JPEG, or PNG file");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Company logo must be less than 2MB");
+        return;
+      }
+      updateForm("companyLogoDoc", file);
+      if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
+      setCompanyLogoPreview(URL.createObjectURL(file));
+      if (errors.companyLogoDoc) {
+        setErrors(prev => ({ ...prev, companyLogoDoc: undefined }));
+      }
+    }
+  };
+
+  const removeCompanyLogo = () => {
+    if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
+    updateForm("companyLogoDoc", null);
+    setCompanyLogoPreview(null);
   };
 
   const toggleCommercialAmenity = (amenityId) => {
@@ -260,6 +467,9 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
       updateForm(field, current.filter(v => v !== value));
     } else {
       updateForm(field, [...current, value]);
+    }
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -288,6 +498,9 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
       y: (e.clientY || e.touches[0].clientY) - rect.top
     };
     setSignaturePoints([point]);
+    if (errors.signature) {
+      setErrors(prev => ({ ...prev, signature: undefined }));
+    }
   };
 
   const draw = (e) => {
@@ -328,9 +541,11 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
-    console.log("Lease Builder Commercial Form submitted:", formData);
-    onClose();
+    if (validateStep(9)) {
+      updateForm('signatureDate', new Date().toLocaleDateString());
+      console.log("Lease Builder Commercial Form submitted:", formData);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -374,6 +589,7 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               inp={inMob}
               formData={formData}
               updateForm={updateForm}
+              errors={errors}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
               removeImage={removeImage}
@@ -381,7 +597,6 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              toggleAmenity={toggleAmenity}
               toggleCommercialAmenity={toggleCommercialAmenity}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
@@ -399,6 +614,12 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              companyLogoPreview={companyLogoPreview}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -406,6 +627,8 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               signaturePoints={signaturePoints}
               allSignaturePoints={allSignaturePoints}
               setAllSignaturePoints={setAllSignaturePoints}
+              bankOptions={bankOptions}
+              priceTypeOptions={priceTypeOptions}
             />
           </div>
 
@@ -435,7 +658,7 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -480,6 +703,7 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               inp={inDt}
               formData={formData}
               updateForm={updateForm}
+              errors={errors}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
               removeImage={removeImage}
@@ -487,7 +711,6 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               videoPreview={videoPreview}
               removeVideo={removeVideo}
               handleDocumentUpload={handleDocumentUpload}
-              toggleAmenity={toggleAmenity}
               toggleCommercialAmenity={toggleCommercialAmenity}
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
@@ -505,6 +728,12 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               floorPlanPreview={floorPlanPreview}
               removeCoverImage={removeCoverImage}
               removeFloorPlan={removeFloorPlan}
+              handleAuthPhotoUpload={handleAuthPhotoUpload}
+              authPhotoPreview={authPhotoPreview}
+              removeAuthPhoto={removeAuthPhoto}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              companyLogoPreview={companyLogoPreview}
+              removeCompanyLogo={removeCompanyLogo}
               startDrawing={startDrawing}
               draw={draw}
               stopDrawing={stopDrawing}
@@ -512,6 +741,8 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
               signaturePoints={signaturePoints}
               allSignaturePoints={allSignaturePoints}
               setAllSignaturePoints={setAllSignaturePoints}
+              bankOptions={bankOptions}
+              priceTypeOptions={priceTypeOptions}
             />
           </div>
 
@@ -540,7 +771,7 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}>
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -551,21 +782,24 @@ export default function LeaseBuilderComForm({ isOpen, onClose }) {
   );
 }
 
-// MOBILE CONTENT - Lease Builder Commercial
+// ==================== MOBILE CONTENT - Lease Builder Commercial ====================
 function MobContentLeaseBuilderCom({ 
-  step, inp, formData, updateForm, 
+  step, inp, formData, updateForm, errors,
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload,
-  toggleAmenity, toggleCommercialAmenity,
+  toggleCommercialAmenity,
   customAmenitiesList, addCustomAmenity, removeCustomAmenity,
   yesNoOptions, furnishingOptions, facingOptions,
   commercialTypeOptions, businessTypeOptions,
   commercialLeaseAmenities, toggleArrayItem,
   handleCoverImageUpload, handleFloorPlanUpload,
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan,
+  handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto,
+  handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature,
-  signaturePoints, allSignaturePoints, setAllSignaturePoints
+  signaturePoints, allSignaturePoints, setAllSignaturePoints,
+  bankOptions, priceTypeOptions
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -615,25 +849,25 @@ function MobContentLeaseBuilderCom({
   // STEP 0: Company Details
   if (step === 0) return (
     <>
-      <Field label="Builder / Company Name" required>
+      <Field label="Builder / Company Name" required error={errors.companyName}>
         <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </Field>
-      <Field label="Company Registration Number" required>
+      <Field label="Company Registration Number" required error={errors.companyRegNumber}>
         <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </Field>
-      <Field label="RERA Registration Number" required>
+      <Field label="RERA Registration Number" required error={errors.reraNumber}>
         <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </Field>
       <Field label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </Field>
-      <Field label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+      <Field label="Years of Experience" required error={errors.yearsOfExperience}>
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </Field>
-      <Field label="Company Profile / About Us" required>
+      <Field label="Company Profile / About Us" required error={errors.companyProfile}>
         <textarea className={`${ta} min-h-[60px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </Field>
     </>
@@ -646,54 +880,34 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
-      <Field label="Full Name" required>
+      <Field label="Full Name" required error={errors.authFullName}>
         <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </Field>
-      <Field label="Designation" required>
+      <Field label="Designation" required error={errors.authDesignation}>
         <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </Field>
-      <Field label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <Field label="Mobile Number" required error={errors.authMobile}>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} maxLength="10" />
       </Field>
-      <Field label="Email Address" required>
+      <Field label="Email Address" required error={errors.authEmail}>
         <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} maxLength="10" />
       </Field>
-      <Field label="Profile Photo" required hint="JPG, PNG max 2MB">
+      <Field label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" className="hidden" id="m-authphoto-lease-com" onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              if (file.size > 2 * 1024 * 1024) {
-                alert("Profile photo must be less than 2MB");
-                return;
-              }
-              updateForm("authPhoto", file);
-            }
-          }} />
+          <input type="file" accept="image/*" className="hidden" id="m-authphoto-lease-com" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Photo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.authPhoto && (
+        {authPhotoPreview && (
           <div className="mt-2 relative inline-block">
-            <img 
-              src={URL.createObjectURL(formData.authPhoto)} 
-              alt="Profile" 
-              className="w-16 h-16 object-cover rounded-full border-2 border-[#00695C]"
-            />
-            <button 
-              onClick={() => {
-                updateForm("authPhoto", null);
-              }} 
-              className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600"
-            >
-              ✕
-            </button>
+            <img src={authPhotoPreview} alt="Profile" className="w-16 h-16 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
       </Field>
@@ -707,20 +921,20 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <Field label="Office Address" required error={errors.officeAddress}>
+        <input className={inp} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </Field>
-      <Field label="City" required>
+      <Field label="City" required error={errors.officeCity}>
         <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </Field>
-      <Field label="District" required>
+      <Field label="District" required error={errors.officeDistrict}>
         <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </Field>
-      <Field label="State" required>
+      <Field label="State" required error={errors.officeState}>
         <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </Field>
-      <Field label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <Field label="PIN Code" required error={errors.officePinCode}>
+        <input className={inp} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value.replace(/\D/g, ''))} maxLength="6" />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -735,14 +949,14 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <Field label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} maxLength="12" />
       </Field>
-      <Field label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <Field label="PAN Number" required error={errors.panNumber}>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} maxLength="10" />
       </Field>
 
-      <Field label="Upload Aadhaar Card" required>
+      <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-authaadhaar-lease-com" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="m-authaadhaar-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -754,7 +968,7 @@ function MobContentLeaseBuilderCom({
         {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
       </Field>
 
-      <Field label="Upload PAN Card" required>
+      <Field label="Upload PAN Card" required error={errors.panCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-authpan-lease-com" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="m-authpan-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -766,7 +980,7 @@ function MobContentLeaseBuilderCom({
         {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
       </Field>
 
-      <Field label="Upload Company Registration Certificate" required>
+      <Field label="Upload Company Registration Certificate" required error={errors.companyRegCert}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-companyreg-lease-com" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
           <label htmlFor="m-companyreg-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -790,7 +1004,7 @@ function MobContentLeaseBuilderCom({
         {formData.gstCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.gstCert.name}</p>}
       </Field>
 
-      <Field label="Upload RERA Certificate" required>
+      <Field label="Upload RERA Certificate" required error={errors.reraCert}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-reracert-lease-com" onChange={(e) => handleDocumentUpload("reraCert", e)} />
           <label htmlFor="m-reracert-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -823,10 +1037,10 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📍 Commercial Property Details</h3>
       </div>
-      <Field label="Property Title / Name" required>
+      <Field label="Property Title / Name" required error={errors.propertyTitle}>
         <input className={inp} placeholder="e.g. Prime Retail Space, Office Complex" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </Field>
-      <Field label="Commercial Type" required>
+      <Field label="Commercial Type" required error={errors.commercialType}>
         <div className="grid grid-cols-2 gap-1">
           {commercialTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -836,29 +1050,23 @@ function MobContentLeaseBuilderCom({
           ))}
         </div>
       </Field>
-      <Field label="Property Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
+      <Field label="Property Address" required error={errors.propertyAddress}>
+        <input className={inp} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
       </Field>
-      <Field label="Property City" required>
+      <Field label="Property City" required error={errors.propertyCity}>
         <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
       </Field>
-      <Field label="Built-up Area" hint="In square feet">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
-        </div>
+      <Field label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
-      <Field label="Carpet Area" hint="In square feet">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
-        </div>
+      <Field label="Carpet Area (sq.ft)" hint="In square feet">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       <Field label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </Field>
       <Field label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
@@ -871,13 +1079,13 @@ function MobContentLeaseBuilderCom({
         </div>
       </Field>
       <Field label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </Field>
       <Field label="Frontage Width (ft)">
-        <input className={inp} type="number" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
       </Field>
       <Field label="Ceiling Height (ft)">
-        <input className={inp} type="number" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
       </Field>
       <Field label="Furnishing Status">
         <div className="grid grid-cols-2 gap-1">
@@ -893,9 +1101,9 @@ function MobContentLeaseBuilderCom({
         <input className={inp} placeholder="Enter power load capacity" value={formData.powerLoad} onChange={(e) => updateForm("powerLoad", e.target.value)} />
       </Field>
       <Field label="Parking Capacity">
-        <input className={inp} type="number" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
       </Field>
-      <Field label="Business Type Suitable" required>
+      <Field label="Business Type Suitable" required error={errors.businessType}>
         <div className="grid grid-cols-2 gap-1">
           {businessTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -927,34 +1135,20 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📄 Lease Details</h3>
       </div>
-      <Field label="Monthly Lease Amount" required>
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.leaseAmountMin} onChange={(e) => updateForm("leaseAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.leaseAmountMax} onChange={(e) => updateForm("leaseAmountMax", e.target.value)} />
-        </div>
+      <Field label="Monthly Lease Amount (₹)" required error={errors.leaseAmount}>
+        <input className={inp} type="number" min="0" placeholder="Enter monthly lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", e.target.value)} />
       </Field>
-      <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
+      <Field label="Security Deposit (₹)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
-      <Field label="Security Deposit">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
-      </Field>
-      <Field label="Price Type">
+      <Field label="Price Type" required error={errors.priceType}>
         <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
-            Fixed
-          </label>
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
-            Negotiable
-          </label>
+          {priceTypeOptions.map(pt => (
+            <label key={pt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === pt} onChange={() => updateForm("priceType", pt)} />
+              {pt}
+            </label>
+          ))}
         </div>
       </Field>
       <Field label="Lease Negotiable">
@@ -967,8 +1161,8 @@ function MobContentLeaseBuilderCom({
           ))}
         </div>
       </Field>
-      <Field label="Maintenance (₹/month)">
-        <input className={inp} placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+      <Field label="Maintenance Charges (₹/month)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
       </Field>
       <Field label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1007,7 +1201,7 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📅 Availability</h3>
       </div>
-      <Field label="Immediate Occupancy">
+      <Field label="Immediate Occupancy" required error={errors.immediateOccupancy}>
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
@@ -1037,17 +1231,22 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <Field label="Account Holder Name" required>
+      <Field label="Account Holder Name" required error={errors.accountHolderName}>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </Field>
-      <Field label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <Field label="Bank Name" required error={errors.bankName}>
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank</option>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank}>{bank}</option>
+          ))}
+        </select>
       </Field>
-      <Field label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <Field label="Account Number" required error={errors.accountNumber}>
+        <input className={inp} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <Field label="IFSC Code" required error={errors.ifscCode}>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1089,39 +1288,19 @@ function MobContentLeaseBuilderCom({
       </div>
       <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
 
-      <Field label="Company Logo" required hint="JPG, PNG max 2MB">
+      <Field label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.companyLogoDoc}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" className="hidden" id="m-comp-logo-lease-com" onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              if (file.size > 2 * 1024 * 1024) {
-                alert("Company logo must be less than 2MB");
-                return;
-              }
-              updateForm("companyLogoDoc", file);
-            }
-          }} />
+          <input type="file" accept="image/*" className="hidden" id="m-comp-logo-lease-com" onChange={handleCompanyLogoUpload} />
           <label htmlFor="m-comp-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
             <span className="text-[10px] font-semibold text-[#00695C]">Upload Logo</span>
             <span className="text-[9px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && (
+        {companyLogoPreview && (
           <div className="mt-2 relative inline-block">
-            <img 
-              src={URL.createObjectURL(formData.companyLogoDoc)} 
-              alt="Company Logo" 
-              className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C]"
-            />
-            <button 
-              onClick={() => {
-                updateForm("companyLogoDoc", null);
-              }} 
-              className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600"
-            >
-              ✕
-            </button>
+            <img src={companyLogoPreview} alt="Company Logo" className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C]" />
+            <button onClick={removeCompanyLogo} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
       </Field>
@@ -1159,7 +1338,7 @@ function MobContentLeaseBuilderCom({
         )}
       </Field>
 
-      <Field label="Authorized Signatory ID Proof" required>
+      <Field label="Authorized Signatory ID Proof" required error={errors.authIdProof}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-auth-id-lease-com" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
           <label htmlFor="m-auth-id-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1171,7 +1350,7 @@ function MobContentLeaseBuilderCom({
         {formData.authIdProof && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authIdProof.name}</p>}
       </Field>
 
-      <Field label="Office Address Proof" required>
+      <Field label="Office Address Proof" required error={errors.officeAddressProof}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-office-proof-lease-com" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="m-office-proof-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1189,7 +1368,7 @@ function MobContentLeaseBuilderCom({
         <h3 className="text-[11px] font-bold text-[#00695C]">Property Documents</h3>
       </div>
 
-      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-floorplan-lease-com" onChange={handleFloorPlanUpload} />
           <label htmlFor="m-floorplan-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1206,7 +1385,7 @@ function MobContentLeaseBuilderCom({
         )}
       </Field>
 
-      <Field label="Lease Agreement" required>
+      <Field label="Lease Agreement" required error={errors.leaseAgreement}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-leaseAgreement-lease-com" onChange={(e) => handleDocumentUpload("leaseAgreement", e)} />
           <label htmlFor="m-leaseAgreement-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1218,7 +1397,7 @@ function MobContentLeaseBuilderCom({
         {formData.leaseAgreement && <p className="text-[10px] text-green-600 mt-1">✓ {formData.leaseAgreement.name}</p>}
       </Field>
 
-      <Field label="Trade License" required>
+      <Field label="Trade License" required error={errors.tradeLicense}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-trade-lease-com" onChange={(e) => handleDocumentUpload("tradeLicense", e)} />
           <label htmlFor="m-trade-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1230,7 +1409,7 @@ function MobContentLeaseBuilderCom({
         {formData.tradeLicense && <p className="text-[10px] text-green-600 mt-1">✓ {formData.tradeLicense.name}</p>}
       </Field>
 
-      <Field label="Fire Safety Certificate" required>
+      <Field label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-fire-lease-com" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="m-fire-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1247,7 +1426,7 @@ function MobContentLeaseBuilderCom({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <Field label="Upload Cover Image" required hint="Max 2MB">
+      <Field label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="m-cover-lease-com" onChange={handleCoverImageUpload} />
           <label htmlFor="m-cover-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1264,7 +1443,7 @@ function MobContentLeaseBuilderCom({
         )}
       </Field>
 
-      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-lease-com" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="m-imgs-lease-com" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -1338,10 +1517,12 @@ function MobContentLeaseBuilderCom({
           Clear
         </button>
       </div>
-      <Field label="Date" required>
+      {errors.signature && <p className="text-[10px] text-red-500 mt-1">{errors.signature}</p>}
+      
+      <Field label="Date" required error={errors.signatureDate}>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
-      <Field label="Place" required>
+      <Field label="Place" required error={errors.signaturePlace}>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </Field>
 
@@ -1352,21 +1533,28 @@ function MobContentLeaseBuilderCom({
 
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized || false} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500">{errors.declarationAuthorized}</p>}
+        
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate || false} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500">{errors.declarationAccurate}</p>}
+        
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationCompliance || false} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
+        {errors.declarationCompliance && <p className="text-[10px] text-red-500">{errors.declarationCompliance}</p>}
+        
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms || false} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declarationTerms && <p className="text-[10px] text-red-500">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1374,21 +1562,24 @@ function MobContentLeaseBuilderCom({
   return null;
 }
 
-// DESKTOP CONTENT - Lease Builder Commercial
+// ==================== DESKTOP CONTENT - Lease Builder Commercial ====================
 function DtContentLeaseBuilderCom({ 
-  step, inp, formData, updateForm, 
+  step, inp, formData, updateForm, errors,
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload,
-  toggleAmenity, toggleCommercialAmenity,
+  toggleCommercialAmenity,
   customAmenitiesList, addCustomAmenity, removeCustomAmenity,
   yesNoOptions, furnishingOptions, facingOptions,
   commercialTypeOptions, businessTypeOptions,
   commercialLeaseAmenities, toggleArrayItem,
   handleCoverImageUpload, handleFloorPlanUpload,
   coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan,
+  handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto,
+  handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature,
-  signaturePoints, allSignaturePoints, setAllSignaturePoints
+  signaturePoints, allSignaturePoints, setAllSignaturePoints,
+  bankOptions, priceTypeOptions
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1438,25 +1629,25 @@ function DtContentLeaseBuilderCom({
   // STEP 0: Company Details (Desktop)
   if (step === 0) return (
     <>
-      <FieldDt label="Builder / Company Name" required>
+      <FieldDt label="Builder / Company Name" required error={errors.companyName}>
         <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company Registration Number" required>
+      <FieldDt label="Company Registration Number" required error={errors.companyRegNumber}>
         <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="RERA Registration Number" required>
+      <FieldDt label="RERA Registration Number" required error={errors.reraNumber}>
         <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+      <FieldDt label="Years of Experience" required error={errors.yearsOfExperience}>
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company Profile / About Us" required>
+      <FieldDt label="Company Profile / About Us" required error={errors.companyProfile}>
         <textarea className={`${ta} min-h-[70px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </FieldDt>
     </>
@@ -1469,57 +1660,37 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
-      <FieldDt label="Full Name" required>
+      <FieldDt label="Full Name" required error={errors.authFullName}>
         <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Designation" required>
+      <FieldDt label="Designation" required error={errors.authDesignation}>
         <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <FieldDt label="Mobile Number" required error={errors.authMobile}>
+        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} maxLength="10" />
       </FieldDt>
-      <FieldDt label="Email Address" required>
+      <FieldDt label="Email Address" required error={errors.authEmail}>
         <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} maxLength="10" />
       </FieldDt>
-      <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB">
-  <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-    <input type="file" accept="image/*" className="hidden" id="dt-authphoto-lease-com" onChange={(e) => {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          alert("Profile photo must be less than 2MB");
-          return;
-        }
-        updateForm("authPhoto", file);
-      }
-    }} />
-    <label htmlFor="dt-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
-      <User className="w-7 h-7 text-[#00695C]" />
-      <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
-      <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
-    </label>
-  </div>
-  {formData.authPhoto && (
-    <div className="mt-2 relative inline-block">
-      <img 
-        src={URL.createObjectURL(formData.authPhoto)} 
-        alt="Profile" 
-        className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]"
-      />
-      <button 
-        onClick={() => {
-          updateForm("authPhoto", null);
-        }} 
-        className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600"
-      >
-        ✕
-      </button>
-    </div>
-  )}
-</FieldDt>
+      <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
+        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+          <input type="file" accept="image/*" className="hidden" id="dt-authphoto-lease-com" onChange={handleAuthPhotoUpload} />
+          <label htmlFor="dt-authphoto-lease-com" className="cursor-pointer flex flex-col items-center">
+            <User className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Photo</span>
+            <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
+          </label>
+        </div>
+        {authPhotoPreview && (
+          <div className="mt-2 relative inline-block">
+            <img src={authPhotoPreview} alt="Profile" className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]" />
+            <button onClick={removeAuthPhoto} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
+          </div>
+        )}
+      </FieldDt>
     </>
   );
 
@@ -1530,20 +1701,20 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <FieldDt label="Office Address" required error={errors.officeAddress}>
+        <input className={inp} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </FieldDt>
-      <FieldDt label="City" required>
+      <FieldDt label="City" required error={errors.officeCity}>
         <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </FieldDt>
-      <FieldDt label="District" required>
+      <FieldDt label="District" required error={errors.officeDistrict}>
         <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </FieldDt>
-      <FieldDt label="State" required>
+      <FieldDt label="State" required error={errors.officeState}>
         <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <FieldDt label="PIN Code" required error={errors.officePinCode}>
+        <input className={inp} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value.replace(/\D/g, ''))} maxLength="6" />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1558,14 +1729,14 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <FieldDt label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} maxLength="12" />
       </FieldDt>
-      <FieldDt label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <FieldDt label="PAN Number" required error={errors.panNumber}>
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} maxLength="10" />
       </FieldDt>
 
-      <FieldDt label="Upload Aadhaar Card" required>
+      <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-authaadhaar-lease-com" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="dt-authaadhaar-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1577,7 +1748,7 @@ function DtContentLeaseBuilderCom({
         {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload PAN Card" required>
+      <FieldDt label="Upload PAN Card" required error={errors.panCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-authpan-lease-com" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="dt-authpan-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1589,7 +1760,7 @@ function DtContentLeaseBuilderCom({
         {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Company Registration Certificate" required>
+      <FieldDt label="Upload Company Registration Certificate" required error={errors.companyRegCert}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-companyreg-lease-com" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
           <label htmlFor="dt-companyreg-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1613,7 +1784,7 @@ function DtContentLeaseBuilderCom({
         {formData.gstCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.gstCert.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload RERA Certificate" required>
+      <FieldDt label="Upload RERA Certificate" required error={errors.reraCert}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-reracert-lease-com" onChange={(e) => handleDocumentUpload("reraCert", e)} />
           <label htmlFor="dt-reracert-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1646,10 +1817,10 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📍 Commercial Property Details</h3>
       </div>
-      <FieldDt label="Property Title / Name" required>
+      <FieldDt label="Property Title / Name" required error={errors.propertyTitle}>
         <input className={inp} placeholder="e.g. Prime Retail Space, Office Complex" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Commercial Type" required>
+      <FieldDt label="Commercial Type" required error={errors.commercialType}>
         <div className="grid grid-cols-2 gap-2">
           {commercialTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1659,29 +1830,23 @@ function DtContentLeaseBuilderCom({
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Property Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
+      <FieldDt label="Property Address" required error={errors.propertyAddress}>
+        <input className={inp} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Property City" required>
+      <FieldDt label="Property City" required error={errors.propertyCity}>
         <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Built-up Area" hint="In square feet">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.builtUpAreaMin} onChange={(e) => updateForm("builtUpAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.builtUpAreaMax} onChange={(e) => updateForm("builtUpAreaMax", e.target.value)} />
-        </div>
+      <FieldDt label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Carpet Area" hint="In square feet">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min sq.ft" value={formData.carpetAreaMin} onChange={(e) => updateForm("carpetAreaMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max sq.ft" value={formData.carpetAreaMax} onChange={(e) => updateForm("carpetAreaMax", e.target.value)} />
-        </div>
+      <FieldDt label="Carpet Area (sq.ft)" hint="In square feet">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
       <FieldDt label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
@@ -1694,13 +1859,13 @@ function DtContentLeaseBuilderCom({
         </div>
       </FieldDt>
       <FieldDt label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </FieldDt>
       <FieldDt label="Frontage Width (ft)">
-        <input className={inp} type="number" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
       </FieldDt>
       <FieldDt label="Ceiling Height (ft)">
-        <input className={inp} type="number" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
       </FieldDt>
       <FieldDt label="Furnishing Status">
         <div className="flex flex-wrap gap-3">
@@ -1716,9 +1881,9 @@ function DtContentLeaseBuilderCom({
         <input className={inp} placeholder="Enter power load capacity" value={formData.powerLoad} onChange={(e) => updateForm("powerLoad", e.target.value)} />
       </FieldDt>
       <FieldDt label="Parking Capacity">
-        <input className={inp} type="number" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Business Type Suitable" required>
+      <FieldDt label="Business Type Suitable" required error={errors.businessType}>
         <div className="flex flex-wrap gap-3">
           {businessTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1750,34 +1915,20 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📄 Lease Details</h3>
       </div>
-      <FieldDt label="Monthly Lease Amount" required>
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.leaseAmountMin} onChange={(e) => updateForm("leaseAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.leaseAmountMax} onChange={(e) => updateForm("leaseAmountMax", e.target.value)} />
-        </div>
+      <FieldDt label="Monthly Lease Amount (₹)" required error={errors.leaseAmount}>
+        <input className={inp} type="number" min="0" placeholder="Enter monthly lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
+      <FieldDt label="Security Deposit (₹)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Security Deposit">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.securityDepositMin} onChange={(e) => updateForm("securityDepositMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.securityDepositMax} onChange={(e) => updateForm("securityDepositMax", e.target.value)} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Price Type">
+      <FieldDt label="Price Type" required error={errors.priceType}>
         <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
-            Fixed Price
-          </label>
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
-            Negotiable
-          </label>
+          {priceTypeOptions.map(pt => (
+            <label key={pt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-priceType-lease" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === pt} onChange={() => updateForm("priceType", pt)} />
+              {pt}
+            </label>
+          ))}
         </div>
       </FieldDt>
       <FieldDt label="Lease Negotiable">
@@ -1790,8 +1941,8 @@ function DtContentLeaseBuilderCom({
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+      <FieldDt label="Maintenance Charges (₹/month)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
       </FieldDt>
       <FieldDt label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1830,7 +1981,7 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📅 Availability</h3>
       </div>
-      <FieldDt label="Immediate Occupancy">
+      <FieldDt label="Immediate Occupancy" required error={errors.immediateOccupancy}>
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1860,17 +2011,22 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <FieldDt label="Account Holder Name" required>
+      <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <FieldDt label="Bank Name" required error={errors.bankName}>
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank</option>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank}>{bank}</option>
+          ))}
+        </select>
       </FieldDt>
-      <FieldDt label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <FieldDt label="Account Number" required error={errors.accountNumber}>
+        <input className={inp} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <FieldDt label="IFSC Code" required error={errors.ifscCode}>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1912,39 +2068,19 @@ function DtContentLeaseBuilderCom({
       </div>
       <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
 
-      <FieldDt label="Company Logo" required hint="JPG, PNG max 2MB">
+      <FieldDt label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.companyLogoDoc}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
-          <input type="file" accept="image/*" className="hidden" id="dt-comp-logo-lease-com" onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              if (file.size > 2 * 1024 * 1024) {
-                alert("Company logo must be less than 2MB");
-                return;
-              }
-              updateForm("companyLogoDoc", file);
-            }
-          }} />
+          <input type="file" accept="image/*" className="hidden" id="dt-comp-logo-lease-com" onChange={handleCompanyLogoUpload} />
           <label htmlFor="dt-comp-logo-lease-com" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
             <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Company Logo</span>
             <span className="text-[11px] text-gray-400">JPG/PNG (Max 2MB)</span>
           </label>
         </div>
-        {formData.companyLogoDoc && (
+        {companyLogoPreview && (
           <div className="mt-2 relative inline-block">
-            <img 
-              src={URL.createObjectURL(formData.companyLogoDoc)} 
-              alt="Company Logo" 
-              className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]"
-            />
-            <button 
-              onClick={() => {
-                updateForm("companyLogoDoc", null);
-              }} 
-              className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600"
-            >
-              ✕
-            </button>
+            <img src={companyLogoPreview} alt="Company Logo" className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]" />
+            <button onClick={removeCompanyLogo} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
       </FieldDt>
@@ -1982,7 +2118,7 @@ function DtContentLeaseBuilderCom({
         )}
       </FieldDt>
 
-      <FieldDt label="Authorized Signatory ID Proof" required>
+      <FieldDt label="Authorized Signatory ID Proof" required error={errors.authIdProof}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-auth-id-lease-com" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
           <label htmlFor="dt-auth-id-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -1994,7 +2130,7 @@ function DtContentLeaseBuilderCom({
         {formData.authIdProof && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authIdProof.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Office Address Proof" required>
+      <FieldDt label="Office Address Proof" required error={errors.officeAddressProof}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-office-proof-lease-com" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="dt-office-proof-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2012,7 +2148,7 @@ function DtContentLeaseBuilderCom({
         <h3 className="text-[14px] font-bold text-[#00695C]">Property Documents</h3>
       </div>
 
-      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-lease-com" onChange={handleFloorPlanUpload} />
           <label htmlFor="dt-floorplan-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2029,7 +2165,7 @@ function DtContentLeaseBuilderCom({
         )}
       </FieldDt>
 
-      <FieldDt label="Lease Agreement" required>
+      <FieldDt label="Lease Agreement" required error={errors.leaseAgreement}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-leaseAgreement-lease-com" onChange={(e) => handleDocumentUpload("leaseAgreement", e)} />
           <label htmlFor="dt-leaseAgreement-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2041,7 +2177,7 @@ function DtContentLeaseBuilderCom({
         {formData.leaseAgreement && <p className="text-[13px] text-green-600 mt-2">✓ {formData.leaseAgreement.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Trade License" required>
+      <FieldDt label="Trade License" required error={errors.tradeLicense}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-trade-lease-com" onChange={(e) => handleDocumentUpload("tradeLicense", e)} />
           <label htmlFor="dt-trade-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2053,7 +2189,7 @@ function DtContentLeaseBuilderCom({
         {formData.tradeLicense && <p className="text-[13px] text-green-600 mt-2">✓ {formData.tradeLicense.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Fire Safety Certificate" required>
+      <FieldDt label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-fire-lease-com" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="dt-fire-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2070,7 +2206,7 @@ function DtContentLeaseBuilderCom({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="dt-cover-lease-com" onChange={handleCoverImageUpload} />
           <label htmlFor="dt-cover-lease-com" className="cursor-pointer flex flex-col items-center">
@@ -2087,7 +2223,7 @@ function DtContentLeaseBuilderCom({
         )}
       </FieldDt>
 
-      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-lease-com" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="dt-imgs-lease-com" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -2161,10 +2297,12 @@ function DtContentLeaseBuilderCom({
           Clear
         </button>
       </div>
-      <FieldDt label="Date" required>
+      {errors.signature && <p className="text-[12px] text-red-500 mt-1">{errors.signature}</p>}
+      
+      <FieldDt label="Date" required error={errors.signatureDate}>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Place" required>
+      <FieldDt label="Place" required error={errors.signaturePlace}>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </FieldDt>
 
@@ -2175,21 +2313,28 @@ function DtContentLeaseBuilderCom({
 
       <div className="space-y-2.5">
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized || false} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
+        {errors.declarationAuthorized && <p className="text-[12px] text-red-500">{errors.declarationAuthorized}</p>}
+        
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate || false} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declarationAccurate && <p className="text-[12px] text-red-500">{errors.declarationAccurate}</p>}
+        
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationCompliance || false} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
+        {errors.declarationCompliance && <p className="text-[12px] text-red-500">{errors.declarationCompliance}</p>}
+        
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms || false} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declarationTerms && <p className="text-[12px] text-red-500">{errors.declarationTerms}</p>}
       </div>
     </>
   );

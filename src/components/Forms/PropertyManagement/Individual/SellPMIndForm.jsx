@@ -941,14 +941,7 @@ function MobContentSellPM({ step, inp, formData, updateForm, imagePreviews, hand
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
-      <Field label="Listing Purpose" required>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-purpose" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.listingPurpose === "sale"} onChange={() => updateForm("listingPurpose", "sale")} />
-            For Sale
-          </label>
-        </div>
-      </Field>
+  
       <Field label="Expected Price (₹)" required>
         <input className={inp} placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
       </Field>
@@ -1639,14 +1632,7 @@ function DtContentSellPM({ step, inp, formData, updateForm, imagePreviews, handl
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
-      <FieldDt label="Listing Purpose" required>
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-purpose" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.listingPurpose === "sale"} onChange={() => updateForm("listingPurpose", "sale")} />
-            For Sale
-          </label>
-        </div>
-      </FieldDt>
+  
       <FieldDt label="Expected Price (₹)" required>
         <input className={inp} placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
       </FieldDt>

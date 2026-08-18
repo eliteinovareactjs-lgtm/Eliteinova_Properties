@@ -37,28 +37,42 @@ const subtitles = [
   "Confirm & submit"
 ];
 
-const Field = ({ label, required, hint, children }) => (
+// Validation helper functions
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+
+const validateMobile = (mobile) => {
+  const re = /^[0-9]{10}$/;
+  return re.test(mobile);
+};
+
+const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+    {hint && !error && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
   </div>
 );
 
-const FieldDt = ({ label, required, hint, children }) => (
+const FieldDt = ({ label, required, hint, children, error }) => (
   <div className="mb-2.5">
     <label className="block text-[13px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+    {hint && !error && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
   </div>
 );
 
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
+const errorBorder = "border-red-500 focus:border-red-500 focus:ring-red-500/20";
 
 const yesNoOptions = ["Yes", "No"];
 const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
@@ -76,33 +90,51 @@ const possessionOptions = ["Immediate", "Within 1 Month", "Within 3 Months", "Wi
 const ownershipTypeOptions = ["Freehold", "Leasehold", "Co-operative Society", "Individual Ownership"];
 
 const hostelSellAmenities = [
-  { id: "wifi", label: "WiFi", icon: <Wifi className="w-4 h-4" /> },
-  { id: "ac", label: "AC", icon: <Wind className="w-4 h-4" /> },
-  { id: "hotWater", label: "Hot Water", icon: <Droplet className="w-4 h-4" /> },
-  { id: "security24x7", label: "24/7 Security", icon: <Shield className="w-4 h-4" /> },
-  { id: "cctv", label: "CCTV Surveillance", icon: <Camera className="w-4 h-4" /> },
-  { id: "powerBackup", label: "Power Backup", icon: <Lock className="w-4 h-4" /> },
-  { id: "laundry", label: "Laundry Service", icon: <Waves className="w-4 h-4" /> },
-  { id: "housekeeping", label: "Housekeeping", icon: <CheckCircle className="w-4 h-4" /> },
-  { id: "parking", label: "Parking", icon: <ParkingCircle className="w-4 h-4" /> },
-  { id: "gym", label: "Gym", icon: <Dumbbell className="w-4 h-4" /> },
-  { id: "studyRoom", label: "Study Room", icon: <BookOpen className="w-4 h-4" /> },
-  { id: "commonTV", label: "Common TV Room", icon: <Tv className="w-4 h-4" /> },
-  { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
-  { id: "diningHall", label: "Dining Hall", icon: <Coffee className="w-4 h-4" /> },
-  { id: "kitchenAccess", label: "Kitchen Access", icon: <Home className="w-4 h-4" /> },
-  { id: "recreation", label: "Recreation Room", icon: <Users className="w-4 h-4" /> },
-  { id: "garden", label: "Garden/Outdoor Area", icon: <Trees className="w-4 h-4" /> },
-  { id: "solarPower", label: "Solar Power", icon: <Sun className="w-4 h-4" /> },
-  { id: "waterPurifier", label: "Water Purifier", icon: <Droplet className="w-4 h-4" /> },
-  { id: "firstAid", label: "First Aid Kit", icon: <CheckCircle className="w-4 h-4" /> },
-  { id: "fireExtinguisher", label: "Fire Extinguisher", icon: <Shield className="w-4 h-4" /> },
-  { id: "intercom", label: "Intercom", icon: <Phone className="w-4 h-4" /> },
-  { id: "biometricAccess", label: "Biometric Access", icon: <Lock className="w-4 h-4" /> }
+  { id: "wifi", label: "WiFi" },
+  { id: "ac", label: "AC" },
+  { id: "hotWater", label: "Hot Water" },
+  { id: "security24x7", label: "24/7 Security" },
+  { id: "cctv", label: "CCTV Surveillance" },
+  { id: "powerBackup", label: "Power Backup" },
+  { id: "laundry", label: "Laundry Service" },
+  { id: "housekeeping", label: "Housekeeping" },
+  { id: "parking", label: "Parking" },
+  { id: "gym", label: "Gym" },
+  { id: "studyRoom", label: "Study Room" },
+  { id: "commonTV", label: "Common TV Room" },
+  { id: "lift", label: "Lift / Elevator" },
+  { id: "diningHall", label: "Dining Hall" },
+  { id: "kitchenAccess", label: "Kitchen Access" },
+  { id: "recreation", label: "Recreation Room" },
+  { id: "garden", label: "Garden/Outdoor Area" },
+  { id: "solarPower", label: "Solar Power" },
+  { id: "waterPurifier", label: "Water Purifier" },
+  { id: "firstAid", label: "First Aid Kit" },
+  { id: "fireExtinguisher", label: "Fire Extinguisher" },
+  { id: "intercom", label: "Intercom" },
+  { id: "biometricAccess", label: "Biometric Access" }
+];
+
+const bankOptions = [
+  "State Bank of India",
+  "HDFC Bank",
+  "ICICI Bank",
+  "Axis Bank",
+  "Kotak Mahindra Bank",
+  "Yes Bank",
+  "Bank of Baroda",
+  "Punjab National Bank",
+  "Canara Bank",
+  "Union Bank of India",
+  "IDBI Bank",
+  "Federal Bank",
+  "IndusInd Bank",
+  "Other"
 ];
 
 export default function SellBuilderHostelForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     // Company Details (Step 0)
@@ -124,8 +156,6 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
     facingDirection: "", balcony: "",
     builtUpArea: "", carpetArea: "",
     hostelCategory: "", genderType: "",
-    modularKitchen: "", wardrobes: "", airConditioning: "",
-    utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
     
     // Sell-specific fields
     propertyAge: "", constructionStatus: "", possessionTimeline: "",
@@ -133,12 +163,10 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
     immediatePossession: "",
     
     // Pricing & Amenities (Step 5)
-    saleAmountMin: "", saleAmountMax: "", budgetRange: { min: "", max: "" }, 
-    priceType: "", saleNegotiable: "",
+    saleAmount: "", budgetRange: { min: "", max: "" }, 
+    priceType: "",
     selectedAmenities: [], otherAmenities: "",
     foodIncluded: "", foodType: "", mealsPerDay: "", kitchenAccess: "",
-    nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
-    nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
     
     // Bank Details (Step 6)
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
@@ -175,6 +203,293 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const validateStep = (stepNumber) => {
+    const newErrors = {};
+    let isValid = true;
+
+    switch(stepNumber) {
+      case 0: // Company Details
+        if (!formData.companyName.trim()) {
+          newErrors.companyName = "Company name is required";
+          isValid = false;
+        }
+        if (!formData.companyRegNumber.trim()) {
+          newErrors.companyRegNumber = "Registration number is required";
+          isValid = false;
+        }
+        if (!formData.reraNumber.trim()) {
+          newErrors.reraNumber = "RERA number is required";
+          isValid = false;
+        }
+        if (!formData.yearsOfExperience || parseInt(formData.yearsOfExperience) <= 0) {
+          newErrors.yearsOfExperience = "Years of experience is required";
+          isValid = false;
+        }
+        if (!formData.companyProfile.trim()) {
+          newErrors.companyProfile = "Company profile is required";
+          isValid = false;
+        }
+        break;
+
+      case 1: // Authorized Person
+        if (!formData.authFullName.trim()) {
+          newErrors.authFullName = "Full name is required";
+          isValid = false;
+        }
+        if (!formData.authDesignation.trim()) {
+          newErrors.authDesignation = "Designation is required";
+          isValid = false;
+        }
+        if (!formData.authMobile || !validateMobile(formData.authMobile)) {
+          newErrors.authMobile = "Please enter a valid 10-digit mobile number";
+          isValid = false;
+        }
+        if (!formData.authEmail || !validateEmail(formData.authEmail)) {
+          newErrors.authEmail = "Please enter a valid email address";
+          isValid = false;
+        }
+        if (!formData.authPhoto) {
+          newErrors.authPhoto = "Profile photo is required";
+          isValid = false;
+        }
+        break;
+
+      case 2: // Office Address
+        if (!formData.officeAddress.trim()) {
+          newErrors.officeAddress = "Office address is required";
+          isValid = false;
+        }
+        if (!formData.officeCity.trim()) {
+          newErrors.officeCity = "City is required";
+          isValid = false;
+        }
+        if (!formData.officeDistrict.trim()) {
+          newErrors.officeDistrict = "District is required";
+          isValid = false;
+        }
+        if (!formData.officeState.trim()) {
+          newErrors.officeState = "State is required";
+          isValid = false;
+        }
+        if (!formData.officePinCode || formData.officePinCode.length !== 6) {
+          newErrors.officePinCode = "Please enter a valid 6-digit PIN code";
+          isValid = false;
+        }
+        break;
+
+      case 3: // Identity & Business Verification
+        if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+          newErrors.aadhaarNumber = "Please enter a valid 12-digit Aadhaar number";
+          isValid = false;
+        }
+        if (!formData.panNumber || formData.panNumber.length !== 10) {
+          newErrors.panNumber = "Please enter a valid 10-character PAN number";
+          isValid = false;
+        }
+        if (!formData.aadhaarCard) {
+          newErrors.aadhaarCard = "Aadhaar card upload is required";
+          isValid = false;
+        }
+        if (!formData.panCard) {
+          newErrors.panCard = "PAN card upload is required";
+          isValid = false;
+        }
+        if (!formData.companyRegCert) {
+          newErrors.companyRegCert = "Company registration certificate is required";
+          isValid = false;
+        }
+        if (!formData.reraCert) {
+          newErrors.reraCert = "RERA certificate is required";
+          isValid = false;
+        }
+        break;
+
+      case 4: // Property Details
+        if (!formData.city.trim()) {
+          newErrors.city = "City is required";
+          isValid = false;
+        }
+        if (!formData.area.trim()) {
+          newErrors.area = "Area/Locality is required";
+          isValid = false;
+        }
+        if (!formData.hostelType) {
+          newErrors.hostelType = "Please select a hostel type";
+          isValid = false;
+        }
+        if (!formData.hostelCategory) {
+          newErrors.hostelCategory = "Please select a hostel category";
+          isValid = false;
+        }
+        if (!formData.genderType) {
+          newErrors.genderType = "Please select a gender type";
+          isValid = false;
+        }
+        if (!formData.totalCapacity || parseInt(formData.totalCapacity) <= 0) {
+          newErrors.totalCapacity = "Total capacity is required";
+          isValid = false;
+        }
+        if (!formData.roomType) {
+          newErrors.roomType = "Please select a room type";
+          isValid = false;
+        }
+        if (!formData.sharingType) {
+          newErrors.sharingType = "Please select a sharing type";
+          isValid = false;
+        }
+        if (!formData.bathrooms) {
+          newErrors.bathrooms = "Please select a bathroom type";
+          isValid = false;
+        }
+        if (!formData.propertyAge) {
+          newErrors.propertyAge = "Please select property age";
+          isValid = false;
+        }
+        if (!formData.constructionStatus) {
+          newErrors.constructionStatus = "Please select construction status";
+          isValid = false;
+        }
+        if (!formData.ownershipType) {
+          newErrors.ownershipType = "Please select ownership type";
+          isValid = false;
+        }
+        break;
+
+      case 5: // Pricing & Amenities
+        if (!formData.saleAmount || parseFloat(formData.saleAmount) <= 0) {
+          newErrors.saleAmount = "Sale amount is required";
+          isValid = false;
+        }
+        if (!formData.priceType) {
+          newErrors.priceType = "Please select price type";
+          isValid = false;
+        }
+        break;
+
+      case 6: // Bank Details
+        if (!formData.accountHolderName.trim()) {
+          newErrors.accountHolderName = "Account holder name is required";
+          isValid = false;
+        }
+        if (!formData.bankName) {
+          newErrors.bankName = "Please select a bank";
+          isValid = false;
+        }
+        if (!formData.accountNumber || formData.accountNumber.length < 9) {
+          newErrors.accountNumber = "Please enter a valid account number";
+          isValid = false;
+        }
+        if (!formData.ifscCode || formData.ifscCode.length < 11) {
+          newErrors.ifscCode = "Please enter a valid IFSC code";
+          isValid = false;
+        }
+        break;
+
+      case 8: // Documents
+        if (!formData.companyLogoDoc) {
+          newErrors.companyLogoDoc = "Company logo is required";
+          isValid = false;
+        }
+        if (!formData.authIdProof) {
+          newErrors.authIdProof = "Authorized signatory ID proof is required";
+          isValid = false;
+        }
+        if (!formData.officeAddressProof) {
+          newErrors.officeAddressProof = "Office address proof is required";
+          isValid = false;
+        }
+        if (!formData.companyRegCertDoc) {
+          newErrors.companyRegCertDoc = "Company registration certificate is required";
+          isValid = false;
+        }
+        if (!formData.reraCertDoc) {
+          newErrors.reraCertDoc = "RERA certificate is required";
+          isValid = false;
+        }
+        if (!formData.panCardDoc) {
+          newErrors.panCardDoc = "PAN card is required";
+          isValid = false;
+        }
+        if (!formData.hostelLicense) {
+          newErrors.hostelLicense = "Hostel license is required";
+          isValid = false;
+        }
+        if (!formData.fireSafetyCertificate) {
+          newErrors.fireSafetyCertificate = "Fire safety certificate is required";
+          isValid = false;
+        }
+        if (!formData.encumbranceCertificate) {
+          newErrors.encumbranceCertificate = "Encumbrance certificate is required";
+          isValid = false;
+        }
+        if (!formData.buildingApprovalPlan) {
+          newErrors.buildingApprovalPlan = "Building approval plan is required";
+          isValid = false;
+        }
+        if (!formData.completionCertificate) {
+          newErrors.completionCertificate = "Completion certificate is required";
+          isValid = false;
+        }
+        if (!formData.occupancyCertificate) {
+          newErrors.occupancyCertificate = "Occupancy certificate is required";
+          isValid = false;
+        }
+        if (!formData.coverImage) {
+          newErrors.coverImage = "Cover image is required";
+          isValid = false;
+        }
+        if (formData.propertyImages.length === 0) {
+          newErrors.propertyImages = "At least one property photo is required";
+          isValid = false;
+        }
+        if (!formData.floorPlan) {
+          newErrors.floorPlan = "Floor plan is required";
+          isValid = false;
+        }
+        break;
+
+      case 9: // Declaration
+        if (!formData.declaration1) {
+          newErrors.declaration1 = "You must accept this declaration";
+          isValid = false;
+        }
+        if (!formData.declaration2) {
+          newErrors.declaration2 = "You must accept this declaration";
+          isValid = false;
+        }
+        if (!formData.declaration3) {
+          newErrors.declaration3 = "You must accept this declaration";
+          isValid = false;
+        }
+        if (!formData.declaration4) {
+          newErrors.declaration4 = "You must accept this declaration";
+          isValid = false;
+        }
+        if (!formData.signature) {
+          newErrors.signature = "Signature is required";
+          isValid = false;
+        }
+        if (!formData.signatureDate) {
+          newErrors.signatureDate = "Date is required";
+          isValid = false;
+        }
+        if (!formData.signaturePlace.trim()) {
+          newErrors.signaturePlace = "Place is required";
+          isValid = false;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleImageUpload = (e) => {
@@ -403,10 +718,23 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
     });
   };
 
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep(step + 1);
+    }
+  };
+
   const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
-    console.log("Sell Builder Hostel Form submitted:", formData);
-    onClose();
+    if (validateStep(step)) {
+      if (!formData.declaration1 || !formData.declaration2 || !formData.declaration3 || !formData.declaration4) {
+        alert("Please accept all declarations before submitting.");
+        return;
+      }
+      
+      updateForm('signatureDate', new Date().toLocaleDateString());
+      console.log("Sell Builder Hostel Form submitted:", formData);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -448,7 +776,9 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
             <MobContentSellBuilderHostel
               step={step}
               inp={inMob}
+              errorBorder={errorBorder}
               formData={formData}
+              errors={errors}
               updateForm={updateForm}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
@@ -495,6 +825,7 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
               constructionStatusOptions={constructionStatusOptions}
               possessionOptions={possessionOptions}
               ownershipTypeOptions={ownershipTypeOptions}
+              bankOptions={bankOptions}
             />
           </div>
 
@@ -524,7 +855,7 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -567,7 +898,9 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
             <DtContentSellBuilderHostel
               step={step}
               inp={inDt}
+              errorBorder={errorBorder}
               formData={formData}
+              errors={errors}
               updateForm={updateForm}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
@@ -614,6 +947,7 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
               constructionStatusOptions={constructionStatusOptions}
               possessionOptions={possessionOptions}
               ownershipTypeOptions={ownershipTypeOptions}
+              bankOptions={bankOptions}
             />
           </div>
 
@@ -642,7 +976,7 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}>
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -655,7 +989,7 @@ export default function SellBuilderHostelForm({ isOpen, onClose }) {
 
 // ==================== MOBILE CONTENT - Sell Builder Hostel ====================
 function MobContentSellBuilderHostel({ 
-  step, inp, formData, updateForm, 
+  step, inp, errorBorder, formData, errors, updateForm, 
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload, removeDocument,
@@ -670,7 +1004,8 @@ function MobContentSellBuilderHostel({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
-  propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions
+  propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions,
+  bankOptions
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -720,26 +1055,26 @@ function MobContentSellBuilderHostel({
   // STEP 0: Company Details
   if (step === 0) return (
     <>
-      <Field label="Builder / Company Name" required>
-        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <Field label="Builder / Company Name" required error={errors.companyName}>
+        <input className={`${inp} ${errors.companyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </Field>
-      <Field label="Company Registration Number" required>
-        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
+      <Field label="Company Registration Number" required error={errors.companyRegNumber}>
+        <input className={`${inp} ${errors.companyRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </Field>
-      <Field label="RERA Registration Number" required>
-        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+      <Field label="RERA Registration Number" required error={errors.reraNumber}>
+        <input className={`${inp} ${errors.reraNumber ? errorBorder : ''}`} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </Field>
       <Field label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </Field>
-      <Field label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+      <Field label="Years of Experience" required error={errors.yearsOfExperience}>
+        <input className={`${inp} ${errors.yearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </Field>
-      <Field label="Company Profile / About Us" required>
-        <textarea className={`${ta} min-h-[60px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
+      <Field label="Company Profile / About Us" required error={errors.companyProfile}>
+        <textarea className={`${ta} min-h-[60px] ${errors.companyProfile ? errorBorder : ''}`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </Field>
     </>
   );
@@ -751,22 +1086,22 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
-      <Field label="Full Name" required>
-        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      <Field label="Full Name" required error={errors.authFullName}>
+        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </Field>
-      <Field label="Designation" required>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      <Field label="Designation" required error={errors.authDesignation}>
+        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </Field>
-      <Field label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <Field label="Mobile Number" required error={errors.authMobile}>
+        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      <Field label="Email Address" required error={errors.authEmail}>
+        <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="Profile Photo" required>
+      <Field label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="m-authphoto-sell" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto-sell" className="cursor-pointer flex flex-col items-center">
@@ -776,7 +1111,7 @@ function MobContentSellBuilderHostel({
           </label>
         </div>
         {authPhotoPreview && (
-          <div className="mt-2 relative">
+          <div className="mt-2 relative inline-block">
             <img src={authPhotoPreview} alt="Profile" className="w-20 h-20 object-cover rounded-full border-2 border-[#00695C]" />
             <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
@@ -792,20 +1127,20 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <Field label="Office Address" required error={errors.officeAddress}>
+        <textarea className={`${ta} min-h-[55px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </Field>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      <Field label="City" required error={errors.officeCity}>
+        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </Field>
-      <Field label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      <Field label="District" required error={errors.officeDistrict}>
+        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </Field>
-      <Field label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      <Field label="State" required error={errors.officeState}>
+        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </Field>
-      <Field label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <Field label="PIN Code" required error={errors.officePinCode}>
+        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -820,15 +1155,15 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <Field label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <Field label="PAN Number" required error={errors.panNumber}>
+        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </Field>
 
-      <Field label="Upload Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-authaadhaar-sell" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="m-authaadhaar-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -839,8 +1174,8 @@ function MobContentSellBuilderHostel({
         {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
       </Field>
 
-      <Field label="Upload PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload PAN Card" required error={errors.panCard}>
+        <div className={`border-2 border-dashed ${errors.panCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-authpan-sell" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="m-authpan-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -851,8 +1186,8 @@ function MobContentSellBuilderHostel({
         {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
       </Field>
 
-      <Field label="Upload Company Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Company Registration Certificate" required error={errors.companyRegCert}>
+        <div className={`border-2 border-dashed ${errors.companyRegCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-companyreg-sell" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
           <label htmlFor="m-companyreg-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -875,8 +1210,8 @@ function MobContentSellBuilderHostel({
         {formData.gstCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.gstCert.name}</p>}
       </Field>
 
-      <Field label="Upload RERA Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload RERA Certificate" required error={errors.reraCert}>
+        <div className={`border-2 border-dashed ${errors.reraCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-reracert-sell" onChange={(e) => handleDocumentUpload("reraCert", e)} />
           <label htmlFor="m-reracert-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -908,17 +1243,17 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+      <Field label="City" required error={errors.city}>
+        <input className={`${inp} ${errors.city ? errorBorder : ''}`} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </Field>
-      <Field label="Area / Locality" required>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      <Field label="Area / Locality" required error={errors.area}>
+        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </Field>
       <Field label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </Field>
       <Field label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -928,77 +1263,77 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">🏨 Hostel Specifications</h3>
       </div>
-      <Field label="Hostel Type" required>
+      <Field label="Hostel Type" required error={errors.hostelType}>
         <div className="grid grid-cols-2 gap-1">
           {hostelTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-hostel-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelType === type} onChange={() => updateForm("hostelType", type)} />
+              <input type="radio" name="mob-hostel-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelType === type} onChange={() => updateForm("hostelType", type)} />
               {type}
             </label>
           ))}
         </div>
       </Field>
       
-      <Field label="Hostel Category" required>
+      <Field label="Hostel Category" required error={errors.hostelCategory}>
         <div className="grid grid-cols-2 gap-1">
           {["Premium", "Standard", "Budget", "Luxury"].map(cat => (
             <label key={cat} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-category-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelCategory === cat} onChange={() => updateForm("hostelCategory", cat)} />
+              <input type="radio" name="mob-category-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelCategory === cat} onChange={() => updateForm("hostelCategory", cat)} />
               {cat}
             </label>
           ))}
         </div>
       </Field>
 
-      <Field label="Gender Type" required>
+      <Field label="Gender Type" required error={errors.genderType}>
         <div className="flex gap-3">
           {["Boys Only", "Girls Only", "Co-Ed"].map(g => (
             <label key={g} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-gender-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.genderType === g} onChange={() => updateForm("genderType", g)} />
+              <input type="radio" name="mob-gender-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.genderType === g} onChange={() => updateForm("genderType", g)} />
               {g}
             </label>
           ))}
         </div>
       </Field>
 
-      <Field label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+      <Field label="Built-up Area (sq.ft)" hint="Enter total built-up area">
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
-      <Field label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <Field label="Carpet Area (sq.ft)" hint="Enter carpet area">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       
-      <Field label="Total Capacity" required>
-        <input className={inp} type="number" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
+      <Field label="Total Capacity" required error={errors.totalCapacity}>
+        <input className={`${inp} ${errors.totalCapacity ? errorBorder : ''}`} type="number" min="0" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
       </Field>
 
-      <Field label="Room Type" required>
+      <Field label="Room Type" required error={errors.roomType}>
         <div className="grid grid-cols-2 gap-1">
           {roomTypeOptions.map(rt => (
             <label key={rt} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-room-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.roomType === rt} onChange={() => updateForm("roomType", rt)} />
+              <input type="radio" name="mob-room-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.roomType === rt} onChange={() => updateForm("roomType", rt)} />
               {rt}
             </label>
           ))}
         </div>
       </Field>
 
-      <Field label="Sharing Type" required>
+      <Field label="Sharing Type" required error={errors.sharingType}>
         <div className="grid grid-cols-2 gap-1">
           {["Single", "Double", "Triple", "4-Sharing", "Dormitory", "Bunk Bed"].map(sh => (
             <label key={sh} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-sharing-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sharingType === sh} onChange={() => updateForm("sharingType", sh)} />
+              <input type="radio" name="mob-sharing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sharingType === sh} onChange={() => updateForm("sharingType", sh)} />
               {sh}
             </label>
           ))}
         </div>
       </Field>
 
-      <Field label="Bathroom Type" required>
+      <Field label="Bathroom Type" required error={errors.bathrooms}>
         <div className="flex gap-3">
           {bathroomOptions.map(bt => (
             <label key={bt} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-bathroom-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === bt} onChange={() => updateForm("bathrooms", bt)} />
+              <input type="radio" name="mob-bathroom-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === bt} onChange={() => updateForm("bathrooms", bt)} />
               {bt}
             </label>
           ))}
@@ -1009,7 +1344,7 @@ function MobContentSellBuilderHostel({
         <div className="grid grid-cols-2 gap-1">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-furnish-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishedStatus === f} onChange={() => updateForm("furnishedStatus", f)} />
+              <input type="radio" name="mob-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishedStatus === f} onChange={() => updateForm("furnishedStatus", f)} />
               {f}
             </label>
           ))}
@@ -1017,16 +1352,16 @@ function MobContentSellBuilderHostel({
       </Field>
 
       <Field label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </Field>
       <Field label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="radio" name="mob-facing-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="mob-facing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -1036,7 +1371,7 @@ function MobContentSellBuilderHostel({
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-balcony-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="mob-balcony-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -1049,47 +1384,55 @@ function MobContentSellBuilderHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">💰 Sale Details</h3>
       </div>
 
-      <Field label="Property Age" required>
-        {propertyAgeOptions.map(pa => (
-          <label key={pa} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-property-age-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyAge === pa} onChange={() => updateForm("propertyAge", pa)} />
-            {pa}
-          </label>
-        ))}
+      <Field label="Property Age" required error={errors.propertyAge}>
+        <div className="flex flex-wrap gap-1">
+          {propertyAgeOptions.map(pa => (
+            <label key={pa} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-property-age-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyAge === pa} onChange={() => updateForm("propertyAge", pa)} />
+              {pa}
+            </label>
+          ))}
+        </div>
       </Field>
 
-      <Field label="Construction Status" required>
-        {constructionStatusOptions.map(cs => (
-          <label key={cs} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-construction-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.constructionStatus === cs} onChange={() => updateForm("constructionStatus", cs)} />
-            {cs}
-          </label>
-        ))}
+      <Field label="Construction Status" required error={errors.constructionStatus}>
+        <div className="flex flex-wrap gap-1">
+          {constructionStatusOptions.map(cs => (
+            <label key={cs} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.constructionStatus === cs} onChange={() => updateForm("constructionStatus", cs)} />
+              {cs}
+            </label>
+          ))}
+        </div>
       </Field>
 
       <Field label="Possession Timeline">
-        {possessionOptions.map(po => (
-          <label key={po} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-possession-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.possessionTimeline === po} onChange={() => updateForm("possessionTimeline", po)} />
-            {po}
-          </label>
-        ))}
+        <div className="flex flex-wrap gap-1">
+          {possessionOptions.map(po => (
+            <label key={po} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.possessionTimeline === po} onChange={() => updateForm("possessionTimeline", po)} />
+              {po}
+            </label>
+          ))}
+        </div>
       </Field>
 
-      <Field label="Ownership Type" required>
-        {ownershipTypeOptions.map(ot => (
-          <label key={ot} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-ownership-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
-            {ot}
-          </label>
-        ))}
+      <Field label="Ownership Type" required error={errors.ownershipType}>
+        <div className="flex flex-wrap gap-1">
+          {ownershipTypeOptions.map(ot => (
+            <label key={ot} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-ownership-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
+              {ot}
+            </label>
+          ))}
+        </div>
       </Field>
 
       <Field label="Ready to Buy">
         <div className="flex gap-3">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-ready-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToBuy === opt} onChange={() => updateForm("readyToBuy", opt)} />
+              <input type="radio" name="mob-ready-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToBuy === opt} onChange={() => updateForm("readyToBuy", opt)} />
               {opt}
             </label>
           ))}
@@ -1100,7 +1443,7 @@ function MobContentSellBuilderHostel({
         <div className="flex gap-3">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-under-construction-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              <input type="radio" name="mob-under-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
               {opt}
             </label>
           ))}
@@ -1111,7 +1454,7 @@ function MobContentSellBuilderHostel({
         <div className="flex gap-3">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-immediate-possession-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              <input type="radio" name="mob-immediate-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
               {opt}
             </label>
           ))}
@@ -1126,7 +1469,7 @@ function MobContentSellBuilderHostel({
         <div className="flex gap-3">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-food-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodIncluded === opt} onChange={() => updateForm("foodIncluded", opt)} />
+              <input type="radio" name="mob-food-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodIncluded === opt} onChange={() => updateForm("foodIncluded", opt)} />
               {opt}
             </label>
           ))}
@@ -1138,7 +1481,7 @@ function MobContentSellBuilderHostel({
             <div className="flex gap-3">
               {["Veg", "Non-Veg", "Both", "Custom"].map(ft => (
                 <label key={ft} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-                  <input type="radio" name="mob-food-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodType === ft} onChange={() => updateForm("foodType", ft)} />
+                  <input type="radio" name="mob-food-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodType === ft} onChange={() => updateForm("foodType", ft)} />
                   {ft}
                 </label>
               ))}
@@ -1148,7 +1491,7 @@ function MobContentSellBuilderHostel({
             <div className="flex gap-3">
               {["2 Meals/Day", "3 Meals/Day", "Custom/Optional"].map(m => (
                 <label key={m} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-                  <input type="radio" name="mob-meals-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.mealsPerDay === m} onChange={() => updateForm("mealsPerDay", m)} />
+                  <input type="radio" name="mob-meals-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.mealsPerDay === m} onChange={() => updateForm("mealsPerDay", m)} />
                   {m}
                 </label>
               ))}
@@ -1160,7 +1503,7 @@ function MobContentSellBuilderHostel({
         <div className="flex gap-3">
           {["Yes", "No", "Limited"].map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-kitchen-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.kitchenAccess === opt} onChange={() => updateForm("kitchenAccess", opt)} />
+              <input type="radio" name="mob-kitchen-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.kitchenAccess === opt} onChange={() => updateForm("kitchenAccess", opt)} />
               {opt}
             </label>
           ))}
@@ -1176,38 +1519,25 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">💰 Pricing & Amenities</h3>
       </div>
-      <Field label="Sale Amount (₹)" required>
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.saleAmountMin} onChange={(e) => updateForm("saleAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.saleAmountMax} onChange={(e) => updateForm("saleAmountMax", e.target.value)} />
-        </div>
+      <Field label="Sale Amount (₹)" required error={errors.saleAmount}>
+        <input className={`${inp} ${errors.saleAmount ? errorBorder : ''}`} type="number" min="0" placeholder="Enter sale amount" value={formData.saleAmount} onChange={(e) => updateForm("saleAmount", e.target.value)} />
       </Field>
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
       </Field>
-      <Field label="Price Type">
+      <Field label="Price Type" required error={errors.priceType}>
         <div className="flex gap-4">
           <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-pt-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
+            <input type="radio" name="mob-pt-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
             Fixed Price
           </label>
           <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-pt-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
+            <input type="radio" name="mob-pt-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
             Negotiable
           </label>
-        </div>
-      </Field>
-      <Field label="Price Negotiable">
-        <div className="flex gap-4">
-          {yesNoOptions.map(opt => (
-            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-negotiable-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.saleNegotiable === opt} onChange={() => updateForm("saleNegotiable", opt)} />
-              {opt}
-            </label>
-          ))}
         </div>
       </Field>
 
@@ -1220,7 +1550,6 @@ function MobContentSellBuilderHostel({
           {hostelSellAmenities.map(amenity => (
             <label key={amenity.id} className="flex items-center gap-1 text-[9px] cursor-pointer">
               <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.selectedAmenities.includes(amenity.id)} onChange={() => toggleAmenity(amenity.id)} />
-              {amenity.icon}
               {amenity.label}
             </label>
           ))}
@@ -1240,24 +1569,6 @@ function MobContentSellBuilderHostel({
           ))}
         </div>
       </Field>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">📍 Nearby Access</h3>
-      </div>
-      <Field label="Nearby Places">
-        <div className="grid grid-cols-2 gap-1">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
-        </div>
-      </Field>
     </>
   );
 
@@ -1268,17 +1579,22 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <Field label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+      <Field label="Account Holder Name" required error={errors.accountHolderName}>
+        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </Field>
-      <Field label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <Field label="Bank Name" required error={errors.bankName}>
+        <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank</option>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank}>{bank}</option>
+          ))}
+        </select>
       </Field>
-      <Field label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <Field label="Account Number" required error={errors.accountNumber}>
+        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
       </Field>
-      <Field label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <Field label="IFSC Code" required error={errors.ifscCode}>
+        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1320,8 +1636,8 @@ function MobContentSellBuilderHostel({
       </div>
       <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
 
-      <Field label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.companyLogoDoc}>
+        <div className={`border-2 border-dashed ${errors.companyLogoDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-comp-logo-sell" onChange={handleCompanyLogoUpload} />
           <label htmlFor="m-comp-logo-sell" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1330,9 +1646,9 @@ function MobContentSellBuilderHostel({
           </label>
         </div>
         {companyLogoPreview && (
-          <div className="mt-1 relative">
-            <img src={companyLogoPreview} alt="Company Logo" className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C] mx-auto" />
-            <button onClick={removeCompanyLogo} className="absolute -top-1 right-[calc(50%-2rem)] w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
+          <div className="mt-2 relative inline-block">
+            <img src={companyLogoPreview} alt="Company Logo" className="w-16 h-16 object-cover rounded-lg border-2 border-[#00695C]" />
+            <button onClick={removeCompanyLogo} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
       </Field>
@@ -1370,8 +1686,8 @@ function MobContentSellBuilderHostel({
         )}
       </Field>
 
-      <Field label="Company Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Company Registration Certificate" required error={errors.companyRegCertDoc}>
+        <div className={`border-2 border-dashed ${errors.companyRegCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-comp-reg-doc-sell" onChange={(e) => handleDocumentUpload("companyRegCertDoc", e)} />
           <label htmlFor="m-comp-reg-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1382,8 +1698,8 @@ function MobContentSellBuilderHostel({
         {formData.companyRegCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.companyRegCertDoc.name}</p>}
       </Field>
 
-      <Field label="RERA Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="RERA Certificate" required error={errors.reraCertDoc}>
+        <div className={`border-2 border-dashed ${errors.reraCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-rera-doc-sell" onChange={(e) => handleDocumentUpload("reraCertDoc", e)} />
           <label htmlFor="m-rera-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1406,8 +1722,8 @@ function MobContentSellBuilderHostel({
         {formData.gstCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.gstCertDoc.name}</p>}
       </Field>
 
-      <Field label="PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="PAN Card" required error={errors.panCardDoc}>
+        <div className={`border-2 border-dashed ${errors.panCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-pan-doc-sell" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
           <label htmlFor="m-pan-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1418,8 +1734,8 @@ function MobContentSellBuilderHostel({
         {formData.panCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCardDoc.name}</p>}
       </Field>
 
-      <Field label="Authorized Signatory ID Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Authorized Signatory ID Proof" required error={errors.authIdProof}>
+        <div className={`border-2 border-dashed ${errors.authIdProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-auth-id-sell" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
           <label htmlFor="m-auth-id-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1430,8 +1746,8 @@ function MobContentSellBuilderHostel({
         {formData.authIdProof && <p className="text-[10px] text-green-600 mt-1">✓ {formData.authIdProof.name}</p>}
       </Field>
 
-      <Field label="Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Office Address Proof" required error={errors.officeAddressProof}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-office-proof-sell" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="m-office-proof-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1448,8 +1764,8 @@ function MobContentSellBuilderHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">Hostel Documents</h3>
       </div>
 
-      <Field label="Hostel License" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Hostel License" required error={errors.hostelLicense}>
+        <div className={`border-2 border-dashed ${errors.hostelLicense ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-license-sell-build" onChange={(e) => handleDocumentUpload("hostelLicense", e)} />
           <label htmlFor="m-license-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1460,8 +1776,8 @@ function MobContentSellBuilderHostel({
         {formData.hostelLicense && <p className="text-[10px] text-green-600 mt-1">✓ {formData.hostelLicense.name}</p>}
       </Field>
 
-      <Field label="Fire Safety Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
+        <div className={`border-2 border-dashed ${errors.fireSafetyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-fire-sell-build" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="m-fire-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1490,8 +1806,8 @@ function MobContentSellBuilderHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">Sale Documents</h3>
       </div>
 
-      <Field label="Encumbrance Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Encumbrance Certificate" required error={errors.encumbranceCertificate}>
+        <div className={`border-2 border-dashed ${errors.encumbranceCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-ec-sell-build" onChange={(e) => handleDocumentUpload("encumbranceCertificate", e)} />
           <label htmlFor="m-ec-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1502,8 +1818,8 @@ function MobContentSellBuilderHostel({
         {formData.encumbranceCertificate && <p className="text-[10px] text-green-600 mt-1">✓ {formData.encumbranceCertificate.name}</p>}
       </Field>
 
-      <Field label="Building Approval Plan" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Building Approval Plan" required error={errors.buildingApprovalPlan}>
+        <div className={`border-2 border-dashed ${errors.buildingApprovalPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-building-sell-build" onChange={(e) => handleDocumentUpload("buildingApprovalPlan", e)} />
           <label htmlFor="m-building-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1514,8 +1830,8 @@ function MobContentSellBuilderHostel({
         {formData.buildingApprovalPlan && <p className="text-[10px] text-green-600 mt-1">✓ {formData.buildingApprovalPlan.name}</p>}
       </Field>
 
-      <Field label="Completion Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Completion Certificate" required error={errors.completionCertificate}>
+        <div className={`border-2 border-dashed ${errors.completionCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-completion-sell-build" onChange={(e) => handleDocumentUpload("completionCertificate", e)} />
           <label htmlFor="m-completion-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1526,8 +1842,8 @@ function MobContentSellBuilderHostel({
         {formData.completionCertificate && <p className="text-[10px] text-green-600 mt-1">✓ {formData.completionCertificate.name}</p>}
       </Field>
 
-      <Field label="Occupancy Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Occupancy Certificate" required error={errors.occupancyCertificate}>
+        <div className={`border-2 border-dashed ${errors.occupancyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-occupancy-sell-build" onChange={(e) => handleDocumentUpload("occupancyCertificate", e)} />
           <label htmlFor="m-occupancy-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1538,8 +1854,8 @@ function MobContentSellBuilderHostel({
         {formData.occupancyCertificate && <p className="text-[10px] text-green-600 mt-1">✓ {formData.occupancyCertificate.name}</p>}
       </Field>
 
-      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
+        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-floorplan-sell-build" onChange={handleFloorPlanUpload} />
           <label htmlFor="m-floorplan-sell-build" className="cursor-pointer flex flex-col items-center">
             <Home className="w-5 h-5 text-[#00695C]" />
@@ -1560,8 +1876,8 @@ function MobContentSellBuilderHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <Field label="Upload Cover Image" required hint="Max 2MB">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
+        <div className={`border-2 border-dashed ${errors.coverImage ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-cover-sell-build" onChange={handleCoverImageUpload} />
           <label htmlFor="m-cover-sell-build" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1577,8 +1893,8 @@ function MobContentSellBuilderHostel({
         )}
       </Field>
 
-      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
+        <div className={`border-2 border-dashed ${errors.propertyImages ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-sell-build" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="m-imgs-sell-build" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1634,7 +1950,7 @@ function MobContentSellBuilderHostel({
           ref={signatureCanvasRef}
           width="400"
           height="100"
-          className="signature-canvas w-full h-24 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          className={`signature-canvas w-full h-24 rounded-lg border-2 ${errors.signature ? 'border-red-500' : 'border-[#00695C]'} bg-white touch-none cursor-crosshair`}
           onMouseDown={(e) => startDrawing(e, 'm-signatureCanvas')}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -1651,11 +1967,12 @@ function MobContentSellBuilderHostel({
           Clear
         </button>
       </div>
-      <Field label="Date" required>
-        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+      {errors.signature && <p className="text-[10px] text-red-500 mt-0.5">{errors.signature}</p>}
+      <Field label="Date" required error={errors.signatureDate}>
+        <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
-      <Field label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      <Field label="Place" required error={errors.signaturePlace}>
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </Field>
 
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1668,18 +1985,22 @@ function MobContentSellBuilderHostel({
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
+        {errors.declaration1 && <p className="text-[10px] text-red-500">{errors.declaration1}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declaration2 && <p className="text-[10px] text-red-500">{errors.declaration2}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
+        {errors.declaration3 && <p className="text-[10px] text-red-500">{errors.declaration3}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declaration4 && <p className="text-[10px] text-red-500">{errors.declaration4}</p>}
       </div>
     </>
   );
@@ -1689,7 +2010,7 @@ function MobContentSellBuilderHostel({
 
 // ==================== DESKTOP CONTENT - Sell Builder Hostel ====================
 function DtContentSellBuilderHostel({ 
-  step, inp, formData, updateForm, 
+  step, inp, errorBorder, formData, errors, updateForm, 
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload, removeDocument,
@@ -1704,7 +2025,8 @@ function DtContentSellBuilderHostel({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
-  propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions
+  propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions,
+  bankOptions
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1751,56 +2073,56 @@ function DtContentSellBuilderHostel({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Company Details
+  // STEP 0: Company Details (Desktop)
   if (step === 0) return (
     <>
-      <FieldDt label="Builder / Company Name" required>
-        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+      <FieldDt label="Builder / Company Name" required error={errors.companyName}>
+        <input className={`${inp} ${errors.companyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company Registration Number" required>
-        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
+      <FieldDt label="Company Registration Number" required error={errors.companyRegNumber}>
+        <input className={`${inp} ${errors.companyRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="RERA Registration Number" required>
-        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+      <FieldDt label="RERA Registration Number" required error={errors.reraNumber}>
+        <input className={`${inp} ${errors.reraNumber ? errorBorder : ''}`} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+      <FieldDt label="Years of Experience" required error={errors.yearsOfExperience}>
+        <input className={`${inp} ${errors.yearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company Profile / About Us" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
+      <FieldDt label="Company Profile / About Us" required error={errors.companyProfile}>
+        <textarea className={`${ta} min-h-[70px] ${errors.companyProfile ? errorBorder : ''}`} placeholder="Describe your company background" value={formData.companyProfile} onChange={(e) => updateForm("companyProfile", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 1: Authorized Person
+  // STEP 1: Authorized Person (Desktop)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
-      <FieldDt label="Full Name" required>
-        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      <FieldDt label="Full Name" required error={errors.authFullName}>
+        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Designation" required>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      <FieldDt label="Designation" required error={errors.authDesignation}>
+        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <FieldDt label="Mobile Number" required error={errors.authMobile}>
+        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      <FieldDt label="Email Address" required error={errors.authEmail}>
+        <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="Profile Photo" required>
+      <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="dt-authphoto-sell" onChange={handleAuthPhotoUpload} />
           <label htmlFor="dt-authphoto-sell" className="cursor-pointer flex flex-col items-center">
@@ -1810,36 +2132,36 @@ function DtContentSellBuilderHostel({
           </label>
         </div>
         {authPhotoPreview && (
-          <div className="mt-2 relative">
+          <div className="mt-2 relative inline-block">
             <img src={authPhotoPreview} alt="Profile" className="w-24 h-24 object-cover rounded-full border-2 border-[#00695C]" />
-            <button onClick={removeAuthPhoto} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
+            <button onClick={removeAuthPhoto} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
           </div>
         )}
       </FieldDt>
     </>
   );
 
-  // STEP 2: Office Address
+  // STEP 2: Office Address (Desktop)
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <FieldDt label="Office Address" required error={errors.officeAddress}>
+        <textarea className={`${ta} min-h-[70px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </FieldDt>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      <FieldDt label="City" required error={errors.officeCity}>
+        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </FieldDt>
-      <FieldDt label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      <FieldDt label="District" required error={errors.officeDistrict}>
+        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </FieldDt>
-      <FieldDt label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      <FieldDt label="State" required error={errors.officeState}>
+        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <FieldDt label="PIN Code" required error={errors.officePinCode}>
+        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1847,22 +2169,22 @@ function DtContentSellBuilderHostel({
     </>
   );
 
-  // STEP 3: Identity & Business Verification
+  // STEP 3: Identity & Business Verification (Desktop)
   if (step === 3) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <FieldDt label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <FieldDt label="PAN Number" required error={errors.panNumber}>
+        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </FieldDt>
 
-      <FieldDt label="Upload Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-authaadhaar-sell" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="dt-authaadhaar-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1873,8 +2195,8 @@ function DtContentSellBuilderHostel({
         {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload PAN Card" required error={errors.panCard}>
+        <div className={`border-2 border-dashed ${errors.panCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-authpan-sell" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="dt-authpan-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1885,8 +2207,8 @@ function DtContentSellBuilderHostel({
         {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Company Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Company Registration Certificate" required error={errors.companyRegCert}>
+        <div className={`border-2 border-dashed ${errors.companyRegCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-companyreg-sell" onChange={(e) => handleDocumentUpload("companyRegCert", e)} />
           <label htmlFor="dt-companyreg-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1909,8 +2231,8 @@ function DtContentSellBuilderHostel({
         {formData.gstCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.gstCert.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload RERA Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload RERA Certificate" required error={errors.reraCert}>
+        <div className={`border-2 border-dashed ${errors.reraCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-reracert-sell" onChange={(e) => handleDocumentUpload("reraCert", e)} />
           <label htmlFor="dt-reracert-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1942,17 +2264,17 @@ function DtContentSellBuilderHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+      <FieldDt label="City" required error={errors.city}>
+        <input className={`${inp} ${errors.city ? errorBorder : ''}`} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Area / Locality" required>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      <FieldDt label="Area / Locality" required error={errors.area}>
+        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </FieldDt>
       <FieldDt label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -1962,77 +2284,77 @@ function DtContentSellBuilderHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">🏨 Hostel Specifications</h3>
       </div>
-      <FieldDt label="Hostel Type" required>
+      <FieldDt label="Hostel Type" required error={errors.hostelType}>
         <div className="grid grid-cols-2 gap-1">
           {hostelTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-hostel-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelType === type} onChange={() => updateForm("hostelType", type)} />
+              <input type="radio" name="dt-hostel-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelType === type} onChange={() => updateForm("hostelType", type)} />
               {type}
             </label>
           ))}
         </div>
       </FieldDt>
       
-      <FieldDt label="Hostel Category" required>
+      <FieldDt label="Hostel Category" required error={errors.hostelCategory}>
         <div className="flex gap-4">
           {["Premium", "Standard", "Budget", "Luxury"].map(cat => (
             <label key={cat} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-category-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelCategory === cat} onChange={() => updateForm("hostelCategory", cat)} />
+              <input type="radio" name="dt-category-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelCategory === cat} onChange={() => updateForm("hostelCategory", cat)} />
               {cat}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Gender Type" required>
+      <FieldDt label="Gender Type" required error={errors.genderType}>
         <div className="flex gap-4">
           {["Boys Only", "Girls Only", "Co-Ed"].map(g => (
             <label key={g} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-gender-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.genderType === g} onChange={() => updateForm("genderType", g)} />
+              <input type="radio" name="dt-gender-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.genderType === g} onChange={() => updateForm("genderType", g)} />
               {g}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+      <FieldDt label="Built-up Area (sq.ft)" hint="Enter total built-up area">
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <FieldDt label="Carpet Area (sq.ft)" hint="Enter carpet area">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
       
-      <FieldDt label="Total Capacity" required>
-        <input className={inp} type="number" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
+      <FieldDt label="Total Capacity" required error={errors.totalCapacity}>
+        <input className={`${inp} ${errors.totalCapacity ? errorBorder : ''}`} type="number" min="0" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
       </FieldDt>
 
-      <FieldDt label="Room Type" required>
+      <FieldDt label="Room Type" required error={errors.roomType}>
         <div className="grid grid-cols-2 gap-1">
           {roomTypeOptions.map(rt => (
             <label key={rt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-room-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.roomType === rt} onChange={() => updateForm("roomType", rt)} />
+              <input type="radio" name="dt-room-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.roomType === rt} onChange={() => updateForm("roomType", rt)} />
               {rt}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Sharing Type" required>
+      <FieldDt label="Sharing Type" required error={errors.sharingType}>
         <div className="grid grid-cols-2 gap-1">
           {["Single", "Double", "Triple", "4-Sharing", "Dormitory", "Bunk Bed"].map(sh => (
             <label key={sh} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-sharing-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sharingType === sh} onChange={() => updateForm("sharingType", sh)} />
+              <input type="radio" name="dt-sharing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sharingType === sh} onChange={() => updateForm("sharingType", sh)} />
               {sh}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Bathroom Type" required>
+      <FieldDt label="Bathroom Type" required error={errors.bathrooms}>
         <div className="flex gap-4">
           {bathroomOptions.map(bt => (
             <label key={bt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bathroom-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === bt} onChange={() => updateForm("bathrooms", bt)} />
+              <input type="radio" name="dt-bathroom-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === bt} onChange={() => updateForm("bathrooms", bt)} />
               {bt}
             </label>
           ))}
@@ -2043,7 +2365,7 @@ function DtContentSellBuilderHostel({
         <div className="flex flex-wrap gap-3">
           {furnishingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-furnish-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishedStatus === f} onChange={() => updateForm("furnishedStatus", f)} />
+              <input type="radio" name="dt-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishedStatus === f} onChange={() => updateForm("furnishedStatus", f)} />
               {f}
             </label>
           ))}
@@ -2051,16 +2373,16 @@ function DtContentSellBuilderHostel({
       </FieldDt>
 
       <FieldDt label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </FieldDt>
       <FieldDt label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
           {facingOptions.map(f => (
             <label key={f} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-facing-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
+              <input type="radio" name="dt-facing-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.facingDirection === f} onChange={() => updateForm("facingDirection", f)} />
               {f}
             </label>
           ))}
@@ -2070,7 +2392,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-balcony-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
+              <input type="radio" name="dt-balcony-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.balcony === opt} onChange={() => updateForm("balcony", opt)} />
               {opt}
             </label>
           ))}
@@ -2083,22 +2405,22 @@ function DtContentSellBuilderHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">💰 Sale Details</h3>
       </div>
 
-      <FieldDt label="Property Age" required>
+      <FieldDt label="Property Age" required error={errors.propertyAge}>
         <div className="flex flex-wrap gap-3">
           {propertyAgeOptions.map(pa => (
             <label key={pa} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-property-age-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyAge === pa} onChange={() => updateForm("propertyAge", pa)} />
+              <input type="radio" name="dt-property-age-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.propertyAge === pa} onChange={() => updateForm("propertyAge", pa)} />
               {pa}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Construction Status" required>
+      <FieldDt label="Construction Status" required error={errors.constructionStatus}>
         <div className="flex flex-wrap gap-3">
           {constructionStatusOptions.map(cs => (
             <label key={cs} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-construction-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.constructionStatus === cs} onChange={() => updateForm("constructionStatus", cs)} />
+              <input type="radio" name="dt-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.constructionStatus === cs} onChange={() => updateForm("constructionStatus", cs)} />
               {cs}
             </label>
           ))}
@@ -2109,18 +2431,18 @@ function DtContentSellBuilderHostel({
         <div className="flex flex-wrap gap-3">
           {possessionOptions.map(po => (
             <label key={po} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-possession-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.possessionTimeline === po} onChange={() => updateForm("possessionTimeline", po)} />
+              <input type="radio" name="dt-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.possessionTimeline === po} onChange={() => updateForm("possessionTimeline", po)} />
               {po}
             </label>
           ))}
         </div>
       </FieldDt>
 
-      <FieldDt label="Ownership Type" required>
+      <FieldDt label="Ownership Type" required error={errors.ownershipType}>
         <div className="flex flex-wrap gap-3">
           {ownershipTypeOptions.map(ot => (
             <label key={ot} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-ownership-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
+              <input type="radio" name="dt-ownership-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
               {ot}
             </label>
           ))}
@@ -2131,7 +2453,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-ready-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToBuy === opt} onChange={() => updateForm("readyToBuy", opt)} />
+              <input type="radio" name="dt-ready-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.readyToBuy === opt} onChange={() => updateForm("readyToBuy", opt)} />
               {opt}
             </label>
           ))}
@@ -2142,7 +2464,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-under-construction-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
+              <input type="radio" name="dt-under-construction-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.underConstruction === opt} onChange={() => updateForm("underConstruction", opt)} />
               {opt}
             </label>
           ))}
@@ -2153,7 +2475,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-5">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-immediate-possession-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
+              <input type="radio" name="dt-immediate-possession-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.immediatePossession === opt} onChange={() => updateForm("immediatePossession", opt)} />
               {opt}
             </label>
           ))}
@@ -2168,7 +2490,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-4">
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-food-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodIncluded === opt} onChange={() => updateForm("foodIncluded", opt)} />
+              <input type="radio" name="dt-food-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodIncluded === opt} onChange={() => updateForm("foodIncluded", opt)} />
               {opt}
             </label>
           ))}
@@ -2180,7 +2502,7 @@ function DtContentSellBuilderHostel({
             <div className="flex gap-4">
               {["Veg", "Non-Veg", "Both", "Custom"].map(ft => (
                 <label key={ft} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                  <input type="radio" name="dt-food-type-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodType === ft} onChange={() => updateForm("foodType", ft)} />
+                  <input type="radio" name="dt-food-type-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.foodType === ft} onChange={() => updateForm("foodType", ft)} />
                   {ft}
                 </label>
               ))}
@@ -2190,7 +2512,7 @@ function DtContentSellBuilderHostel({
             <div className="flex gap-4">
               {["2 Meals/Day", "3 Meals/Day", "Custom/Optional"].map(m => (
                 <label key={m} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                  <input type="radio" name="dt-meals-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.mealsPerDay === m} onChange={() => updateForm("mealsPerDay", m)} />
+                  <input type="radio" name="dt-meals-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.mealsPerDay === m} onChange={() => updateForm("mealsPerDay", m)} />
                   {m}
                 </label>
               ))}
@@ -2202,7 +2524,7 @@ function DtContentSellBuilderHostel({
         <div className="flex gap-4">
           {["Yes", "No", "Limited"].map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-kitchen-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.kitchenAccess === opt} onChange={() => updateForm("kitchenAccess", opt)} />
+              <input type="radio" name="dt-kitchen-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.kitchenAccess === opt} onChange={() => updateForm("kitchenAccess", opt)} />
               {opt}
             </label>
           ))}
@@ -2218,38 +2540,25 @@ function DtContentSellBuilderHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">💰 Pricing & Amenities</h3>
       </div>
-      <FieldDt label="Sale Amount (₹)" required>
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.saleAmountMin} onChange={(e) => updateForm("saleAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.saleAmountMax} onChange={(e) => updateForm("saleAmountMax", e.target.value)} />
-        </div>
+      <FieldDt label="Sale Amount (₹)" required error={errors.saleAmount}>
+        <input className={`${inp} ${errors.saleAmount ? errorBorder : ''}`} type="number" min="0" placeholder="Enter sale amount" value={formData.saleAmount} onChange={(e) => updateForm("saleAmount", e.target.value)} />
       </FieldDt>
       <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
       </FieldDt>
-      <FieldDt label="Price Type">
+      <FieldDt label="Price Type" required error={errors.priceType}>
         <div className="flex gap-5">
           <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-pt-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
+            <input type="radio" name="dt-pt-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
             Fixed Price
           </label>
           <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-pt-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
+            <input type="radio" name="dt-pt-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
             Negotiable
           </label>
-        </div>
-      </FieldDt>
-      <FieldDt label="Price Negotiable">
-        <div className="flex gap-5">
-          {yesNoOptions.map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-negotiable-builder" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.saleNegotiable === opt} onChange={() => updateForm("saleNegotiable", opt)} />
-              {opt}
-            </label>
-          ))}
         </div>
       </FieldDt>
 
@@ -2281,24 +2590,6 @@ function DtContentSellBuilderHostel({
           ))}
         </div>
       </FieldDt>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">📍 Nearby Access</h3>
-      </div>
-      <FieldDt label="Nearby Places">
-        <div className="grid grid-cols-2 gap-2">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
-        </div>
-      </FieldDt>
     </>
   );
 
@@ -2309,17 +2600,22 @@ function DtContentSellBuilderHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <FieldDt label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+      <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
+        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <FieldDt label="Bank Name" required error={errors.bankName}>
+        <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank</option>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank}>{bank}</option>
+          ))}
+        </select>
       </FieldDt>
-      <FieldDt label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <FieldDt label="Account Number" required error={errors.accountNumber}>
+        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <FieldDt label="IFSC Code" required error={errors.ifscCode}>
+        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2361,8 +2657,8 @@ function DtContentSellBuilderHostel({
       </div>
       <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
 
-      <FieldDt label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.companyLogoDoc}>
+        <div className={`border-2 border-dashed ${errors.companyLogoDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-comp-logo-sell" onChange={handleCompanyLogoUpload} />
           <label htmlFor="dt-comp-logo-sell" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2371,7 +2667,7 @@ function DtContentSellBuilderHostel({
           </label>
         </div>
         {companyLogoPreview && (
-          <div className="mt-2 relative w-20 mx-auto">
+          <div className="mt-2 relative inline-block">
             <img src={companyLogoPreview} alt="Company Logo" className="w-20 h-20 object-cover rounded-lg border-2 border-[#00695C]" />
             <button onClick={removeCompanyLogo} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
           </div>
@@ -2411,8 +2707,8 @@ function DtContentSellBuilderHostel({
         )}
       </FieldDt>
 
-      <FieldDt label="Company Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Company Registration Certificate" required error={errors.companyRegCertDoc}>
+        <div className={`border-2 border-dashed ${errors.companyRegCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-comp-reg-doc-sell" onChange={(e) => handleDocumentUpload("companyRegCertDoc", e)} />
           <label htmlFor="dt-comp-reg-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2423,8 +2719,8 @@ function DtContentSellBuilderHostel({
         {formData.companyRegCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.companyRegCertDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="RERA Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="RERA Certificate" required error={errors.reraCertDoc}>
+        <div className={`border-2 border-dashed ${errors.reraCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-rera-doc-sell" onChange={(e) => handleDocumentUpload("reraCertDoc", e)} />
           <label htmlFor="dt-rera-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2447,8 +2743,8 @@ function DtContentSellBuilderHostel({
         {formData.gstCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.gstCertDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="PAN Card" required error={errors.panCardDoc}>
+        <div className={`border-2 border-dashed ${errors.panCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-pan-doc-sell" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
           <label htmlFor="dt-pan-doc-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2459,8 +2755,8 @@ function DtContentSellBuilderHostel({
         {formData.panCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCardDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Authorized Signatory ID Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Authorized Signatory ID Proof" required error={errors.authIdProof}>
+        <div className={`border-2 border-dashed ${errors.authIdProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-auth-id-sell" onChange={(e) => handleDocumentUpload("authIdProof", e)} />
           <label htmlFor="dt-auth-id-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2471,8 +2767,8 @@ function DtContentSellBuilderHostel({
         {formData.authIdProof && <p className="text-[13px] text-green-600 mt-2">✓ {formData.authIdProof.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Office Address Proof" required error={errors.officeAddressProof}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-office-proof-sell" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="dt-office-proof-sell" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2489,8 +2785,8 @@ function DtContentSellBuilderHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">Hostel Documents</h3>
       </div>
 
-      <FieldDt label="Hostel License" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Hostel License" required error={errors.hostelLicense}>
+        <div className={`border-2 border-dashed ${errors.hostelLicense ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-license-sell-build" onChange={(e) => handleDocumentUpload("hostelLicense", e)} />
           <label htmlFor="dt-license-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2501,8 +2797,8 @@ function DtContentSellBuilderHostel({
         {formData.hostelLicense && <p className="text-[13px] text-green-600 mt-2">✓ {formData.hostelLicense.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Fire Safety Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
+        <div className={`border-2 border-dashed ${errors.fireSafetyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-fire-sell-build" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="dt-fire-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2531,8 +2827,8 @@ function DtContentSellBuilderHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">Sale Documents</h3>
       </div>
 
-      <FieldDt label="Encumbrance Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Encumbrance Certificate" required error={errors.encumbranceCertificate}>
+        <div className={`border-2 border-dashed ${errors.encumbranceCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-ec-sell-build" onChange={(e) => handleDocumentUpload("encumbranceCertificate", e)} />
           <label htmlFor="dt-ec-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2543,8 +2839,8 @@ function DtContentSellBuilderHostel({
         {formData.encumbranceCertificate && <p className="text-[13px] text-green-600 mt-2">✓ {formData.encumbranceCertificate.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Building Approval Plan" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Building Approval Plan" required error={errors.buildingApprovalPlan}>
+        <div className={`border-2 border-dashed ${errors.buildingApprovalPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-building-sell-build" onChange={(e) => handleDocumentUpload("buildingApprovalPlan", e)} />
           <label htmlFor="dt-building-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2555,8 +2851,8 @@ function DtContentSellBuilderHostel({
         {formData.buildingApprovalPlan && <p className="text-[13px] text-green-600 mt-2">✓ {formData.buildingApprovalPlan.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Completion Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Completion Certificate" required error={errors.completionCertificate}>
+        <div className={`border-2 border-dashed ${errors.completionCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-completion-sell-build" onChange={(e) => handleDocumentUpload("completionCertificate", e)} />
           <label htmlFor="dt-completion-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2567,8 +2863,8 @@ function DtContentSellBuilderHostel({
         {formData.completionCertificate && <p className="text-[13px] text-green-600 mt-2">✓ {formData.completionCertificate.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Occupancy Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Occupancy Certificate" required error={errors.occupancyCertificate}>
+        <div className={`border-2 border-dashed ${errors.occupancyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-occupancy-sell-build" onChange={(e) => handleDocumentUpload("occupancyCertificate", e)} />
           <label htmlFor="dt-occupancy-sell-build" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2579,19 +2875,19 @@ function DtContentSellBuilderHostel({
         {formData.occupancyCertificate && <p className="text-[13px] text-green-600 mt-2">✓ {formData.occupancyCertificate.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
+        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-sell-build" onChange={handleFloorPlanUpload} />
           <label htmlFor="dt-floorplan-sell-build" className="cursor-pointer flex flex-col items-center">
-            <Home className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Floor Plan</span>
-            <span className="text-[11px] text-gray-400 mt-1">PDF only</span>
+            <Home className="w-7 h-7 text-[#00695C]" />
+            <span className="text-[12px] font-semibold text-[#00695C] mt-1">Upload Floor Plan</span>
+            <span className="text-[11px] text-gray-400">PDF only</span>
           </label>
         </div>
         {floorPlanPreview && (
           <div className="mt-2 relative">
             <p className="text-[13px] text-green-600">✓ {formData.floorPlan?.name}</p>
-            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
+            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center">✕</button>
           </div>
         )}
       </FieldDt>
@@ -2601,8 +2897,8 @@ function DtContentSellBuilderHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
+        <div className={`border-2 border-dashed ${errors.coverImage ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-cover-sell-build" onChange={handleCoverImageUpload} />
           <label htmlFor="dt-cover-sell-build" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2618,8 +2914,8 @@ function DtContentSellBuilderHostel({
         )}
       </FieldDt>
 
-      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
+        <div className={`border-2 border-dashed ${errors.propertyImages ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-sell-build" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="dt-imgs-sell-build" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2675,7 +2971,7 @@ function DtContentSellBuilderHostel({
           ref={signatureCanvasRef}
           width="400"
           height="100"
-          className="signature-canvas w-full h-32 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          className={`signature-canvas w-full h-32 rounded-lg border-2 ${errors.signature ? 'border-red-500' : 'border-[#00695C]'} bg-white touch-none cursor-crosshair`}
           onMouseDown={(e) => startDrawing(e, 'dt-signatureCanvas')}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -2692,11 +2988,12 @@ function DtContentSellBuilderHostel({
           Clear
         </button>
       </div>
-      <FieldDt label="Date" required>
-        <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+      {errors.signature && <p className="text-[10px] text-red-500 mt-1">{errors.signature}</p>}
+      <FieldDt label="Date" required error={errors.signatureDate}>
+        <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      <FieldDt label="Place" required error={errors.signaturePlace}>
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2709,18 +3006,22 @@ function DtContentSellBuilderHostel({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
+        {errors.declaration1 && <p className="text-[10px] text-red-500">{errors.declaration1}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declaration2 && <p className="text-[10px] text-red-500">{errors.declaration2}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
+        {errors.declaration3 && <p className="text-[10px] text-red-500">{errors.declaration3}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declaration4 && <p className="text-[10px] text-red-500">{errors.declaration4}</p>}
       </div>
     </>
   );

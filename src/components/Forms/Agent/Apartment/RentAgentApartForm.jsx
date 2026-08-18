@@ -100,6 +100,10 @@ const apartmentRentAmenities = [
   { id: "smartHome", label: "Smart Home Features", icon: <Layout className="w-4 h-4" /> }
 ];
 
+const interiorFeaturesList = ["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"];
+const appliancesList = ["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"];
+const nearbyPlacesList = ["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"];
+
 export default function RentAgentApartForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
@@ -281,6 +285,14 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
         return;
       }
       updateForm(docType, file);
+      // Clear error for this field
+      if (errors[docType]) {
+        setErrors(prev => {
+          const next = { ...prev };
+          delete next[docType];
+          return next;
+        });
+      }
     }
   };
 
@@ -405,6 +417,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     }
     if (s === 3) {
       if (!formData.rentPrice) e.rentPrice = "Monthly rent is required";
+      if (formData.rentPrice < 0) e.rentPrice = "Rent cannot be negative";
     }
     if (s === 4) {
       if (!formData.coverImage) e.coverImage = "Cover image is required";
@@ -422,6 +435,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
       if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
       if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
       if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+      if (!formData.bankName) e.bankName = "Bank name is required";
     }
     if (s === 7) {
       if (!formData.signature) e.signature = "Please draw your signature";
@@ -435,14 +449,14 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-  try {
-    console.log("Rent Agent Apartment Form submitted:", formData);
-    onClose();
-  } catch (err) {
-    console.error("Submit failed:", err);
-    alert("Something went wrong while submitting. Please try again.");
-  }
-};
+    try {
+      console.log("Rent Agent Apartment Form submitted:", formData);
+      onClose();
+    } catch (err) {
+      console.error("Submit failed:", err);
+      alert("Something went wrong while submitting. Please try again.");
+    }
+  };
   if (!isOpen) return null;
 
   return (
@@ -528,6 +542,9 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               bathroomOptions={bathroomOptions}
               genderOptions={genderOptions}
               propertyTypeOptions={propertyTypeOptions}
+              interiorFeaturesList={interiorFeaturesList}
+              appliancesList={appliancesList}
+              nearbyPlacesList={nearbyPlacesList}
             />
           </div>
 
@@ -651,6 +668,9 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               bathroomOptions={bathroomOptions}
               genderOptions={genderOptions}
               propertyTypeOptions={propertyTypeOptions}
+              interiorFeaturesList={interiorFeaturesList}
+              appliancesList={appliancesList}
+              nearbyPlacesList={nearbyPlacesList}
             />
           </div>
 
@@ -713,7 +733,8 @@ function MobContentRentAgentApart({
   isValidEmail, errors,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions
+  bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions,
+  interiorFeaturesList, appliancesList, nearbyPlacesList
 })  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -900,10 +921,10 @@ function MobContentRentAgentApart({
       {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
     </Field>
       <Field label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
       <Field label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       <Field label="Number of Bedrooms" required>
         {bedroomOptions.map(bhk => (
@@ -924,10 +945,10 @@ function MobContentRentAgentApart({
         {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </Field>
       <Field label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </Field>
       <Field label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
@@ -950,7 +971,7 @@ function MobContentRentAgentApart({
         </div>
       </Field>
       <Field label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </Field>
       <Field label="Corner Unit">
         <div className="flex gap-4">
@@ -979,16 +1000,9 @@ function MobContentRentAgentApart({
       </Field>
       <Field label="Interior Features">
         <div className="grid grid-cols-2 gap-1">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
+          {interiorFeaturesList.map(feature => (
             <label key={feature} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => {
-                const current = formData.interiorFeatures || [];
-                if (current.includes(feature)) {
-                  updateForm("interiorFeatures", current.filter(f => f !== feature));
-                } else {
-                  updateForm("interiorFeatures", [...current, feature]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => toggleArrayItem("interiorFeatures", feature)} />
               {feature}
             </label>
           ))}
@@ -996,16 +1010,9 @@ function MobContentRentAgentApart({
       </Field>
       <Field label="Appliances Included">
         <div className="grid grid-cols-2 gap-1">
-          {["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"].map(appliance => (
+          {appliancesList.map(appliance => (
             <label key={appliance} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => {
-                const current = formData.appliancesIncluded || [];
-                if (current.includes(appliance)) {
-                  updateForm("appliancesIncluded", current.filter(a => a !== appliance));
-                } else {
-                  updateForm("appliancesIncluded", [...current, appliance]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => toggleArrayItem("appliancesIncluded", appliance)} />
               {appliance}
             </label>
           ))}
@@ -1027,12 +1034,12 @@ function MobContentRentAgentApart({
       </Field>
       <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
       </Field>
       <Field label="Security Deposit (₹)">
-        <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </Field>
       <Field label="Maintenance Charges Included">
         <div className="flex gap-4">
@@ -1164,16 +1171,9 @@ function MobContentRentAgentApart({
       </div>
       <Field label="Nearby Places">
         <div className="grid grid-cols-2 gap-1">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+          {nearbyPlacesList.map(place => (
             <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
-                const current = formData.nearbyPlaces || [];
-                if (current.includes(place)) {
-                  updateForm("nearbyPlaces", current.filter(p => p !== place));
-                } else {
-                  updateForm("nearbyPlaces", [...current, place]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => toggleArrayItem("nearbyPlaces", place)} />
               {place}
             </label>
           ))}
@@ -1400,11 +1400,12 @@ function MobContentRentAgentApart({
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
         {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </Field>
-      <Field label="Bank Name">
+      <Field label="Bank Name" required>
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
-          <option value="">Select Bank (optional)</option>
-          {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
+          <option value="">Select Bank</option>
+          {bankOptions.map(b => <option key={b} value={b}>{b}</option>)}
         </select>
+        {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </Field>
       <Field label="Account Number" required>
         <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
@@ -1511,7 +1512,8 @@ function DtContentRentAgentApart({
   isValidEmail, errors,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions
+  bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions,
+  interiorFeaturesList, appliancesList, nearbyPlacesList
 })  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1698,10 +1700,10 @@ function DtContentRentAgentApart({
         {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </FieldDt>
       <FieldDt label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </FieldDt>
       <FieldDt label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
       <FieldDt label="Number of Bedrooms" required>
         <div className="flex flex-wrap gap-3">
@@ -1726,10 +1728,10 @@ function DtContentRentAgentApart({
         {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </FieldDt>
       <FieldDt label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
@@ -1752,7 +1754,7 @@ function DtContentRentAgentApart({
         </div>
       </FieldDt>
       <FieldDt label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
       </FieldDt>
       <FieldDt label="Corner Unit">
         <div className="flex gap-5">
@@ -1781,16 +1783,9 @@ function DtContentRentAgentApart({
       </FieldDt>
       <FieldDt label="Interior Features">
         <div className="grid grid-cols-2 gap-2">
-          {["Modular Kitchen", "Wardrobes", "Air Conditioning", "Utility Area", "Smart Home Features"].map(feature => (
+          {interiorFeaturesList.map(feature => (
             <label key={feature} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => {
-                const current = formData.interiorFeatures || [];
-                if (current.includes(feature)) {
-                  updateForm("interiorFeatures", current.filter(f => f !== feature));
-                } else {
-                  updateForm("interiorFeatures", [...current, feature]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.interiorFeatures || []).includes(feature)} onChange={() => toggleArrayItem("interiorFeatures", feature)} />
               {feature}
             </label>
           ))}
@@ -1798,16 +1793,9 @@ function DtContentRentAgentApart({
       </FieldDt>
       <FieldDt label="Appliances Included">
         <div className="grid grid-cols-2 gap-2">
-          {["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"].map(appliance => (
+          {appliancesList.map(appliance => (
             <label key={appliance} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => {
-                const current = formData.appliancesIncluded || [];
-                if (current.includes(appliance)) {
-                  updateForm("appliancesIncluded", current.filter(a => a !== appliance));
-                } else {
-                  updateForm("appliancesIncluded", [...current, appliance]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.appliancesIncluded || []).includes(appliance)} onChange={() => toggleArrayItem("appliancesIncluded", appliance)} />
               {appliance}
             </label>
           ))}
@@ -1829,12 +1817,12 @@ function DtContentRentAgentApart({
       </FieldDt>
       <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
         </div>
       </FieldDt>
       <FieldDt label="Security Deposit (₹)">
-        <input className={inp} type="number" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
       </FieldDt>
       <FieldDt label="Maintenance Charges Included">
         <div className="flex gap-5">
@@ -1965,16 +1953,9 @@ function DtContentRentAgentApart({
       </div>
       <FieldDt label="Nearby Places">
         <div className="grid grid-cols-2 gap-2">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => (
+          {nearbyPlacesList.map(place => (
             <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => {
-                const current = formData.nearbyPlaces || [];
-                if (current.includes(place)) {
-                  updateForm("nearbyPlaces", current.filter(p => p !== place));
-                } else {
-                  updateForm("nearbyPlaces", [...current, place]);
-                }
-              }} />
+              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={(formData.nearbyPlaces || []).includes(place)} onChange={() => toggleArrayItem("nearbyPlaces", place)} />
               {place}
             </label>
           ))}
@@ -2069,6 +2050,7 @@ function DtContentRentAgentApart({
           </label>
         </div>
         {formData.aadhaarCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCardDoc.name}</p>}
+        {errors.aadhaarCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCardDoc}</p>}
       </FieldDt>
 
       <FieldDt label="PAN Card" required>
@@ -2081,6 +2063,7 @@ function DtContentRentAgentApart({
           </label>
         </div>
         {formData.panCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCardDoc.name}</p>}
+        {errors.panCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.panCardDoc}</p>}
       </FieldDt>
 
       <FieldDt label="Agency Logo" hint="Optional">
@@ -2146,6 +2129,7 @@ function DtContentRentAgentApart({
             <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
+        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </FieldDt>
 
       <FieldDt label="Rental Agreement" required>
@@ -2158,6 +2142,7 @@ function DtContentRentAgentApart({
           </label>
         </div>
         {formData.rentalAgreement && <p className="text-[13px] text-green-600 mt-2">✓ {formData.rentalAgreement.name}</p>}
+        {errors.rentalAgreement && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.rentalAgreement}</p>}
       </FieldDt>
 
       <FieldDt label="Property Tax Receipt">
@@ -2196,15 +2181,22 @@ function DtContentRentAgentApart({
       <p className="text-[11px] text-gray-400 mb-3">Enter your bank details for payments</p>
       <FieldDt label="Account Holder Name" required>
         <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </FieldDt>
       <FieldDt label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+        <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          <option value="">Select Bank</option>
+          {bankOptions.map(b => <option key={b} value={b}>{b}</option>)}
+        </select>
+        {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </FieldDt>
       <FieldDt label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </FieldDt>
       <FieldDt label="IFSC Code" required>
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2248,11 +2240,14 @@ function DtContentRentAgentApart({
           Clear
         </button>
       </div>
+      {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
       <FieldDt label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </FieldDt>
       <FieldDt label="Place" required>
         <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2264,14 +2259,17 @@ function DtContentRentAgentApart({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
+        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted1}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
+        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted2}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
+        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted3}</p>}
       </div>
     </>
   );
