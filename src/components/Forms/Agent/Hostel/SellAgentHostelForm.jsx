@@ -19,6 +19,7 @@ const steps = [
   "Media Upload", 
   "Upload Documents", 
   "Bank Details",
+  "Social Media",
   "Declaration"
 ];
 
@@ -30,6 +31,7 @@ const subtitles = [
   "Upload property photos, video & media",
   "Upload required documents",
   "Enter your bank details",
+  "Social media & online presence",
   "Confirm & submit"
 ];
 
@@ -166,8 +168,11 @@ export default function SellAgentHostelForm({ isOpen, onClose }) {
 
     // Bank Details (Step 6)
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
+
+    // Social Media (Step 7)
+    website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
-    // Declaration & Signature (Step 7)
+    // Declaration & Signature (Step 8)
     declarationAccepted1: false,
     declarationAccepted2: false,
     declarationAccepted3: false,
@@ -277,6 +282,10 @@ export default function SellAgentHostelForm({ isOpen, onClose }) {
     }
     
     if (stepNumber === 7) {
+      // No required fields in social media step
+    }
+    
+    if (stepNumber === 8) {
       if (!formData.signature) newErrors.signature = "Signature is required";
       if (!formData.signatureDate) newErrors.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) newErrors.signaturePlace = "Place is required";
@@ -532,7 +541,7 @@ export default function SellAgentHostelForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-    if (validateStep(7)) {
+    if (validateStep(8)) {
       updateForm('signatureDate', new Date().toLocaleDateString());
       console.log("Sell Agent Hostel Form submitted:", formData);
       onClose();
@@ -1568,8 +1577,33 @@ function MobContentSellAgentHostel({
     </>
   );
 
-  // STEP 7: Declaration & Signature
+  // STEP 7: Social Media
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <Field label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </Field>
+      <Field label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </Field>
+      <Field label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </Field>
+      <Field label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </Field>
+      <Field label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 8: Declaration & Signature
+  if (step === 8) return (
     <>
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -2143,9 +2177,6 @@ function DtContentSellAgentHostel({
     </>
   );
 
-  // STEP 4-7: Same as mobile but with dt-* prefixes and FieldDt
-  // (I'll keep these sections concise since they mirror the mobile version with desktop styling)
-  
   // STEP 4: Media Upload (Desktop)
   if (step === 4) return (
     <>
@@ -2403,8 +2434,33 @@ function DtContentSellAgentHostel({
     </>
   );
 
-  // STEP 7: Declaration & Signature (Desktop)
+  // STEP 7: Social Media (Desktop)
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <FieldDt label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 8: Declaration & Signature (Desktop)
+  if (step === 8) return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />

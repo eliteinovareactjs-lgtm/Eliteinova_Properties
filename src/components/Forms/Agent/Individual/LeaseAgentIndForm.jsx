@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, User, Mail, Phone, Calendar as CalendarIcon, UserCheck, File, MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, CheckSquare, PenTool } from "lucide-react";
 
-const steps = ["Personal Details", "Business Information", "Property Details", "Pricing & Amenities", "Media Upload", "Legal Documents", "Bank Details", "Declaration"];
+const steps = ["Personal Details", "Business Information", "Property Details", "Pricing & Amenities", "Media Upload", "Legal Documents", "Bank Details", "Social Media", "Declaration"];
 const subtitles = [
   "Enter your personal information",
   "Tell us about your agency",
@@ -10,6 +10,7 @@ const subtitles = [
   "Upload property photos & video",
   "Upload legal documents",
   "Enter your bank details",
+  "Social media & online presence",
   "Confirm & submit"
 ];
 
@@ -84,7 +85,9 @@ export default function LeaseAgentIndForm({ isOpen, onClose }) {
     leaseAgreement: null, otherSupportingDocs: [], floorPlan: null,
     // Bank Details (Step 6)
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
-    // Declaration (Step 7)
+    // Social Media (Step 7)
+    website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
+    // Declaration (Step 8)
     declarationAccepted: false,
     declarationAccurate: false,
     declarationTerms: false,
@@ -358,6 +361,9 @@ const validateStep = (s) => {
     if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
   }
   if (s === 7) {
+    // No required fields in social media step
+  }
+  if (s === 8) {
     if (!formData.signature) e.signature = "Please draw your signature";
     if (!formData.signatureDate) e.signatureDate = "Date is required";
     if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
@@ -1214,8 +1220,33 @@ function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, 
     </>
   );
 
-  // STEP 7: Declaration
+  // STEP 7: Social Media
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <Field label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </Field>
+      <Field label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </Field>
+      <Field label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </Field>
+      <Field label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </Field>
+      <Field label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 8: Declaration
+  if (step === 8) return (
     <>
 
       {/* Signature Section */}
@@ -1887,8 +1918,33 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 7: Declaration
+  // STEP 7: Social Media (Desktop)
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <FieldDt label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 8: Declaration
+  if (step === 8) return (
     <>
 
       {/* Signature Section */}
