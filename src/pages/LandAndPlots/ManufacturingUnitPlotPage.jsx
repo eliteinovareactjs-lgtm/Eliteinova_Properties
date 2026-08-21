@@ -22,7 +22,7 @@ const ManufacturingUnitPlotPage = () => {
     { name: "Hostel", path: "/hostel", icon: <Building2 className="w-4 h-4" /> }
   ];
 
-  // Main categories with submenus - Same as LandAndPlotsPage
+  // Main categories with submenus
   const landCategories = [
     {
       name: "All",
@@ -65,7 +65,7 @@ const ManufacturingUnitPlotPage = () => {
       ]
     },
     {
-      name: "Agricultural Land",
+      name: "Agricultural Land / Plots",
       icon: <Sprout className="w-3.5 h-3.5" />,
       path: "/land-plots/agricultural-land-plots",
       submenus: [
@@ -81,7 +81,7 @@ const ManufacturingUnitPlotPage = () => {
       ]
     },
     {
-      name: "Industrial Land",
+      name: "Industrial Land / Plots",
       icon: <Factory className="w-3.5 h-3.5" />,
       path: "/land-plots/industrial-land-plots",
       submenus: [
@@ -95,7 +95,7 @@ const ManufacturingUnitPlotPage = () => {
       ]
     },
     {
-      name: "Mixed-Use Land",
+      name: "Mixed-Use Land / Plots",
       icon: <Layers className="w-3.5 h-3.5" />,
       path: "/land-plots/mixed-use-land-plots",
       submenus: [
@@ -106,7 +106,7 @@ const ManufacturingUnitPlotPage = () => {
       ]
     },
     {
-      name: "Institutional Land",
+      name: "Institutional Land / Plots",
       icon: <School className="w-3.5 h-3.5" />,
       path: "/land-plots/institutional-land-plots",
       submenus: [
@@ -117,7 +117,7 @@ const ManufacturingUnitPlotPage = () => {
       ]
     },
     {
-      name: "Investment & Special Purpose Land",
+      name: "Investment / Special Purpose Land",
       icon: <Heart className="w-3.5 h-3.5" />,
       path: "/land-plots/investment-land-plots",
       submenus: [
@@ -138,11 +138,11 @@ const ManufacturingUnitPlotPage = () => {
     { name: "All", path: "/land-plots", parent: null },
     { name: "Residential Land / Plots", path: "/land-plots/residential-land-plots", parent: null },
     { name: "Commercial Land / Plots", path: "/land-plots/commercial-land-plots", parent: null },
-    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots", parent: null },
-    { name: "Industrial Land", path: "/land-plots/industrial-land-plots", parent: null },
-    { name: "Mixed-Use Land", path: "/land-plots/mixed-use-land-plots", parent: null },
-    { name: "Institutional Land", path: "/land-plots/institutional-land-plots", parent: null },
-    { name: "Investment & Special Purpose Land", path: "/land-plots/investment-land-plots", parent: null },
+    { name: "Agricultural Land / Plots", path: "/land-plots/agricultural-land-plots", parent: null },
+    { name: "Industrial Land / Plots", path: "/land-plots/industrial-land-plots", parent: null },
+    { name: "Mixed-Use Land / Plots", path: "/land-plots/mixed-use-land-plots", parent: null },
+    { name: "Institutional Land / Plots", path: "/land-plots/institutional-land-plots", parent: null },
+    { name: "Investment / Special Purpose Land", path: "/land-plots/investment-land-plots", parent: null },
     // Residential submenus
     { name: "Residential Plot", path: "/land-plots/residential-land-plots/residential-plot", parent: "Residential Land / Plots" },
     { name: "DTCP & CMDA Approved Plot", path: "/land-plots/residential-land-plots/dtcp-cmda-approved-plot", parent: "Residential Land / Plots" },
@@ -165,42 +165,42 @@ const ManufacturingUnitPlotPage = () => {
     { name: "Warehouse Land", path: "/land-plots/commercial-land-plots/warehouse-land", parent: "Commercial Land / Plots" },
     { name: "Industrial Commercial Plot", path: "/land-plots/commercial-land-plots/industrial-commercial-plot", parent: "Commercial Land / Plots" },
     // Agricultural submenus
-    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land" },
-    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land" },
-    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land" },
-    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land" },
-    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land" },
-    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land" },
-    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land" },
-    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land" },
-    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land" },
+    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land / Plots" },
+    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land / Plots" },
+    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land / Plots" },
+    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land / Plots" },
+    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land / Plots" },
     // Industrial submenus
-    { name: "Industrial Plot", path: "/land-plots/industrial-land-plots/industrial-plot", parent: "Industrial Land" },
-    { name: "Factory Land", path: "/land-plots/industrial-land-plots/factory-land", parent: "Industrial Land" },
-    { name: "Manufacturing Unit Plot", path: "/land-plots/industrial-land-plots/manufacturing-unit-plot", parent: "Industrial Land" },
-    { name: "Logistics Hub Land", path: "/land-plots/industrial-land-plots/logistics-hub-land", parent: "Industrial Land" },
-    { name: "Warehouse Plot", path: "/land-plots/industrial-land-plots/warehouse-plot", parent: "Industrial Land" },
-    { name: "Cold Storage Land", path: "/land-plots/industrial-land-plots/cold-storage-land", parent: "Industrial Land" },
-    { name: "SEZ Land", path: "/land-plots/industrial-land-plots/sez-land", parent: "Industrial Land" },
+    { name: "Industrial Plot", path: "/land-plots/industrial-land-plots/industrial-plot", parent: "Industrial Land / Plots" },
+    { name: "Factory Land", path: "/land-plots/industrial-land-plots/factory-land", parent: "Industrial Land / Plots" },
+    { name: "Manufacturing Unit Plot", path: "/land-plots/industrial-land-plots/manufacturing-unit-plot", parent: "Industrial Land / Plots" },
+    { name: "Logistics Hub Land", path: "/land-plots/industrial-land-plots/logistics-hub-land", parent: "Industrial Land / Plots" },
+    { name: "Warehouse Plot", path: "/land-plots/industrial-land-plots/warehouse-plot", parent: "Industrial Land / Plots" },
+    { name: "Cold Storage Land", path: "/land-plots/industrial-land-plots/cold-storage-land", parent: "Industrial Land / Plots" },
+    { name: "SEZ Land", path: "/land-plots/industrial-land-plots/sez-land", parent: "Industrial Land / Plots" },
     // Mixed-Use submenus
-    { name: "Residential + Commercial Plot", path: "/land-plots/mixed-use-land-plots/residential-commercial-plot", parent: "Mixed-Use Land" },
-    { name: "Commercial + Industrial Land", path: "/land-plots/mixed-use-land-plots/commercial-industrial-land", parent: "Mixed-Use Land" },
-    { name: "Township Development Land", path: "/land-plots/mixed-use-land-plots/township-development-land", parent: "Mixed-Use Land" },
-    { name: "Multi-purpose Development Land", path: "/land-plots/mixed-use-land-plots/multi-purpose-development-land", parent: "Mixed-Use Land" },
+    { name: "Residential + Commercial Plot", path: "/land-plots/mixed-use-land-plots/residential-commercial-plot", parent: "Mixed-Use Land / Plots" },
+    { name: "Commercial + Industrial Land", path: "/land-plots/mixed-use-land-plots/commercial-industrial-land", parent: "Mixed-Use Land / Plots" },
+    { name: "Township Development Land", path: "/land-plots/mixed-use-land-plots/township-development-land", parent: "Mixed-Use Land / Plots" },
+    { name: "Multi-purpose Development Land", path: "/land-plots/mixed-use-land-plots/multi-purpose-development-land", parent: "Mixed-Use Land / Plots" },
     // Institutional submenus
-    { name: "School / College Land", path: "/land-plots/institutional-land-plots/school-college-land", parent: "Institutional Land" },
-    { name: "Hospital / Clinic Land", path: "/land-plots/institutional-land-plots/hospital-clinic-land", parent: "Institutional Land" },
-    { name: "Training Institute Plot", path: "/land-plots/institutional-land-plots/training-institute-plot", parent: "Institutional Land" },
-    { name: "Religious Institution Land", path: "/land-plots/institutional-land-plots/religious-institution-land", parent: "Institutional Land" },
+    { name: "School / College Land", path: "/land-plots/institutional-land-plots/school-college-land", parent: "Institutional Land / Plots" },
+    { name: "Hospital / Clinic Land", path: "/land-plots/institutional-land-plots/hospital-clinic-land", parent: "Institutional Land / Plots" },
+    { name: "Training Institute Plot", path: "/land-plots/institutional-land-plots/training-institute-plot", parent: "Institutional Land / Plots" },
+    { name: "Religious Institution Land", path: "/land-plots/institutional-land-plots/religious-institution-land", parent: "Institutional Land / Plots" },
     // Investment submenus
-    { name: "Highway Facing Plot", path: "/land-plots/investment-land-plots/highway-facing-plot", parent: "Investment & Special Purpose Land" },
-    { name: "Lake View Plot", path: "/land-plots/investment-land-plots/lake-view-plot", parent: "Investment & Special Purpose Land" },
-    { name: "Hill View Plot", path: "/land-plots/investment-land-plots/hill-view-plot", parent: "Investment & Special Purpose Land" },
-    { name: "Beach Side Plot", path: "/land-plots/investment-land-plots/beach-side-plot", parent: "Investment & Special Purpose Land" },
-    { name: "River Side Land", path: "/land-plots/investment-land-plots/river-side-land", parent: "Investment & Special Purpose Land" },
-    { name: "Eco Tourism Land", path: "/land-plots/investment-land-plots/eco-tourism-land", parent: "Investment & Special Purpose Land" },
-    { name: "Layout Development Land", path: "/land-plots/investment-land-plots/layout-development-land", parent: "Investment & Special Purpose Land" },
-    { name: "Future Investment Plot", path: "/land-plots/investment-land-plots/future-investment-plot", parent: "Investment & Special Purpose Land" }
+    { name: "Highway Facing Plot", path: "/land-plots/investment-land-plots/highway-facing-plot", parent: "Investment / Special Purpose Land" },
+    { name: "Lake View Plot", path: "/land-plots/investment-land-plots/lake-view-plot", parent: "Investment / Special Purpose Land" },
+    { name: "Hill View Plot", path: "/land-plots/investment-land-plots/hill-view-plot", parent: "Investment / Special Purpose Land" },
+    { name: "Beach Side Plot", path: "/land-plots/investment-land-plots/beach-side-plot", parent: "Investment / Special Purpose Land" },
+    { name: "River Side Land", path: "/land-plots/investment-land-plots/river-side-land", parent: "Investment / Special Purpose Land" },
+    { name: "Eco Tourism Land", path: "/land-plots/investment-land-plots/eco-tourism-land", parent: "Investment / Special Purpose Land" },
+    { name: "Layout Development Land", path: "/land-plots/investment-land-plots/layout-development-land", parent: "Investment / Special Purpose Land" },
+    { name: "Future Investment Plot", path: "/land-plots/investment-land-plots/future-investment-plot", parent: "Investment / Special Purpose Land" }
   ];
 
   useEffect(() => {
@@ -210,11 +210,11 @@ const ManufacturingUnitPlotPage = () => {
     const mainCategoryPaths = [
       { path: "/land-plots/residential-land-plots", name: "Residential Land / Plots" },
       { path: "/land-plots/commercial-land-plots", name: "Commercial Land / Plots" },
-      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land" },
-      { path: "/land-plots/industrial-land-plots", name: "Industrial Land" },
-      { path: "/land-plots/mixed-use-land-plots", name: "Mixed-Use Land" },
-      { path: "/land-plots/institutional-land-plots", name: "Institutional Land" },
-      { path: "/land-plots/investment-land-plots", name: "Investment & Special Purpose Land" }
+      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land / Plots" },
+      { path: "/land-plots/industrial-land-plots", name: "Industrial Land / Plots" },
+      { path: "/land-plots/mixed-use-land-plots", name: "Mixed-Use Land / Plots" },
+      { path: "/land-plots/institutional-land-plots", name: "Institutional Land / Plots" },
+      { path: "/land-plots/investment-land-plots", name: "Investment / Special Purpose Land" }
     ];
     
     const mainMatch = mainCategoryPaths.find(item => item.path === currentPath);
@@ -255,6 +255,12 @@ const ManufacturingUnitPlotPage = () => {
   const getParentCategory = (typeName) => {
     const landType = landTypes.find(t => t.name === typeName);
     return landType?.parent || null;
+  };
+
+  // Helper function to get the correct path for a submenu
+  const getSubmenuPath = (submenuName) => {
+    const landType = landTypes.find(t => t.name === submenuName);
+    return landType ? landType.path : null;
   };
 
   /* ─── Shared sub-components ─────────────────────────────────────────── */
@@ -471,13 +477,13 @@ const ManufacturingUnitPlotPage = () => {
                         <div className="py-2 max-h-[400px] overflow-y-auto">
                           {category.submenus.map((submenu) => {
                             const isSubmenuActive = activeLandType === submenu;
+                            const submenuPath = getSubmenuPath(submenu);
                             return (
                               <button
                                 key={submenu}
                                 onClick={() => {
-                                  const landType = landTypes.find(t => t.name === submenu);
-                                  if (landType) {
-                                    handleNavigation(landType.path, submenu);
+                                  if (submenuPath) {
+                                    handleNavigation(submenuPath, submenu);
                                   }
                                   setHoveredCategory(null);
                                 }}
@@ -557,13 +563,13 @@ const ManufacturingUnitPlotPage = () => {
                 <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
                   {landCategories.find(c => c.name === hoveredCategory)?.submenus.map((submenu) => {
                     const isSubmenuActive = activeLandType === submenu;
+                    const submenuPath = getSubmenuPath(submenu);
                     return (
                       <button
                         key={submenu}
                         onClick={() => {
-                          const landType = landTypes.find(t => t.name === submenu);
-                          if (landType) {
-                            handleNavigation(landType.path, submenu);
+                          if (submenuPath) {
+                            handleNavigation(submenuPath, submenu);
                           }
                           setHoveredCategory(null);
                         }}

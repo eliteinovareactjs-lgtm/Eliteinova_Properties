@@ -15,12 +15,12 @@ export { default as ComRentForm } from './Commercial/ComRentForm';
 export { default as ComSellForm } from './Commercial/ComSellForm';
 export { default as ComLeaseForm } from './Commercial/ComLeaseForm';
 
-// Land & Plots Forms (Owner) - Placeholders
-// export { default as LandRentForm } from './Land/LandRentForm';
-// export { default as LandSellForm } from './Land/LandSellForm';
-// export { default as LandLeaseForm } from './Land/LandLeaseForm';
-
-// Hostel Forms (Owner) - Placeholders
+// Hostel Forms (Owner)
 export { default as HostelRentForm } from './Hostel/HostelRentForm';
 export { default as HostelSellForm } from './Hostel/HostelSellForm';
 export { default as HostelLeaseForm } from './Hostel/HostelLeaseForm';
+
+// ============ LAND & PLOTS FORMS (OWNER) ============
+export { default as RentLPForm } from './LandAndPlots/RentLPForm';
+export { default as SellLPForm } from './LandAndPlots/SellLPForm';
+export { default as LeaseLPForm } from './LandAndPlots/LeaseLPForm';

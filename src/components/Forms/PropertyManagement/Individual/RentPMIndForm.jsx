@@ -150,7 +150,8 @@ export default function RentPMIndForm({ isOpen, onClose }) {
           newErrors.pmYearsOfExperience = "Years of experience is required";
           isValid = false;
         }
-        if (!formData.pmCompanyLogo) {
+        // FIXED: Check pmCompanyLogoDoc instead of pmCompanyLogo
+        if (!formData.pmCompanyLogoDoc) {
           newErrors.pmCompanyLogo = "Company logo is required";
           isValid = false;
         }

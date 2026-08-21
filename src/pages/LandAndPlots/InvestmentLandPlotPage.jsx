@@ -63,7 +63,7 @@ const InvestmentLandPlotPage = () => {
       ]
     },
     {
-      name: "Agricultural Land",
+      name: "Agricultural Land / Plots",  // Changed from "Agricultural Land"
       icon: <Sprout className="w-3.5 h-3.5" />,
       path: "/land-plots/agricultural-land-plots",
       submenus: [
@@ -136,7 +136,7 @@ const InvestmentLandPlotPage = () => {
     { name: "All", path: "/land-plots", parent: null },
     { name: "Residential Land / Plots", path: "/land-plots/residential-land-plots", parent: null },
     { name: "Commercial Land / Plots", path: "/land-plots/commercial-land-plots", parent: null },
-    { name: "Agricultural Land / Plots", path: "/land-plots/agricultural-land-plots", parent: null },
+    { name: "Agricultural Land / Plots", path: "/land-plots/agricultural-land-plots", parent: null },  // Changed from "Agricultural Land"
     { name: "Industrial Land", path: "/land-plots/industrial-land-plots", parent: null },
     { name: "Mixed-Use Land", path: "/land-plots/mixed-use-land-plots", parent: null },
     { name: "Institutional Land", path: "/land-plots/institutional-land-plots", parent: null },
@@ -162,16 +162,16 @@ const InvestmentLandPlotPage = () => {
     { name: "IT Park Land", path: "/land-plots/commercial-land-plots/it-park-land", parent: "Commercial Land / Plots" },
     { name: "Warehouse Land", path: "/land-plots/commercial-land-plots/warehouse-land", parent: "Commercial Land / Plots" },
     { name: "Industrial Commercial Plot", path: "/land-plots/commercial-land-plots/industrial-commercial-plot", parent: "Commercial Land / Plots" },
-    // Agricultural submenus
-    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land" },
-    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land" },
-    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land" },
-    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land" },
-    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land" },
-    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land" },
-    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land" },
-    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land" },
-    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land" },
+    // Agricultural submenus - Updated parent references to "Agricultural Land / Plots"
+    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land / Plots" },
+    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land / Plots" },
+    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land / Plots" },
+    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land / Plots" },
+    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land / Plots" },
     // Industrial submenus
     { name: "Industrial Plot", path: "/land-plots/industrial-land-plots/industrial-plot", parent: "Industrial Land" },
     { name: "Factory Land", path: "/land-plots/industrial-land-plots/factory-land", parent: "Industrial Land" },
@@ -208,7 +208,7 @@ const InvestmentLandPlotPage = () => {
     const mainCategoryPaths = [
       { path: "/land-plots/residential-land-plots", name: "Residential Land / Plots" },
       { path: "/land-plots/commercial-land-plots", name: "Commercial Land / Plots" },
-      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land" },
+      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land / Plots" },  // Changed from "Agricultural Land"
       { path: "/land-plots/industrial-land-plots", name: "Industrial Land" },
       { path: "/land-plots/mixed-use-land-plots", name: "Mixed-Use Land" },
       { path: "/land-plots/institutional-land-plots", name: "Institutional Land" },

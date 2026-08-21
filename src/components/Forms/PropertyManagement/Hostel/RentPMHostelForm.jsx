@@ -38,28 +38,70 @@ const subtitles = [
   "Confirm & submit"
 ];
 
-const Field = ({ label, required, hint, children }) => (
+// Validation helper functions
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+
+const validateMobile = (mobile) => {
+  const re = /^[0-9]{10}$/;
+  return re.test(mobile);
+};
+
+const validateField = (value, rules) => {
+  if (rules.required && (!value || value.toString().trim() === '')) {
+    return { valid: false, message: 'This field is required' };
+  }
+  if (rules.email && value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return { valid: false, message: 'Please enter a valid email address' };
+    }
+  }
+  if (rules.mobile && value) {
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(value)) {
+      return { valid: false, message: 'Please enter a valid 10-digit mobile number' };
+    }
+  }
+  if (rules.min && value && Number(value) < rules.min) {
+    return { valid: false, message: `Value must be at least ${rules.min}` };
+  }
+  if (rules.pattern && value) {
+    const regex = new RegExp(rules.pattern);
+    if (!regex.test(value)) {
+      return { valid: false, message: rules.patternMessage || 'Invalid format' };
+    }
+  }
+  return { valid: true, message: '' };
+};
+
+const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+    {hint && !error && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
   </div>
 );
 
-const FieldDt = ({ label, required, hint, children }) => (
+const FieldDt = ({ label, required, hint, children, error }) => (
   <div className="mb-2.5">
     <label className="block text-[13px] font-semibold text-[#00695C] mb-0.5">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
+    {error && <p className="text-[10px] text-red-500 mt-0.5">{error}</p>}
+    {hint && !error && <p className="text-[10px] text-gray-400 mt-0.5">{hint}</p>}
   </div>
 );
 
 const inMob = "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-[12px] text-gray-700 placeholder:text-gray-300 placeholder:text-[11px] focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
 const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 placeholder:text-gray-300 placeholder:text-xs focus:outline-none focus:border-[#00695C] focus:ring-1 focus:ring-[#00695C]/20 bg-white transition-all";
+const errorBorder = "border-red-500 focus:border-red-500 focus:ring-red-500/20";
 
 const yesNoOptions = ["Yes", "No"];
 const furnishingOptions = ["Fully Furnished", "Semi-Furnished", "Unfurnished"];
@@ -98,21 +140,55 @@ const hostelRentAmenities = [
   { id: "biometricAccess", label: "Biometric Access", icon: <Lock className="w-4 h-4" /> }
 ];
 
+// Bank options for dropdown
+const bankOptions = [
+  "Select Bank",
+  "State Bank of India",
+  "HDFC Bank",
+  "ICICI Bank",
+  "Axis Bank",
+  "Kotak Mahindra Bank",
+  "Yes Bank",
+  "Punjab National Bank",
+  "Bank of Baroda",
+  "Canara Bank",
+  "Union Bank of India",
+  "IDBI Bank",
+  "Federal Bank",
+  "IndusInd Bank",
+  "Other"
+];
+
+// Service area options
+const serviceAreaOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad",
+  "Pune", "Kolkata", "Ahmedabad", "Surat", "Jaipur",
+  "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane"
+];
+
+const ownershipTypeOptions = ["Freehold", "Leasehold", "Co-operative Society", "Individual Ownership"];
+
 export default function RentPMHostelForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     // Business Details (Step 0)
-    pmCompanyName: "", pmBusinessRegNumber: "", pmReraNumber: "", pmGstNumber: "", pmYearsOfExperience: "", pmCompanyWebsite: "", pmCompanyLogo: null, pmCompanyDescription: "",
+    pmCompanyName: "", pmBusinessRegNumber: "", pmReraNumber: "", pmGstNumber: "", 
+    pmYearsOfExperience: "", pmCompanyWebsite: "", pmCompanyLogo: null, pmCompanyDescription: "",
+    serviceArea: [],
     
     // Authorized Representative (Step 1)
-    authFullName: "", authDesignation: "", authMobile: "", authEmail: "", authWhatsapp: "", authPhoto: null,
+    authFullName: "", authDesignation: "", authMobile: "", authEmail: "", 
+    authWhatsapp: "", authPhoto: null,
     
     // Office Address (Step 2)
-    officeAddress: "", officeCity: "", officeDistrict: "", officeState: "", officePinCode: "", officeLandmark: "",
+    officeAddress: "", officeCity: "", officeDistrict: "", officeState: "", 
+    officePinCode: "", officeLandmark: "",
     
     // Identity & Business Verification (Step 3)
-    aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, pmBusinessRegCert: null, pmGstCert: null, pmReraCert: null, officeAddressProof: null,
+    aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, 
+    pmBusinessRegCert: null, pmGstCert: null, pmReraCert: null, officeAddressProof: null,
     
     // Property Details (Step 4)
     city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
@@ -121,20 +197,19 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
     facingDirection: "", balcony: "",
     builtUpArea: "", carpetArea: "",
     hostelCategory: "", genderType: "",
-    modularKitchen: "", wardrobes: "", airConditioning: "",
-    utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
-    propertyAge: "",
+    modularKitchen: "no", wardrobes: "no", airConditioning: "no",
+    utilityArea: "no", smartHomeFeatures: "no", appliancesIncluded: "no",
+    propertyAge: "", ownershipType: "",
+    nearbyPlaces: [],
     
     // Pricing & Amenities (Step 5)
-    rentAmountMin: "", rentAmountMax: "", budgetRange: { min: "", max: "" }, 
-    securityDeposit: "",
+    rentAmount: "", securityDeposit: "",
     rentDuration: "", maintenanceIncluded: "", rentNegotiable: "",
     tenantType: [], petFriendly: "", dietaryPreference: "", smokingAllowed: "",
     selectedAmenities: [], otherAmenities: "",
     immediateOccupancy: "", availableFrom: "", rentRenewalOption: "",
     foodIncluded: "", foodType: "", mealsPerDay: "", kitchenAccess: "",
-    nearbySchool: false, nearbyHospital: false, nearbyMetro: false,
-    nearbyMall: false, nearbyITPark: false, nearbyAirport: false,
+    priceType: "fixed",
     
     // Bank Details (Step 6)
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
@@ -143,7 +218,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
     website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
     // Documents (Step 8)
-    pmCompanyLogoDoc: null, pmCompanyBrochure: null, pmBusinessRegCertDoc: null, pmReraCertDoc: null, pmGstCertDoc: null, aadhaarCardDoc: null, panCardDoc: null, officeAddressProofDoc: null,
+    pmCompanyLogoDoc: null, pmCompanyBrochure: null, pmBusinessRegCertDoc: null, 
+    pmReraCertDoc: null, pmGstCertDoc: null, aadhaarCardDoc: null, panCardDoc: null, 
+    officeAddressProofDoc: null,
     hostelLicense: null, fireSafetyCertificate: null, healthCertificate: null,
     propertyImages: [], propertyVideo: null, coverImage: null, floorPlan: null,
     
@@ -166,9 +243,258 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
   const [signaturePoints, setSignaturePoints] = useState([]);
   const [allSignaturePoints, setAllSignaturePoints] = useState([]);
   const [activeCanvas, setActiveCanvas] = useState(null);
+  const [nearbyPlaces, setNearbyPlaces] = useState([]);
+  const [nearbyPlaceInput, setNearbyPlaceInput] = useState("");
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const validateStep = (stepNumber) => {
+    const newErrors = {};
+    let isValid = true;
+
+    switch(stepNumber) {
+      case 0: // Business Details
+        const nameValidation = validateField(formData.pmCompanyName, { required: true });
+        if (!nameValidation.valid) { newErrors.pmCompanyName = nameValidation.message; isValid = false; }
+        
+        const regValidation = validateField(formData.pmBusinessRegNumber, { required: true });
+        if (!regValidation.valid) { newErrors.pmBusinessRegNumber = regValidation.message; isValid = false; }
+        
+        const expValidation = validateField(formData.pmYearsOfExperience, { required: true, min: 0 });
+        if (!expValidation.valid) { newErrors.pmYearsOfExperience = expValidation.message; isValid = false; }
+        
+        if (!formData.pmCompanyLogo) {
+          newErrors.pmCompanyLogo = "Company logo is required";
+          isValid = false;
+        }
+        
+        const descValidation = validateField(formData.pmCompanyDescription, { required: true });
+        if (!descValidation.valid) { newErrors.pmCompanyDescription = descValidation.message; isValid = false; }
+        break;
+
+      case 1: // Authorized Representative
+        const nameValidation1 = validateField(formData.authFullName, { required: true });
+        if (!nameValidation1.valid) { newErrors.authFullName = nameValidation1.message; isValid = false; }
+        
+        const desigValidation = validateField(formData.authDesignation, { required: true });
+        if (!desigValidation.valid) { newErrors.authDesignation = desigValidation.message; isValid = false; }
+        
+        const mobileValidation = validateField(formData.authMobile, { required: true, mobile: true });
+        if (!mobileValidation.valid) { newErrors.authMobile = mobileValidation.message; isValid = false; }
+        
+        const emailValidation = validateField(formData.authEmail, { required: true, email: true });
+        if (!emailValidation.valid) { newErrors.authEmail = emailValidation.message; isValid = false; }
+        
+        if (!formData.authPhoto) {
+          newErrors.authPhoto = "Profile photo is required";
+          isValid = false;
+        }
+        break;
+
+      case 2: // Office Address
+        const addrValidation = validateField(formData.officeAddress, { required: true });
+        if (!addrValidation.valid) { newErrors.officeAddress = addrValidation.message; isValid = false; }
+        
+        const cityValidation = validateField(formData.officeCity, { required: true });
+        if (!cityValidation.valid) { newErrors.officeCity = cityValidation.message; isValid = false; }
+        
+        const distValidation = validateField(formData.officeDistrict, { required: true });
+        if (!distValidation.valid) { newErrors.officeDistrict = distValidation.message; isValid = false; }
+        
+        const stateValidation = validateField(formData.officeState, { required: true });
+        if (!stateValidation.valid) { newErrors.officeState = stateValidation.message; isValid = false; }
+        
+        const pinValidation = validateField(formData.officePinCode, {
+          required: true,
+          pattern: '^[0-9]{6}$',
+          patternMessage: 'Please enter a valid 6-digit PIN code'
+        });
+        if (!pinValidation.valid) { newErrors.officePinCode = pinValidation.message; isValid = false; }
+        break;
+
+      case 3: // Identity & Business Verification
+        const aadhaarValidation = validateField(formData.aadhaarNumber, {
+          required: true,
+          pattern: '^[0-9]{12}$',
+          patternMessage: 'Please enter a valid 12-digit Aadhaar number'
+        });
+        if (!aadhaarValidation.valid) { newErrors.aadhaarNumber = aadhaarValidation.message; isValid = false; }
+        
+        const panValidation = validateField(formData.panNumber, {
+          required: true,
+          pattern: '^[A-Z]{5}[0-9]{4}[A-Z]{1}$',
+          patternMessage: 'Please enter a valid PAN number (e.g., ABCDE1234F)'
+        });
+        if (!panValidation.valid) { newErrors.panNumber = panValidation.message; isValid = false; }
+        
+        if (!formData.aadhaarCard) {
+          newErrors.aadhaarCard = "Aadhaar card is required";
+          isValid = false;
+        }
+        if (!formData.panCard) {
+          newErrors.panCard = "PAN card is required";
+          isValid = false;
+        }
+        if (!formData.pmBusinessRegCert) {
+          newErrors.pmBusinessRegCert = "Business registration certificate is required";
+          isValid = false;
+        }
+        if (!formData.officeAddressProof) {
+          newErrors.officeAddressProof = "Office address proof is required";
+          isValid = false;
+        }
+        break;
+
+      case 4: // Property Details
+        const cityValidation4 = validateField(formData.city, { required: true });
+        if (!cityValidation4.valid) { newErrors.city = cityValidation4.message; isValid = false; }
+        
+        const areaValidation = validateField(formData.area, { required: true });
+        if (!areaValidation.valid) { newErrors.area = areaValidation.message; isValid = false; }
+        
+        const hostelTypeValidation = validateField(formData.hostelType, { required: true });
+        if (!hostelTypeValidation.valid) { newErrors.hostelType = hostelTypeValidation.message; isValid = false; }
+        
+        const categoryValidation = validateField(formData.hostelCategory, { required: true });
+        if (!categoryValidation.valid) { newErrors.hostelCategory = categoryValidation.message; isValid = false; }
+        
+        const genderTypeValidation = validateField(formData.genderType, { required: true });
+        if (!genderTypeValidation.valid) { newErrors.genderType = genderTypeValidation.message; isValid = false; }
+        
+        const capacityValidation = validateField(formData.totalCapacity, { required: true, min: 0 });
+        if (!capacityValidation.valid) { newErrors.totalCapacity = capacityValidation.message; isValid = false; }
+        
+        const roomTypeValidation = validateField(formData.roomType, { required: true });
+        if (!roomTypeValidation.valid) { newErrors.roomType = roomTypeValidation.message; isValid = false; }
+        
+        const sharingValidation = validateField(formData.sharingType, { required: true });
+        if (!sharingValidation.valid) { newErrors.sharingType = sharingValidation.message; isValid = false; }
+        
+        const bathroomValidation = validateField(formData.bathrooms, { required: true });
+        if (!bathroomValidation.valid) { newErrors.bathrooms = bathroomValidation.message; isValid = false; }
+        
+        const ownershipValidation = validateField(formData.ownershipType, { required: true });
+        if (!ownershipValidation.valid) { newErrors.ownershipType = ownershipValidation.message; isValid = false; }
+        break;
+
+      case 5: // Pricing & Amenities
+        const rentValidation = validateField(formData.rentAmount, { required: true, min: 0 });
+        if (!rentValidation.valid) { newErrors.rentAmount = rentValidation.message; isValid = false; }
+        
+        const durationValidation = validateField(formData.rentDuration, { required: true });
+        if (!durationValidation.valid) { newErrors.rentDuration = durationValidation.message; isValid = false; }
+        break;
+
+      case 6: // Bank Details
+        const holderValidation = validateField(formData.accountHolderName, { required: true });
+        if (!holderValidation.valid) { newErrors.accountHolderName = holderValidation.message; isValid = false; }
+        
+        const bankValidation = validateField(formData.bankName, { required: true });
+        if (!bankValidation.valid) { newErrors.bankName = bankValidation.message; isValid = false; }
+        
+        const accValidation = validateField(formData.accountNumber, {
+          required: true,
+          pattern: '^[0-9]{9,18}$',
+          patternMessage: 'Please enter a valid account number (9-18 digits)'
+        });
+        if (!accValidation.valid) { newErrors.accountNumber = accValidation.message; isValid = false; }
+        
+        const ifscValidation = validateField(formData.ifscCode, {
+          required: true,
+          pattern: '^[A-Z]{4}0[A-Z0-9]{6}$',
+          patternMessage: 'Please enter a valid IFSC code'
+        });
+        if (!ifscValidation.valid) { newErrors.ifscCode = ifscValidation.message; isValid = false; }
+        break;
+
+      case 8: // Documents
+        if (!formData.pmCompanyLogoDoc) {
+          newErrors.pmCompanyLogoDoc = "Company logo is required";
+          isValid = false;
+        }
+        if (!formData.pmBusinessRegCertDoc) {
+          newErrors.pmBusinessRegCertDoc = "Business registration certificate is required";
+          isValid = false;
+        }
+        if (!formData.aadhaarCardDoc) {
+          newErrors.aadhaarCardDoc = "Aadhaar card is required";
+          isValid = false;
+        }
+        if (!formData.panCardDoc) {
+          newErrors.panCardDoc = "PAN card is required";
+          isValid = false;
+        }
+        if (!formData.officeAddressProofDoc) {
+          newErrors.officeAddressProofDoc = "Office address proof is required";
+          isValid = false;
+        }
+        if (!formData.hostelLicense) {
+          newErrors.hostelLicense = "Hostel license is required";
+          isValid = false;
+        }
+        if (!formData.fireSafetyCertificate) {
+          newErrors.fireSafetyCertificate = "Fire safety certificate is required";
+          isValid = false;
+        }
+        if (!formData.coverImage) {
+          newErrors.coverImage = "Cover image is required";
+          isValid = false;
+        }
+        if (formData.propertyImages.length === 0) {
+          newErrors.propertyImages = "At least one property photo is required";
+          isValid = false;
+        }
+        if (!formData.floorPlan) {
+          newErrors.floorPlan = "Floor plan is required";
+          isValid = false;
+        }
+        break;
+
+      case 9: // Declaration
+        if (!formData.declaration1) {
+          newErrors.declaration1 = "You must confirm authorized representation";
+          isValid = false;
+        }
+        if (!formData.declaration2) {
+          newErrors.declaration2 = "You must certify accuracy of information";
+          isValid = false;
+        }
+        if (!formData.declaration3) {
+          newErrors.declaration3 = "You must confirm authorization from property owners";
+          isValid = false;
+        }
+        if (!formData.declaration4) {
+          newErrors.declaration4 = "You must agree to terms & conditions";
+          isValid = false;
+        }
+        if (!formData.signature) {
+          newErrors.signature = "Signature is required";
+          isValid = false;
+        }
+        if (!formData.signaturePlace) {
+          newErrors.signaturePlace = "Place is required";
+          isValid = false;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep(step + 1);
+      document.querySelector('.overflow-y-auto')?.scrollTo(0, 0);
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -178,6 +504,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
     updateForm("propertyImages", newImages);
     const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
+    if (errors.propertyImages) {
+      setErrors(prev => ({ ...prev, propertyImages: null }));
+    }
   };
 
   const removeImage = (index) => {
@@ -198,6 +527,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
       updateForm("coverImage", file);
       if (coverPreview) URL.revokeObjectURL(coverPreview);
       setCoverPreview(URL.createObjectURL(file));
+      if (errors.coverImage) {
+        setErrors(prev => ({ ...prev, coverImage: null }));
+      }
     }
   };
 
@@ -221,6 +553,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
       updateForm("floorPlan", file);
       if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
       setFloorPlanPreview(URL.createObjectURL(file));
+      if (errors.floorPlan) {
+        setErrors(prev => ({ ...prev, floorPlan: null }));
+      }
     }
   };
 
@@ -261,6 +596,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
         return;
       }
       updateForm(docType, file);
+      if (errors[docType]) {
+        setErrors(prev => ({ ...prev, [docType]: null }));
+      }
     }
   };
 
@@ -279,6 +617,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
       updateForm("authPhoto", file);
       if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
       setAuthPhotoPreview(URL.createObjectURL(file));
+      if (errors.authPhoto) {
+        setErrors(prev => ({ ...prev, authPhoto: null }));
+      }
     }
   };
 
@@ -300,15 +641,18 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
         alert("Company logo must be less than 2MB");
         return;
       }
-      updateForm("pmCompanyLogoDoc", file);
+      updateForm("pmCompanyLogo", file);
       if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
       setCompanyLogoPreview(URL.createObjectURL(file));
+      if (errors.pmCompanyLogo) {
+        setErrors(prev => ({ ...prev, pmCompanyLogo: null }));
+      }
     }
   };
 
   const removeCompanyLogo = () => {
     if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
-    updateForm("pmCompanyLogoDoc", null);
+    updateForm("pmCompanyLogo", null);
     setCompanyLogoPreview(null);
   };
 
@@ -344,6 +688,18 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
     updateForm("selectedAmenities", formData.selectedAmenities.filter(a => a !== amenity));
   };
 
+  const addNearbyPlace = () => {
+    const place = nearbyPlaceInput.trim();
+    if (place && !nearbyPlaces.includes(place)) {
+      setNearbyPlaces([...nearbyPlaces, place]);
+      setNearbyPlaceInput("");
+    }
+  };
+
+  const removeNearbyPlace = (place) => {
+    setNearbyPlaces(nearbyPlaces.filter(p => p !== place));
+  };
+
   const startDrawing = (e, canvasId) => {
     const canvas = document.getElementById(canvasId);
     const rect = canvas.getBoundingClientRect();
@@ -376,6 +732,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
       const ctx = canvas.getContext('2d');
       const dataUrl = canvas.toDataURL('image/png');
       updateForm('signature', dataUrl);
+      if (errors.signature) {
+        setErrors(prev => ({ ...prev, signature: null }));
+      }
     }
     setActiveCanvas(null);
   };
@@ -394,9 +753,11 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-    updateForm('signatureDate', new Date().toLocaleDateString());
-    console.log("Rent PM Hostel Form submitted:", formData);
-    onClose();
+    if (validateStep(step)) {
+      updateForm('signatureDate', new Date().toLocaleDateString());
+      console.log("Rent PM Hostel Form submitted:", formData);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -438,7 +799,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
             <MobContentRentPMHostel
               step={step}
               inp={inMob}
+              errorBorder={errorBorder}
               formData={formData}
+              errors={errors}
               updateForm={updateForm}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
@@ -482,6 +845,14 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
               rentDurationOptions={rentDurationOptions}
               contactTimeOptions={contactTimeOptions}
               hostelRentAmenities={hostelRentAmenities}
+              serviceAreaOptions={serviceAreaOptions}
+              bankOptions={bankOptions}
+              ownershipTypeOptions={ownershipTypeOptions}
+              nearbyPlaces={nearbyPlaces}
+              nearbyPlaceInput={nearbyPlaceInput}
+              setNearbyPlaceInput={setNearbyPlaceInput}
+              addNearbyPlace={addNearbyPlace}
+              removeNearbyPlace={removeNearbyPlace}
             />
           </div>
 
@@ -511,7 +882,7 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -554,7 +925,9 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
             <DtContentRentPMHostel
               step={step}
               inp={inDt}
+              errorBorder={errorBorder}
               formData={formData}
+              errors={errors}
               updateForm={updateForm}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
@@ -598,6 +971,14 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
               rentDurationOptions={rentDurationOptions}
               contactTimeOptions={contactTimeOptions}
               hostelRentAmenities={hostelRentAmenities}
+              serviceAreaOptions={serviceAreaOptions}
+              bankOptions={bankOptions}
+              ownershipTypeOptions={ownershipTypeOptions}
+              nearbyPlaces={nearbyPlaces}
+              nearbyPlaceInput={nearbyPlaceInput}
+              setNearbyPlaceInput={setNearbyPlaceInput}
+              addNearbyPlace={addNearbyPlace}
+              removeNearbyPlace={removeNearbyPlace}
             />
           </div>
 
@@ -626,7 +1007,7 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : setStep(step + 1)}>
+                onClick={() => step === steps.length - 1 ? handleSubmit() : handleNext()}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -639,7 +1020,7 @@ export default function RentPMHostelForm({ isOpen, onClose }) {
 
 // ==================== MOBILE CONTENT - Rent PM Hostel ====================
 function MobContentRentPMHostel({ 
-  step, inp, formData, updateForm, 
+  step, inp, errorBorder, formData, errors, updateForm, 
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload, toggleAmenity,
@@ -653,7 +1034,9 @@ function MobContentRentPMHostel({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions
+  roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
+  serviceAreaOptions, bankOptions, ownershipTypeOptions,
+  nearbyPlaces, nearbyPlaceInput, setNearbyPlaceInput, addNearbyPlace, removeNearbyPlace
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -700,14 +1083,18 @@ function MobContentRentPMHostel({
     }
   }, [signaturePoints, allSignaturePoints]);
 
+  const getErrorClass = (field) => {
+    return errors[field] ? errorBorder : "";
+  };
+
   // STEP 0: Business Details
   if (step === 0) return (
     <>
-      <Field label="Property Management Company Name" required>
-        <input className={inp} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+      <Field label="Property Management Company Name" required error={errors.pmCompanyName}>
+        <input className={`${inp} ${getErrorClass('pmCompanyName')}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
       </Field>
-      <Field label="Business Registration Number" required>
-        <input className={inp} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+      <Field label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
+        <input className={`${inp} ${getErrorClass('pmBusinessRegNumber')}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
       </Field>
       <Field label="RERA Registration Number (If Applicable)">
         <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
@@ -715,14 +1102,38 @@ function MobContentRentPMHostel({
       <Field label="GST Number (Optional)">
         <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
       </Field>
-      <Field label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      <Field label="Years of Experience" required error={errors.pmYearsOfExperience}>
+        <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      </Field>
+      <Field label="Service Areas" hint="Select all areas where you provide services">
+        <select 
+          className={inp} 
+          multiple 
+          value={formData.serviceArea} 
+          onChange={(e) => {
+            const selected = Array.from(e.target.selectedOptions, option => option.value);
+            updateForm("serviceArea", selected);
+          }}
+        >
+          {serviceAreaOptions.map(area => (
+            <option key={area} value={area}>{area}</option>
+          ))}
+        </select>
+        {formData.serviceArea.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {formData.serviceArea.map(area => (
+              <span key={area} className="px-1.5 py-0.5 text-[10px] bg-[#00695C] text-white rounded-full">
+                {area}
+              </span>
+            ))}
+          </div>
+        )}
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
       </Field>
-      <Field label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.pmCompanyLogo}>
+        <div className={`border-2 border-dashed ${errors.pmCompanyLogo ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-pm-logo" onChange={handleCompanyLogoUpload} />
           <label htmlFor="m-pm-logo" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -737,8 +1148,8 @@ function MobContentRentPMHostel({
           </div>
         )}
       </Field>
-      <Field label="Company Description" required>
-        <textarea className={`${ta} min-h-[60px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
+      <Field label="Company Description" required error={errors.pmCompanyDescription}>
+        <textarea className={`${ta} ${getErrorClass('pmCompanyDescription')} min-h-[60px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </Field>
     </>
   );
@@ -750,23 +1161,23 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
-      <Field label="Full Name" required>
-        <input className={inp} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      <Field label="Full Name" required error={errors.authFullName}>
+        <input className={`${inp} ${getErrorClass('authFullName')}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </Field>
-      <Field label="Designation" required>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      <Field label="Designation" required error={errors.authDesignation}>
+        <input className={`${inp} ${getErrorClass('authDesignation')}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </Field>
-      <Field label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <Field label="Mobile Number" required error={errors.authMobile}>
+        <input className={`${inp} ${getErrorClass('authMobile')}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      <Field label="Email Address" required error={errors.authEmail}>
+        <input className={`${inp} ${getErrorClass('authEmail')}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="Profile Photo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
+        <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-authphoto" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
@@ -791,20 +1202,20 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <Field label="Office Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <Field label="Office Address" required error={errors.officeAddress}>
+        <textarea className={`${ta} ${getErrorClass('officeAddress')} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </Field>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      <Field label="City" required error={errors.officeCity}>
+        <input className={`${inp} ${getErrorClass('officeCity')}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </Field>
-      <Field label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      <Field label="District" required error={errors.officeDistrict}>
+        <input className={`${inp} ${getErrorClass('officeDistrict')}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </Field>
-      <Field label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      <Field label="State" required error={errors.officeState}>
+        <input className={`${inp} ${getErrorClass('officeState')}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </Field>
-      <Field label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <Field label="PIN Code" required error={errors.officePinCode}>
+        <input className={`${inp} ${getErrorClass('officePinCode')}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -819,15 +1230,15 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <Field label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={`${inp} ${getErrorClass('aadhaarNumber')}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
       </Field>
-      <Field label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <Field label="PAN Number" required error={errors.panNumber}>
+        <input className={`${inp} ${getErrorClass('panNumber')}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </Field>
 
-      <Field label="Upload Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-aadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="m-aadhaar" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -838,8 +1249,8 @@ function MobContentRentPMHostel({
         {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
       </Field>
 
-      <Field label="Upload PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload PAN Card" required error={errors.panCard}>
+        <div className={`border-2 border-dashed ${errors.panCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-pan" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="m-pan" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -850,8 +1261,8 @@ function MobContentRentPMHostel({
         {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
       </Field>
 
-      <Field label="Upload Business Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Business Registration Certificate" required error={errors.pmBusinessRegCert}>
+        <div className={`border-2 border-dashed ${errors.pmBusinessRegCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-pm-reg" onChange={(e) => handleDocumentUpload("pmBusinessRegCert", e)} />
           <label htmlFor="m-pm-reg" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -886,8 +1297,8 @@ function MobContentRentPMHostel({
         {formData.pmReraCert && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmReraCert.name}</p>}
       </Field>
 
-      <Field label="Upload Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Office Address Proof" required error={errors.officeAddressProof}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="m-office-proof" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-6 h-6 text-[#00695C]" />
@@ -900,24 +1311,24 @@ function MobContentRentPMHostel({
     </>
   );
 
-  // STEP 4: Property Details (Hostel)
+  // STEP 4: Property Details
   if (step === 4) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+      <Field label="City" required error={errors.city}>
+        <input className={`${inp} ${getErrorClass('city')}`} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </Field>
-      <Field label="Area / Locality" required>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      <Field label="Area / Locality" required error={errors.area}>
+        <input className={`${inp} ${getErrorClass('area')}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </Field>
       <Field label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </Field>
       <Field label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -927,7 +1338,7 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">🏨 Hostel Specifications</h3>
       </div>
-      <Field label="Hostel Type" required>
+      <Field label="Hostel Type" required error={errors.hostelType}>
         <div className="grid grid-cols-2 gap-1">
           {hostelTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -938,7 +1349,7 @@ function MobContentRentPMHostel({
         </div>
       </Field>
       
-      <Field label="Hostel Category" required>
+      <Field label="Hostel Category" required error={errors.hostelCategory}>
         <div className="grid grid-cols-2 gap-1">
           {["Premium", "Standard", "Budget", "Luxury"].map(cat => (
             <label key={cat} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -949,7 +1360,7 @@ function MobContentRentPMHostel({
         </div>
       </Field>
 
-      <Field label="Gender Type" required>
+      <Field label="Gender Type" required error={errors.genderType}>
         <div className="flex gap-3">
           {["Boys Only", "Girls Only", "Co-Ed"].map(g => (
             <label key={g} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
@@ -960,18 +1371,18 @@ function MobContentRentPMHostel({
         </div>
       </Field>
 
-      <Field label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+      <Field label="Built-up Area (sq.ft)">
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </Field>
-      <Field label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <Field label="Carpet Area (sq.ft)">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </Field>
       
-      <Field label="Total Capacity" required>
-        <input className={inp} type="number" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
+      <Field label="Total Capacity" required error={errors.totalCapacity}>
+        <input className={`${inp} ${getErrorClass('totalCapacity')}`} type="number" min="0" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
       </Field>
 
-      <Field label="Room Type" required>
+      <Field label="Room Type" required error={errors.roomType}>
         <div className="grid grid-cols-2 gap-1">
           {roomTypeOptions.map(rt => (
             <label key={rt} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -982,7 +1393,7 @@ function MobContentRentPMHostel({
         </div>
       </Field>
 
-      <Field label="Sharing Type" required>
+      <Field label="Sharing Type" required error={errors.sharingType}>
         <div className="grid grid-cols-2 gap-1">
           {["Single", "Double", "Triple", "4-Sharing", "Dormitory", "Bunk Bed"].map(sh => (
             <label key={sh} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -993,7 +1404,7 @@ function MobContentRentPMHostel({
         </div>
       </Field>
 
-      <Field label="Bathroom Type" required>
+      <Field label="Bathroom Type" required error={errors.bathrooms}>
         <div className="flex gap-3">
           {bathroomOptions.map(bt => (
             <label key={bt} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
@@ -1016,10 +1427,10 @@ function MobContentRentPMHostel({
       </Field>
 
       <Field label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </Field>
       <Field label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
@@ -1041,8 +1452,40 @@ function MobContentRentPMHostel({
           ))}
         </div>
       </Field>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">📋 Property Details</h3>
+      </div>
+
       <Field label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      </Field>
+
+      <Field label="Ownership Type" required error={errors.ownershipType}>
+        <div className="flex flex-wrap gap-2">
+          {ownershipTypeOptions.map(ot => (
+            <label key={ot} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-ownership-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
+              {ot}
+            </label>
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Nearby Places">
+        <div className="flex gap-1">
+          <input className={`${inp} flex-1`} placeholder="Add nearby place" value={nearbyPlaceInput} onChange={(e) => setNearbyPlaceInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addNearbyPlace()} />
+          <button onClick={addNearbyPlace} className="px-2 py-1 text-[11px] bg-[#00695C] text-white rounded-lg">Add</button>
+        </div>
+        <div className="flex flex-wrap gap-1 mt-1">
+          {nearbyPlaces.map(place => (
+            <span key={place} className="px-1.5 py-0.5 text-[10px] bg-[#00695C] text-white rounded-full flex items-center gap-1">
+              {place}
+              <X className="w-2.5 h-2.5 cursor-pointer hover:text-red-200" onClick={() => removeNearbyPlace(place)} />
+            </span>
+          ))}
+        </div>
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1103,22 +1546,28 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">📄 Rent Details</h3>
       </div>
-      <Field label="Rent Amount" required>
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.rentAmountMin} onChange={(e) => updateForm("rentAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.rentAmountMax} onChange={(e) => updateForm("rentAmountMax", e.target.value)} />
+      <Field label="Rent Amount (₹/month)" required error={errors.rentAmount}>
+        <input className={`${inp} ${getErrorClass('rentAmount')}`} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.rentAmount} onChange={(e) => updateForm("rentAmount", e.target.value)} />
+      </Field>
+      
+      <Field label="Security / Deposit Amount (₹)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+      </Field>
+      
+      <Field label="Price Type">
+        <div className="flex gap-4">
+          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+            <input type="radio" name="mob-priceType-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
+            Fixed
+          </label>
+          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+            <input type="radio" name="mob-priceType-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
+            Negotiable
+          </label>
         </div>
       </Field>
-      <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
-        <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
-      </Field>
-      <Field label="Security / Deposit Amount (₹)">
-        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
-      </Field>
-      <Field label="Rent Duration">
+      
+      <Field label="Rent Duration" required error={errors.rentDuration}>
         <div className="grid grid-cols-2 gap-1">
           {rentDurationOptions.map(d => (
             <label key={d} className="flex items-center gap-1 text-[10px] cursor-pointer">
@@ -1143,6 +1592,16 @@ function MobContentRentPMHostel({
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
               <input type="radio" name="mob-negotiable-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentNegotiable === opt} onChange={() => updateForm("rentNegotiable", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </Field>
+      <Field label="Rent Renewal Option">
+        <div className="flex gap-4">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-renewal-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentRenewalOption === opt} onChange={() => updateForm("rentRenewalOption", opt)} />
               {opt}
             </label>
           ))}
@@ -1241,34 +1700,6 @@ function MobContentRentPMHostel({
       <Field label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
       </Field>
-      <Field label="Rent Renewal Option">
-        <div className="flex gap-4">
-          {yesNoOptions.map(opt => (
-            <label key={opt} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-renewal-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentRenewalOption === opt} onChange={() => updateForm("rentRenewalOption", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
-      </Field>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">📍 Nearby Access</h3>
-      </div>
-      <Field label="Nearby Places">
-        <div className="grid grid-cols-2 gap-1">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-1 text-[9px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
-        </div>
-      </Field>
     </>
   );
 
@@ -1279,17 +1710,21 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <Field label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+      <Field label="Account Holder Name" required error={errors.accountHolderName}>
+        <input className={`${inp} ${getErrorClass('accountHolderName')}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </Field>
-      <Field label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <Field label="Bank Name" required error={errors.bankName}>
+        <select className={`${inp} ${getErrorClass('bankName')}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank === "Select Bank" ? "" : bank}>{bank}</option>
+          ))}
+        </select>
       </Field>
-      <Field label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <Field label="Account Number" required error={errors.accountNumber}>
+        <input className={`${inp} ${getErrorClass('accountNumber')}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
       </Field>
-      <Field label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <Field label="IFSC Code" required error={errors.ifscCode}>
+        <input className={`${inp} ${getErrorClass('ifscCode')}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1331,8 +1766,8 @@ function MobContentRentPMHostel({
       </div>
       <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
 
-      <Field label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Company Logo" required error={errors.pmCompanyLogoDoc}>
+        <div className={`border-2 border-dashed ${errors.pmCompanyLogoDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-pm-logo-doc" onChange={(e) => handleDocumentUpload("pmCompanyLogoDoc", e, 2)} />
           <label htmlFor="m-pm-logo-doc" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1343,8 +1778,8 @@ function MobContentRentPMHostel({
         {formData.pmCompanyLogoDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmCompanyLogoDoc.name}</p>}
       </Field>
 
-      <Field label="Business Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Business Registration Certificate" required error={errors.pmBusinessRegCertDoc}>
+        <div className={`border-2 border-dashed ${errors.pmBusinessRegCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-pm-reg-doc" onChange={(e) => handleDocumentUpload("pmBusinessRegCertDoc", e)} />
           <label htmlFor="m-pm-reg-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1355,8 +1790,8 @@ function MobContentRentPMHostel({
         {formData.pmBusinessRegCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmBusinessRegCertDoc.name}</p>}
       </Field>
 
-      <Field label="Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Aadhaar Card" required error={errors.aadhaarCardDoc}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-aadhaar-doc" onChange={(e) => handleDocumentUpload("aadhaarCardDoc", e)} />
           <label htmlFor="m-aadhaar-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1367,8 +1802,8 @@ function MobContentRentPMHostel({
         {formData.aadhaarCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCardDoc.name}</p>}
       </Field>
 
-      <Field label="PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="PAN Card" required error={errors.panCardDoc}>
+        <div className={`border-2 border-dashed ${errors.panCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
           <label htmlFor="m-pan-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1403,8 +1838,8 @@ function MobContentRentPMHostel({
         {formData.pmReraCertDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.pmReraCertDoc.name}</p>}
       </Field>
 
-      <Field label="Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Office Address Proof" required error={errors.officeAddressProofDoc}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProofDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-office-proof-doc" onChange={(e) => handleDocumentUpload("officeAddressProofDoc", e)} />
           <label htmlFor="m-office-proof-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1433,8 +1868,8 @@ function MobContentRentPMHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">Hostel Documents</h3>
       </div>
 
-      <Field label="Hostel License" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Hostel License" required error={errors.hostelLicense}>
+        <div className={`border-2 border-dashed ${errors.hostelLicense ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-license-pm" onChange={(e) => handleDocumentUpload("hostelLicense", e)} />
           <label htmlFor="m-license-pm" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1445,8 +1880,8 @@ function MobContentRentPMHostel({
         {formData.hostelLicense && <p className="text-[10px] text-green-600 mt-1">✓ {formData.hostelLicense.name}</p>}
       </Field>
 
-      <Field label="Fire Safety Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
+        <div className={`border-2 border-dashed ${errors.fireSafetyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-fire-pm" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="m-fire-pm" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-5 h-5 text-[#00695C]" />
@@ -1474,8 +1909,8 @@ function MobContentRentPMHostel({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <Field label="Upload Cover Image" required hint="Max 2MB">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
+        <div className={`border-2 border-dashed ${errors.coverImage ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-cover-pm" onChange={handleCoverImageUpload} />
           <label htmlFor="m-cover-pm" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1491,8 +1926,8 @@ function MobContentRentPMHostel({
         )}
       </Field>
 
-      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
+        <div className={`border-2 border-dashed ${errors.propertyImages ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-pm" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="m-imgs-pm" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <ImagePlus className="w-5 h-5 text-[#00695C]" />
@@ -1529,8 +1964,8 @@ function MobContentRentPMHostel({
         )}
       </Field>
 
-      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+      <Field label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
+        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="m-floorplan-pm" onChange={handleFloorPlanUpload} />
           <label htmlFor="m-floorplan-pm" className="cursor-pointer flex flex-col items-center">
             <Home className="w-5 h-5 text-[#00695C]" />
@@ -1551,6 +1986,11 @@ function MobContentRentPMHostel({
   // STEP 9: Declaration
   if (step === 9) return (
     <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
+      </div>
+
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Signature</h3>
@@ -1558,6 +1998,7 @@ function MobContentRentPMHostel({
       <label className="flex items-center gap-2 text-[10px] font-semibold text-[#00695C] mb-1">
         <PenTool className="w-3.5 h-3.5" /> Authorized Signatory <span className="text-red-500">*</span>
       </label>
+      {errors.signature && <p className="text-[10px] text-red-500 mb-1">{errors.signature}</p>}
       <p className="text-[10px] text-gray-500 mb-1.5">Draw your signature in the box below</p>
       <div className="relative">
         <canvas
@@ -1565,7 +2006,7 @@ function MobContentRentPMHostel({
           ref={signatureCanvasRef}
           width="400"
           height="100"
-          className="signature-canvas w-full h-24 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          className={`signature-canvas w-full h-24 rounded-lg border-2 ${errors.signature ? 'border-red-500' : 'border-[#00695C]'} bg-white touch-none cursor-crosshair`}
           onMouseDown={(e) => startDrawing(e, 'm-signatureCanvas')}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -1585,32 +2026,31 @@ function MobContentRentPMHostel({
       <Field label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
-      <Field label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      <Field label="Place" required error={errors.signaturePlace}>
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </Field>
-
-      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
-      </div>
 
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
+        {errors.declaration1 && <p className="text-[10px] text-red-500">{errors.declaration1}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declaration2 && <p className="text-[10px] text-red-500">{errors.declaration2}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
           <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
         </label>
+        {errors.declaration3 && <p className="text-[10px] text-red-500">{errors.declaration3}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declaration4 && <p className="text-[10px] text-red-500">{errors.declaration4}</p>}
       </div>
     </>
   );
@@ -1620,7 +2060,7 @@ function MobContentRentPMHostel({
 
 // ==================== DESKTOP CONTENT - Rent PM Hostel ====================
 function DtContentRentPMHostel({ 
-  step, inp, formData, updateForm, 
+  step, inp, errorBorder, formData, errors, updateForm, 
   imagePreviews, handleImageUpload, removeImage,
   handleVideoUpload, videoPreview, removeVideo,
   handleDocumentUpload, toggleAmenity,
@@ -1634,7 +2074,9 @@ function DtContentRentPMHostel({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions
+  roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
+  serviceAreaOptions, bankOptions, ownershipTypeOptions,
+  nearbyPlaces, nearbyPlaceInput, setNearbyPlaceInput, addNearbyPlace, removeNearbyPlace
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1681,18 +2123,22 @@ function DtContentRentPMHostel({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Business Details
+  const getErrorClass = (field) => {
+    return errors[field] ? errorBorder : "";
+  };
+
+  // STEP 0: Business Details (Desktop)
   if (step === 0) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Business Details</h3>
       </div>
-      <FieldDt label="Property Management Company Name" required>
-        <input className={inp} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+      <FieldDt label="Property Management Company Name" required error={errors.pmCompanyName}>
+        <input className={`${inp} ${getErrorClass('pmCompanyName')}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Business Registration Number" required>
-        <input className={inp} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+      <FieldDt label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
+        <input className={`${inp} ${getErrorClass('pmBusinessRegNumber')}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="RERA Registration Number (If Applicable)">
         <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
@@ -1700,14 +2146,38 @@ function DtContentRentPMHostel({
       <FieldDt label="GST Number (Optional)">
         <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Years of Experience" required>
-        <input className={inp} type="number" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      <FieldDt label="Years of Experience" required error={errors.pmYearsOfExperience}>
+        <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Service Areas" hint="Select all areas where you provide services">
+        <select 
+          className={inp} 
+          multiple 
+          value={formData.serviceArea} 
+          onChange={(e) => {
+            const selected = Array.from(e.target.selectedOptions, option => option.value);
+            updateForm("serviceArea", selected);
+          }}
+        >
+          {serviceAreaOptions.map(area => (
+            <option key={area} value={area}>{area}</option>
+          ))}
+        </select>
+        {formData.serviceArea.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {formData.serviceArea.map(area => (
+              <span key={area} className="px-2 py-0.5 text-[11px] bg-[#00695C] text-white rounded-full">
+                {area}
+              </span>
+            ))}
+          </div>
+        )}
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Company Logo" required hint="JPG, PNG max 2MB" error={errors.pmCompanyLogo}>
+        <div className={`border-2 border-dashed ${errors.pmCompanyLogo ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-pm-logo" onChange={handleCompanyLogoUpload} />
           <label htmlFor="dt-pm-logo" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -1722,36 +2192,36 @@ function DtContentRentPMHostel({
           </div>
         )}
       </FieldDt>
-      <FieldDt label="Company Description" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
+      <FieldDt label="Company Description" required error={errors.pmCompanyDescription}>
+        <textarea className={`${ta} ${getErrorClass('pmCompanyDescription')} min-h-[70px]`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </FieldDt>
     </>
   );
 
-  // STEP 1: Authorized Representative
+  // STEP 1: Authorized Representative (Desktop)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
-      <FieldDt label="Full Name" required>
-        <input className={inp} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+      <FieldDt label="Full Name" required error={errors.authFullName}>
+        <input className={`${inp} ${getErrorClass('authFullName')}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Designation" required>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+      <FieldDt label="Designation" required error={errors.authDesignation}>
+        <input className={`${inp} ${getErrorClass('authDesignation')}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value)} />
+      <FieldDt label="Mobile Number" required error={errors.authMobile}>
+        <input className={`${inp} ${getErrorClass('authMobile')}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+      <FieldDt label="Email Address" required error={errors.authEmail}>
+        <input className={`${inp} ${getErrorClass('authEmail')}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value)} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="Profile Photo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
+        <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-authphoto" onChange={handleAuthPhotoUpload} />
           <label htmlFor="dt-authphoto" className="cursor-pointer flex flex-col items-center">
             <User className="w-7 h-7 text-[#00695C]" />
@@ -1769,27 +2239,27 @@ function DtContentRentPMHostel({
     </>
   );
 
-  // STEP 2: Office Address
+  // STEP 2: Office Address (Desktop)
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
       </div>
-      <FieldDt label="Office Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+      <FieldDt label="Office Address" required error={errors.officeAddress}>
+        <textarea className={`${ta} ${getErrorClass('officeAddress')} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </FieldDt>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+      <FieldDt label="City" required error={errors.officeCity}>
+        <input className={`${inp} ${getErrorClass('officeCity')}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
       </FieldDt>
-      <FieldDt label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+      <FieldDt label="District" required error={errors.officeDistrict}>
+        <input className={`${inp} ${getErrorClass('officeDistrict')}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
       </FieldDt>
-      <FieldDt label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+      <FieldDt label="State" required error={errors.officeState}>
+        <input className={`${inp} ${getErrorClass('officeState')}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code" required>
-        <input className={inp} type="number" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+      <FieldDt label="PIN Code" required error={errors.officePinCode}>
+        <input className={`${inp} ${getErrorClass('officePinCode')}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1797,22 +2267,22 @@ function DtContentRentPMHostel({
     </>
   );
 
-  // STEP 3: Identity & Business Verification
+  // STEP 3: Identity & Business Verification (Desktop)
   if (step === 3) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
-      <FieldDt label="Aadhaar Number" required>
-        <input className={inp} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value)} />
+      <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input className={`${inp} ${getErrorClass('aadhaarNumber')}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
       </FieldDt>
-      <FieldDt label="PAN Number" required>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+      <FieldDt label="PAN Number" required error={errors.panNumber}>
+        <input className={`${inp} ${getErrorClass('panNumber')}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </FieldDt>
 
-      <FieldDt label="Upload Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-aadhaar" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="dt-aadhaar" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1823,8 +2293,8 @@ function DtContentRentPMHostel({
         {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload PAN Card" required error={errors.panCard}>
+        <div className={`border-2 border-dashed ${errors.panCard ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-pan" onChange={(e) => handleDocumentUpload("panCard", e)} />
           <label htmlFor="dt-pan" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1835,8 +2305,8 @@ function DtContentRentPMHostel({
         {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Business Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Business Registration Certificate" required error={errors.pmBusinessRegCert}>
+        <div className={`border-2 border-dashed ${errors.pmBusinessRegCert ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-pm-reg" onChange={(e) => handleDocumentUpload("pmBusinessRegCert", e)} />
           <label htmlFor="dt-pm-reg" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1871,8 +2341,8 @@ function DtContentRentPMHostel({
         {formData.pmReraCert && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmReraCert.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Office Address Proof" required error={errors.officeAddressProof}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProof ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-office-proof" onChange={(e) => handleDocumentUpload("officeAddressProof", e)} />
           <label htmlFor="dt-office-proof" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -1892,17 +2362,17 @@ function DtContentRentPMHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+      <FieldDt label="City" required error={errors.city}>
+        <input className={`${inp} ${getErrorClass('city')}`} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Area / Locality" required>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+      <FieldDt label="Area / Locality" required error={errors.area}>
+        <input className={`${inp} ${getErrorClass('area')}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </FieldDt>
       <FieldDt label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -1912,8 +2382,8 @@ function DtContentRentPMHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">🏨 Hostel Specifications</h3>
       </div>
-      <FieldDt label="Hostel Type" required>
-        <div className="grid grid-cols-2 gap-1">
+      <FieldDt label="Hostel Type" required error={errors.hostelType}>
+        <div className="grid grid-cols-2 gap-2">
           {hostelTypeOptions.map(type => (
             <label key={type} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-hostel-type-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelType === type} onChange={() => updateForm("hostelType", type)} />
@@ -1923,8 +2393,8 @@ function DtContentRentPMHostel({
         </div>
       </FieldDt>
       
-      <FieldDt label="Hostel Category" required>
-        <div className="flex gap-4">
+      <FieldDt label="Hostel Category" required error={errors.hostelCategory}>
+        <div className="flex flex-wrap gap-3">
           {["Premium", "Standard", "Budget", "Luxury"].map(cat => (
             <label key={cat} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-category-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.hostelCategory === cat} onChange={() => updateForm("hostelCategory", cat)} />
@@ -1934,7 +2404,7 @@ function DtContentRentPMHostel({
         </div>
       </FieldDt>
 
-      <FieldDt label="Gender Type" required>
+      <FieldDt label="Gender Type" required error={errors.genderType}>
         <div className="flex gap-4">
           {["Boys Only", "Girls Only", "Co-Ed"].map(g => (
             <label key={g} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1945,19 +2415,19 @@ function DtContentRentPMHostel({
         </div>
       </FieldDt>
 
-      <FieldDt label="Built-up Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+      <FieldDt label="Built-up Area (sq.ft)">
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Carpet Area" hint="In square feet">
-        <input className={inp} type="number" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <FieldDt label="Carpet Area (sq.ft)">
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
       </FieldDt>
       
-      <FieldDt label="Total Capacity" required>
-        <input className={inp} type="number" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
+      <FieldDt label="Total Capacity" required error={errors.totalCapacity}>
+        <input className={`${inp} ${getErrorClass('totalCapacity')}`} type="number" min="0" placeholder="Total number of beds/occupants" value={formData.totalCapacity} onChange={(e) => updateForm("totalCapacity", e.target.value)} />
       </FieldDt>
 
-      <FieldDt label="Room Type" required>
-        <div className="grid grid-cols-2 gap-1">
+      <FieldDt label="Room Type" required error={errors.roomType}>
+        <div className="grid grid-cols-2 gap-2">
           {roomTypeOptions.map(rt => (
             <label key={rt} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-room-type-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.roomType === rt} onChange={() => updateForm("roomType", rt)} />
@@ -1967,8 +2437,8 @@ function DtContentRentPMHostel({
         </div>
       </FieldDt>
 
-      <FieldDt label="Sharing Type" required>
-        <div className="grid grid-cols-2 gap-1">
+      <FieldDt label="Sharing Type" required error={errors.sharingType}>
+        <div className="grid grid-cols-2 gap-2">
           {["Single", "Double", "Triple", "4-Sharing", "Dormitory", "Bunk Bed"].map(sh => (
             <label key={sh} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-sharing-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.sharingType === sh} onChange={() => updateForm("sharingType", sh)} />
@@ -1978,7 +2448,7 @@ function DtContentRentPMHostel({
         </div>
       </FieldDt>
 
-      <FieldDt label="Bathroom Type" required>
+      <FieldDt label="Bathroom Type" required error={errors.bathrooms}>
         <div className="flex gap-4">
           {bathroomOptions.map(bt => (
             <label key={bt} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -2001,10 +2471,10 @@ function DtContentRentPMHostel({
       </FieldDt>
 
       <FieldDt label="Total Floors">
-        <input className={inp} type="number" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
       </FieldDt>
       <FieldDt label="Floor Number">
-        <input className={inp} type="number" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
@@ -2026,8 +2496,40 @@ function DtContentRentPMHostel({
           ))}
         </div>
       </FieldDt>
+
+      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">📋 Property Details</h3>
+      </div>
+
       <FieldDt label="Property Age">
-        <input className={inp} type="number" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      </FieldDt>
+
+      <FieldDt label="Ownership Type" required error={errors.ownershipType}>
+        <div className="flex flex-wrap gap-3">
+          {ownershipTypeOptions.map(ot => (
+            <label key={ot} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-ownership-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.ownershipType === ot} onChange={() => updateForm("ownershipType", ot)} />
+              {ot}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+
+      <FieldDt label="Nearby Places">
+        <div className="flex gap-2">
+          <input className={`${inp} flex-1`} placeholder="Add nearby place" value={nearbyPlaceInput} onChange={(e) => setNearbyPlaceInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addNearbyPlace()} />
+          <button onClick={addNearbyPlace} className="px-3 py-1.5 text-[13px] bg-[#00695C] text-white rounded-lg">Add</button>
+        </div>
+        <div className="flex flex-wrap gap-1.5 mt-1">
+          {nearbyPlaces.map(place => (
+            <span key={place} className="px-2.5 py-1 text-[12px] bg-[#00695C] text-white rounded-full flex items-center gap-1">
+              {place}
+              <X className="w-3 h-3 cursor-pointer hover:text-red-200" onClick={() => removeNearbyPlace(place)} />
+            </span>
+          ))}
+        </div>
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2088,22 +2590,28 @@ function DtContentRentPMHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">📄 Rent Details</h3>
       </div>
-      <FieldDt label="Rent Amount" required>
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min ₹" value={formData.rentAmountMin} onChange={(e) => updateForm("rentAmountMin", e.target.value)} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max ₹" value={formData.rentAmountMax} onChange={(e) => updateForm("rentAmountMax", e.target.value)} />
+      <FieldDt label="Rent Amount (₹/month)" required error={errors.rentAmount}>
+        <input className={`${inp} ${getErrorClass('rentAmount')}`} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.rentAmount} onChange={(e) => updateForm("rentAmount", e.target.value)} />
+      </FieldDt>
+      
+      <FieldDt label="Security / Deposit Amount (₹)" hint="If applicable">
+        <input className={inp} type="number" min="0" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+      </FieldDt>
+      
+      <FieldDt label="Price Type">
+        <div className="flex gap-5">
+          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+            <input type="radio" name="dt-priceType-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "fixed"} onChange={() => updateForm("priceType", "fixed")} />
+            Fixed
+          </label>
+          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+            <input type="radio" name="dt-priceType-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.priceType === "negotiable"} onChange={() => updateForm("priceType", "negotiable")} />
+            Negotiable
+          </label>
         </div>
       </FieldDt>
-      <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
-        <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
-        </div>
-      </FieldDt>
-      <FieldDt label="Security / Deposit Amount (₹)">
-        <input className={inp} type="number" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Rent Duration">
+      
+      <FieldDt label="Rent Duration" required error={errors.rentDuration}>
         <div className="flex flex-wrap gap-3">
           {rentDurationOptions.map(d => (
             <label key={d} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -2128,6 +2636,16 @@ function DtContentRentPMHostel({
           {yesNoOptions.map(opt => (
             <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="radio" name="dt-negotiable-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentNegotiable === opt} onChange={() => updateForm("rentNegotiable", opt)} />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </FieldDt>
+      <FieldDt label="Rent Renewal Option">
+        <div className="flex gap-5">
+          {yesNoOptions.map(opt => (
+            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-renewal-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentRenewalOption === opt} onChange={() => updateForm("rentRenewalOption", opt)} />
               {opt}
             </label>
           ))}
@@ -2225,34 +2743,6 @@ function DtContentRentPMHostel({
       <FieldDt label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Rent Renewal Option">
-        <div className="flex gap-5">
-          {yesNoOptions.map(opt => (
-            <label key={opt} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-renewal-pm" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.rentRenewalOption === opt} onChange={() => updateForm("rentRenewalOption", opt)} />
-              {opt}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">📍 Nearby Access</h3>
-      </div>
-      <FieldDt label="Nearby Places">
-        <div className="grid grid-cols-2 gap-2">
-          {["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"].map(place => {
-            const key = `nearby${place.replace(/[\/\s]/g, '')}`;
-            return (
-              <label key={place} className="flex items-center gap-2 text-[13px] cursor-pointer">
-                <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData[key] || false} onChange={() => updateForm(key, !formData[key])} />
-                {place}
-              </label>
-            );
-          })}
-        </div>
-      </FieldDt>
     </>
   );
 
@@ -2263,17 +2753,21 @@ function DtContentRentPMHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
-      <FieldDt label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+      <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
+        <input className={`${inp} ${getErrorClass('accountHolderName')}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Bank Name" required>
-        <input className={inp} placeholder="Enter bank name" value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)} />
+      <FieldDt label="Bank Name" required error={errors.bankName}>
+        <select className={`${inp} ${getErrorClass('bankName')}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+          {bankOptions.map(bank => (
+            <option key={bank} value={bank === "Select Bank" ? "" : bank}>{bank}</option>
+          ))}
+        </select>
       </FieldDt>
-      <FieldDt label="Account Number" required>
-        <input className={inp} type="number" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <FieldDt label="Account Number" required error={errors.accountNumber}>
+        <input className={`${inp} ${getErrorClass('accountNumber')}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
       </FieldDt>
-      <FieldDt label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <FieldDt label="IFSC Code" required error={errors.ifscCode}>
+        <input className={`${inp} ${getErrorClass('ifscCode')}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2315,8 +2809,8 @@ function DtContentRentPMHostel({
       </div>
       <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
 
-      <FieldDt label="Company Logo" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Company Logo" required error={errors.pmCompanyLogoDoc}>
+        <div className={`border-2 border-dashed ${errors.pmCompanyLogoDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-pm-logo-doc" onChange={(e) => handleDocumentUpload("pmCompanyLogoDoc", e, 2)} />
           <label htmlFor="dt-pm-logo-doc" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2327,8 +2821,8 @@ function DtContentRentPMHostel({
         {formData.pmCompanyLogoDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmCompanyLogoDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Business Registration Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Business Registration Certificate" required error={errors.pmBusinessRegCertDoc}>
+        <div className={`border-2 border-dashed ${errors.pmBusinessRegCertDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-pm-reg-doc" onChange={(e) => handleDocumentUpload("pmBusinessRegCertDoc", e)} />
           <label htmlFor="dt-pm-reg-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2339,8 +2833,8 @@ function DtContentRentPMHostel({
         {formData.pmBusinessRegCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmBusinessRegCertDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Aadhaar Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Aadhaar Card" required error={errors.aadhaarCardDoc}>
+        <div className={`border-2 border-dashed ${errors.aadhaarCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-aadhaar-doc" onChange={(e) => handleDocumentUpload("aadhaarCardDoc", e)} />
           <label htmlFor="dt-aadhaar-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2351,8 +2845,8 @@ function DtContentRentPMHostel({
         {formData.aadhaarCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCardDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="PAN Card" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="PAN Card" required error={errors.panCardDoc}>
+        <div className={`border-2 border-dashed ${errors.panCardDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-pan-doc" onChange={(e) => handleDocumentUpload("panCardDoc", e)} />
           <label htmlFor="dt-pan-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2387,8 +2881,8 @@ function DtContentRentPMHostel({
         {formData.pmReraCertDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.pmReraCertDoc.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Office Address Proof" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Office Address Proof" required error={errors.officeAddressProofDoc}>
+        <div className={`border-2 border-dashed ${errors.officeAddressProofDoc ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-office-proof-doc" onChange={(e) => handleDocumentUpload("officeAddressProofDoc", e)} />
           <label htmlFor="dt-office-proof-doc" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2417,8 +2911,8 @@ function DtContentRentPMHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">Hostel Documents</h3>
       </div>
 
-      <FieldDt label="Hostel License" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Hostel License" required error={errors.hostelLicense}>
+        <div className={`border-2 border-dashed ${errors.hostelLicense ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-license-pm" onChange={(e) => handleDocumentUpload("hostelLicense", e)} />
           <label htmlFor="dt-license-pm" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2429,8 +2923,8 @@ function DtContentRentPMHostel({
         {formData.hostelLicense && <p className="text-[13px] text-green-600 mt-2">✓ {formData.hostelLicense.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Fire Safety Certificate" required>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Fire Safety Certificate" required error={errors.fireSafetyCertificate}>
+        <div className={`border-2 border-dashed ${errors.fireSafetyCertificate ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-fire-pm" onChange={(e) => handleDocumentUpload("fireSafetyCertificate", e)} />
           <label htmlFor="dt-fire-pm" className="cursor-pointer flex flex-col items-center">
             <FileText className="w-7 h-7 text-[#00695C]" />
@@ -2458,8 +2952,8 @@ function DtContentRentPMHostel({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Property Media</h3>
       </div>
-      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
+        <div className={`border-2 border-dashed ${errors.coverImage ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-cover-pm" onChange={handleCoverImageUpload} />
           <label htmlFor="dt-cover-pm" className="cursor-pointer flex flex-col items-center">
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2475,8 +2969,8 @@ function DtContentRentPMHostel({
         )}
       </FieldDt>
 
-      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
+        <div className={`border-2 border-dashed ${errors.propertyImages ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-pm" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="dt-imgs-pm" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <ImagePlus className="w-7 h-7 text-[#00695C]" />
@@ -2513,8 +3007,8 @@ function DtContentRentPMHostel({
         )}
       </FieldDt>
 
-      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)">
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
+        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-pm" onChange={handleFloorPlanUpload} />
           <label htmlFor="dt-floorplan-pm" className="cursor-pointer flex flex-col items-center">
             <Home className="w-7 h-7 text-[#00695C]" />
@@ -2535,7 +3029,6 @@ function DtContentRentPMHostel({
   // STEP 9: Declaration (Desktop)
   if (step === 9) return (
     <>
-
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Signature</h3>
@@ -2543,6 +3036,7 @@ function DtContentRentPMHostel({
       <label className="flex items-center gap-2 text-[13px] font-semibold text-[#00695C] mb-2">
         <PenTool className="w-4 h-4" /> Authorized Signatory <span className="text-red-500">*</span>
       </label>
+      {errors.signature && <p className="text-[12px] text-red-500 mb-2">{errors.signature}</p>}
       <p className="text-[12px] text-gray-500 mb-2">Draw your signature in the box below</p>
       <div className="relative">
         <canvas
@@ -2550,7 +3044,7 @@ function DtContentRentPMHostel({
           ref={signatureCanvasRef}
           width="400"
           height="100"
-          className="signature-canvas w-full h-32 rounded-lg border-2 border-[#00695C] bg-white touch-none cursor-crosshair"
+          className={`signature-canvas w-full h-32 rounded-lg border-2 ${errors.signature ? 'border-red-500' : 'border-[#00695C]'} bg-white touch-none cursor-crosshair`}
           onMouseDown={(e) => startDrawing(e, 'dt-signatureCanvas')}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -2570,8 +3064,8 @@ function DtContentRentPMHostel({
       <FieldDt label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+      <FieldDt label="Place" required error={errors.signaturePlace}>
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2584,18 +3078,22 @@ function DtContentRentPMHostel({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration1 || false} onChange={() => updateForm("declaration1", !formData.declaration1)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
+        {errors.declaration1 && <p className="text-[12px] text-red-500">{errors.declaration1}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration2 || false} onChange={() => updateForm("declaration2", !formData.declaration2)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
+        {errors.declaration2 && <p className="text-[12px] text-red-500">{errors.declaration2}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration3 || false} onChange={() => updateForm("declaration3", !formData.declaration3)} />
           <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
         </label>
+        {errors.declaration3 && <p className="text-[12px] text-red-500">{errors.declaration3}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declaration4 || false} onChange={() => updateForm("declaration4", !formData.declaration4)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
+        {errors.declaration4 && <p className="text-[12px] text-red-500">{errors.declaration4}</p>}
       </div>
     </>
   );

@@ -66,7 +66,7 @@ const PetrolBunkPlotPage = () => {
       ]
     },
     {
-      name: "Agricultural Land",
+      name: "Agricultural Land / Plots",  // Changed from "Agricultural Land" to "Agricultural Land / Plots"
       icon: <Sprout className="w-3.5 h-3.5" />,
       path: "/land-plots/agricultural-land-plots",
       submenus: [
@@ -92,7 +92,7 @@ const PetrolBunkPlotPage = () => {
         "Logistics Hub Land",
         "Warehouse Plot",
         "Cold Storage Land",
-        "SEZ Land (Special Economic Zone)"
+        "SEZ Land"
       ]
     },
     {
@@ -166,15 +166,15 @@ const PetrolBunkPlotPage = () => {
     { name: "Warehouse Land", path: "/land-plots/commercial-land-plots/warehouse-land", parent: "Commercial Land / Plots" },
     { name: "Industrial Commercial Plot", path: "/land-plots/commercial-land-plots/industrial-commercial-plot", parent: "Commercial Land / Plots" },
     // Agricultural submenus
-    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land" },
-    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land" },
-    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land" },
-    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land" },
-    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land" },
-    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land" },
-    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land" },
-    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land" },
-    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land" },
+    { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land / Plots" },  // Updated parent reference
+    { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land / Plots" },
+    { name: "Coconut Farm Land", path: "/land-plots/agricultural-land-plots/coconut-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Mango Grove Land", path: "/land-plots/agricultural-land-plots/mango-grove-land", parent: "Agricultural Land / Plots" },
+    { name: "Tea / Coffee Estate", path: "/land-plots/agricultural-land-plots/tea-coffee-estate", parent: "Agricultural Land / Plots" },
+    { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land / Plots" },
+    { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land / Plots" },
     // Industrial submenus
     { name: "Industrial Plot", path: "/land-plots/industrial-land-plots/industrial-plot", parent: "Industrial Land" },
     { name: "Factory Land", path: "/land-plots/industrial-land-plots/factory-land", parent: "Industrial Land" },
@@ -507,7 +507,7 @@ const PetrolBunkPlotPage = () => {
 
         {/* ══════════════════════════════════════════════
             MOBILE VIEW
-        ══════════════════════════════════════════════ */}
+        ══════════════════════════════════════════ */}
         <div className="md:hidden bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 animate-slide-down">
           <div className="px-4 py-3 space-y-3">
 
@@ -587,7 +587,7 @@ const PetrolBunkPlotPage = () => {
 
         {/* ══════════════════════════════════════════════
             FILTER MODAL
-        ══════════════════════════════════════════════ */}
+        ══════════════════════════════════════════ */}
         {showFilterModal && (
           <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[140px] px-4 pb-4 bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -602,7 +602,7 @@ const PetrolBunkPlotPage = () => {
 
         {/* ══════════════════════════════════════════════
             MAIN CONTENT
-        ══════════════════════════════════════════════ */}
+        ══════════════════════════════════════════ */}
         <div className="max-w-none mx-auto px-4 sm:px-6 py-6 lg:py-12">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 

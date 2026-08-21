@@ -12,6 +12,12 @@ import { ApartRentForm, ApartSellForm, ApartLeaseForm } from "../Forms/Owner/Ind
 // Import Commercial Forms (Owner)
 import { ComRentForm, ComSellForm, ComLeaseForm } from "../Forms/Owner/Index.js";
 
+// ============ IMPORT LAND & PLOTS FORMS (OWNER) ============
+import { RentLPForm, SellLPForm, LeaseLPForm } from "../Forms/Owner/Index.js";
+
+// ============ IMPORT HOSTEL FORMS (OWNER) ============
+import { HostelRentForm, HostelSellForm, HostelLeaseForm } from "../Forms/Owner/Index.js";
+
 // Import Agent Forms
 import { RentAgentIndForm, SellAgentIndForm, LeaseAgentIndForm } from "../Forms/Agent/Index.js";
 
@@ -21,12 +27,11 @@ import { RentAgentApartForm, SellAgentApartForm, LeaseAgentApartForm } from "../
 // Import Agent Commercial Forms
 import { RentAgentComForm, SellAgentComForm, LeaseAgentComForm } from "../Forms/Agent/Index.js";
 
+// ============ IMPORT AGENT LAND & PLOTS FORMS ============
+import { RentAgentLPForm, SellAgentLPForm, LeaseAgentLPForm } from "../Forms/Agent/Index.js";
+
 // ============ IMPORT AGENT HOSTEL FORMS ============
-import { 
-  RentAgentHostelForm, 
-  SellAgentHostelForm, 
-  LeaseAgentHostelForm 
-} from "../Forms/Agent/Index.js";
+import { RentAgentHostelForm, SellAgentHostelForm, LeaseAgentHostelForm } from "../Forms/Agent/Index.js";
 
 // Import Builder Forms
 import { RentBuilderIndForm, SellBuilderIndForm, LeaseBuilderIndForm } from "../Forms/Builder/Index.js";
@@ -37,12 +42,11 @@ import { RentBuilderApartForm, SellBuilderApartForm, LeaseBuilderApartForm } fro
 // Import Builder Commercial Forms
 import { RentBuilderComForm, SellBuilderComForm, LeaseBuilderComForm } from "../Forms/Builder/Index.js";
 
+// ============ IMPORT BUILDER LAND & PLOTS FORMS ============
+import { RentBuilderLPForm, SellBuilderLPForm, LeaseBuilderLPForm } from "../Forms/Builder/Index.js";
+
 // ============ IMPORT BUILDER HOSTEL FORMS ============
-import { 
-  RentBuilderHostelForm, 
-  SellBuilderHostelForm, 
-  LeaseBuilderHostelForm 
-} from "../Forms/Builder/Index.js";
+import { RentBuilderHostelForm, SellBuilderHostelForm, LeaseBuilderHostelForm } from "../Forms/Builder/Index.js";
 
 // Import Property Management Forms
 import { RentPMIndForm, SellPMIndForm, LeasePMIndForm } from "../Forms/PropertyManagement/Index.js";
@@ -53,20 +57,11 @@ import { RentPMApartForm, SellPMApartForm, LeasePMApartForm } from "../Forms/Pro
 // Import Property Management Commercial Forms
 import { RentPMComForm, SellPMComForm, LeasePMComForm } from "../Forms/PropertyManagement/Index.js";
 
-// ============ IMPORT PROPERTY MANAGEMENT HOSTEL FORMS ============
-import { 
-  RentPMHostelForm, 
-  SellPMHostelForm, 
-  LeasePMHostelForm 
-} from "../Forms/PropertyManagement/Index.js";
+// ============ IMPORT PROPERTY MANAGEMENT LAND & PLOTS FORMS ============
+import { RentPMLPForm, SellPMLPForm, LeasePMLPForm } from "../Forms/PropertyManagement/Index.js";
 
-// ============ IMPORT HOSTEL FORMS ============
-// Hostel Forms (Owner)
-import { 
-  HostelRentForm, 
-  HostelSellForm, 
-  HostelLeaseForm 
-} from "../Forms/Owner/Index.js";
+// ============ IMPORT PROPERTY MANAGEMENT HOSTEL FORMS ============
+import { RentPMHostelForm, SellPMHostelForm, LeasePMHostelForm } from "../Forms/PropertyManagement/Index.js";
 
 const Header = ({ onPostPropertyClick }) => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -78,7 +73,7 @@ const Header = ({ onPostPropertyClick }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   
-  // State for Role Selection (only for Individual)
+  // State for Role Selection
   const [showRoleSelectionPopup, setShowRoleSelectionPopup] = useState(false);
   
   // State for Owner forms
@@ -99,11 +94,23 @@ const Header = ({ onPostPropertyClick }) => {
   const [showComSellForm, setShowComSellForm] = useState(false);
   const [showComLeaseForm, setShowComLeaseForm] = useState(false);
 
+  // ============ LAND & PLOTS FORM STATES (OWNER) ============
+  const [showLPActionPopup, setShowLPActionPopup] = useState(false);
+  const [showLPRentForm, setShowLPRentForm] = useState(false);
+  const [showLPSellForm, setShowLPSellForm] = useState(false);
+  const [showLPLeaseForm, setShowLPLeaseForm] = useState(false);
+
   // ============ HOSTEL FORM STATES (OWNER) ============
   const [showHostelActionPopup, setShowHostelActionPopup] = useState(false);
   const [showHostelRentForm, setShowHostelRentForm] = useState(false);
   const [showHostelSellForm, setShowHostelSellForm] = useState(false);
   const [showHostelLeaseForm, setShowHostelLeaseForm] = useState(false);
+
+  // ============ LAND & PLOTS FORM STATES (AGENT) ============
+  const [showAgentLPActionPopup, setShowAgentLPActionPopup] = useState(false);
+  const [showAgentLPRentForm, setShowAgentLPRentForm] = useState(false);
+  const [showAgentLPSellForm, setShowAgentLPSellForm] = useState(false);
+  const [showAgentLPLeaseForm, setShowAgentLPLeaseForm] = useState(false);
 
   // ============ HOSTEL FORM STATES (AGENT) ============
   const [showAgentHostelActionPopup, setShowAgentHostelActionPopup] = useState(false);
@@ -111,11 +118,23 @@ const Header = ({ onPostPropertyClick }) => {
   const [showAgentHostelSellForm, setShowAgentHostelSellForm] = useState(false);
   const [showAgentHostelLeaseForm, setShowAgentHostelLeaseForm] = useState(false);
 
+  // ============ LAND & PLOTS FORM STATES (BUILDER) ============
+  const [showBuilderLPActionPopup, setShowBuilderLPActionPopup] = useState(false);
+  const [showBuilderLPRentForm, setShowBuilderLPRentForm] = useState(false);
+  const [showBuilderLPSellForm, setShowBuilderLPSellForm] = useState(false);
+  const [showBuilderLPLeaseForm, setShowBuilderLPLeaseForm] = useState(false);
+
   // ============ HOSTEL FORM STATES (BUILDER) ============
   const [showBuilderHostelActionPopup, setShowBuilderHostelActionPopup] = useState(false);
   const [showBuilderHostelRentForm, setShowBuilderHostelRentForm] = useState(false);
   const [showBuilderHostelSellForm, setShowBuilderHostelSellForm] = useState(false);
   const [showBuilderHostelLeaseForm, setShowBuilderHostelLeaseForm] = useState(false);
+
+  // ============ LAND & PLOTS FORM STATES (PROPERTY MANAGEMENT) ============
+  const [showPMLPActionPopup, setShowPMLPActionPopup] = useState(false);
+  const [showPMLPRentForm, setShowPMLPRentForm] = useState(false);
+  const [showPMLPSellForm, setShowPMLPSellForm] = useState(false);
+  const [showPMLPLeaseForm, setShowPMLPLeaseForm] = useState(false);
 
   // ============ HOSTEL FORM STATES (PROPERTY MANAGEMENT) ============
   const [showPMHostelActionPopup, setShowPMHostelActionPopup] = useState(false);
@@ -248,6 +267,78 @@ const Header = ({ onPostPropertyClick }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============ LAND & PLOTS HANDLERS (OWNER) ============
+  const handleLPActionClick = (action) => {
+    setShowLPActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowLPRentForm(true);
+        break;
+      case "Sell":
+        setShowLPSellForm(true);
+        break;
+      case "Lease":
+        setShowLPLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // ============ LAND & PLOTS HANDLERS (AGENT) ============
+  const handleAgentLPActionClick = (action) => {
+    setShowAgentLPActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowAgentLPRentForm(true);
+        break;
+      case "Sell":
+        setShowAgentLPSellForm(true);
+        break;
+      case "Lease":
+        setShowAgentLPLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // ============ LAND & PLOTS HANDLERS (BUILDER) ============
+  const handleBuilderLPActionClick = (action) => {
+    setShowBuilderLPActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowBuilderLPRentForm(true);
+        break;
+      case "Sell":
+        setShowBuilderLPSellForm(true);
+        break;
+      case "Lease":
+        setShowBuilderLPLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // ============ LAND & PLOTS HANDLERS (PROPERTY MANAGEMENT) ============
+  const handlePMLPActionClick = (action) => {
+    setShowPMLPActionPopup(false);
+    switch(action) {
+      case "Rent":
+        setShowPMLPRentForm(true);
+        break;
+      case "Sell":
+        setShowPMLPSellForm(true);
+        break;
+      case "Lease":
+        setShowPMLPLeaseForm(true);
+        break;
+      default:
+        break;
+    }
+  };
+
   // ============ HOSTEL HANDLERS (OWNER) ============
   const handleHostelActionClick = (action) => {
     setShowHostelActionPopup(false);
@@ -327,6 +418,22 @@ const Header = ({ onPostPropertyClick }) => {
     setSelectedRole(role);
     setSelectedPropertyType(propertyType);
 
+    // ============ LAND & PLOTS HANDLING ============
+    if (propertyType === "Land & Plots") {
+      if (role === "Owner") {
+        setShowLPActionPopup(true);
+      } else if (role === "Agent") {
+        setShowAgentLPActionPopup(true);
+      } else if (role === "Builder") {
+        setShowBuilderLPActionPopup(true);
+      } else if (role === "Property Management") {
+        setShowPMLPActionPopup(true);
+      } else {
+        setShowRoleSelectionPopup(true);
+      }
+      return;
+    }
+
     // ============ HOSTEL HANDLING ============
     if (propertyType === "Hostel") {
       if (role === "Owner") {
@@ -381,7 +488,7 @@ const Header = ({ onPostPropertyClick }) => {
         setShowRoleSelectionPopup(true);
       }
     } else {
-      // Land & Plots - show role selection
+      // Fallback
       setShowRoleSelectionPopup(true);
     }
   };
@@ -390,6 +497,20 @@ const Header = ({ onPostPropertyClick }) => {
     setShowRoleSelectionPopup(false);
     setSelectedRole(role);
     
+    // ============ LAND & PLOTS HANDLING ============
+    if (selectedPropertyType === "Land & Plots") {
+      if (role === "Owner") {
+        setShowLPActionPopup(true);
+      } else if (role === "Agent") {
+        setShowAgentLPActionPopup(true);
+      } else if (role === "Builder") {
+        setShowBuilderLPActionPopup(true);
+      } else if (role === "Property Management") {
+        setShowPMLPActionPopup(true);
+      }
+      return;
+    }
+
     // ============ HOSTEL HANDLING ============
     if (selectedPropertyType === "Hostel") {
       if (role === "Owner") {
@@ -435,9 +556,6 @@ const Header = ({ onPostPropertyClick }) => {
       } else if (role === "Property Management") {
         setShowPMComActionPopup(true);
       }
-    } else {
-      // Land & Plots
-      alert(`${selectedPropertyType} - ${role} form coming soon!`);
     }
   };
 
@@ -1348,6 +1466,206 @@ const Header = ({ onPostPropertyClick }) => {
         </div>
       )}
 
+      {/* ============ LAND & PLOTS ACTION POPUP (OWNER) ============ */}
+      {showLPActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowLPActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Owner - Land & Plots Action
+              </h2>
+              <button 
+                onClick={() => setShowLPActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Land & Plots Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleLPActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏞️</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleLPActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleLPActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ LAND & PLOTS ACTION POPUP (AGENT) ============ */}
+      {showAgentLPActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowAgentLPActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Agent - Land & Plots Action
+              </h2>
+              <button 
+                onClick={() => setShowAgentLPActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Land & Plots Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleAgentLPActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏞️</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentLPActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleAgentLPActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ LAND & PLOTS ACTION POPUP (BUILDER) ============ */}
+      {showBuilderLPActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowBuilderLPActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Builder - Land & Plots Action
+              </h2>
+              <button 
+                onClick={() => setShowBuilderLPActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Land & Plots Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleBuilderLPActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏞️</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handleBuilderLPActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handleBuilderLPActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ LAND & PLOTS ACTION POPUP (PROPERTY MANAGEMENT) ============ */}
+      {showPMLPActionPopup && (
+        <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowPMLPActionPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Property Management - Land & Plots Action
+              </h2>
+              <button 
+                onClick={() => setShowPMLPActionPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Land & Plots Property: How would you like to proceed?
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handlePMLPActionClick("Rent")}
+                className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">🏞️</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Rent</div>
+              </button>
+
+              <button
+                onClick={() => handlePMLPActionClick("Sell")}
+                className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">💰</div>
+                <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
+              </button>
+
+              <button
+                onClick={() => handlePMLPActionClick("Lease")}
+                className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
+              >
+                <div className="text-2xl mb-1">📄</div>
+                <div className="font-bold text-orange-700 group-hover:text-orange-900">Lease</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ============ HOSTEL ACTION POPUP (OWNER) ============ */}
       {showHostelActionPopup && (
         <div className="fixed inset-0 z-[61] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowHostelActionPopup(false)}>
@@ -2012,6 +2330,26 @@ const Header = ({ onPostPropertyClick }) => {
       <ComRentForm isOpen={showComRentForm} onClose={() => setShowComRentForm(false)} />
       <ComSellForm isOpen={showComSellForm} onClose={() => setShowComSellForm(false)} />
       <ComLeaseForm isOpen={showComLeaseForm} onClose={() => setShowComLeaseForm(false)} />
+
+      {/* ============ LAND & PLOTS FORMS (OWNER) ============ */}
+      <RentLPForm isOpen={showLPRentForm} onClose={() => setShowLPRentForm(false)} />
+      <SellLPForm isOpen={showLPSellForm} onClose={() => setShowLPSellForm(false)} />
+      <LeaseLPForm isOpen={showLPLeaseForm} onClose={() => setShowLPLeaseForm(false)} />
+
+      {/* ============ LAND & PLOTS FORMS (AGENT) ============ */}
+      <RentAgentLPForm isOpen={showAgentLPRentForm} onClose={() => setShowAgentLPRentForm(false)} />
+      <SellAgentLPForm isOpen={showAgentLPSellForm} onClose={() => setShowAgentLPSellForm(false)} />
+      <LeaseAgentLPForm isOpen={showAgentLPLeaseForm} onClose={() => setShowAgentLPLeaseForm(false)} />
+
+      {/* ============ LAND & PLOTS FORMS (BUILDER) ============ */}
+      <RentBuilderLPForm isOpen={showBuilderLPRentForm} onClose={() => setShowBuilderLPRentForm(false)} />
+      <SellBuilderLPForm isOpen={showBuilderLPSellForm} onClose={() => setShowBuilderLPSellForm(false)} />
+      <LeaseBuilderLPForm isOpen={showBuilderLPLeaseForm} onClose={() => setShowBuilderLPLeaseForm(false)} />
+
+      {/* ============ LAND & PLOTS FORMS (PROPERTY MANAGEMENT) ============ */}
+      <RentPMLPForm isOpen={showPMLPRentForm} onClose={() => setShowPMLPRentForm(false)} />
+      <SellPMLPForm isOpen={showPMLPSellForm} onClose={() => setShowPMLPSellForm(false)} />
+      <LeasePMLPForm isOpen={showPMLPLeaseForm} onClose={() => setShowPMLPLeaseForm(false)} />
 
       {/* ============ HOSTEL FORMS (OWNER) ============ */}
       <HostelRentForm isOpen={showHostelRentForm} onClose={() => setShowHostelRentForm(false)} />

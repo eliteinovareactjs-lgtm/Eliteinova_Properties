@@ -18,6 +18,7 @@ const steps = [
   "Media Upload", 
   "Upload Documents", 
   "Bank Details",
+  "Social Media",
   "Declaration"
 ];
 
@@ -29,6 +30,7 @@ const subtitles = [
   "Upload property photos, video & media",
   "Upload required documents",
   "Enter your bank details",
+  "Social media & online presence",
   "Confirm & submit"
 ];
 
@@ -107,7 +109,7 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
     agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", 
     serviceAreas: [], officeAddress: "",
     
-    // Property Details (Step 2) - Location + Details & Interior combined
+    // Property Details (Step 2)
     city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
     commercialType: "", builtUpArea: "", carpetArea: "",
     floorNumber: "", totalFloors: "", facingDirection: "", propertyAge: "",
@@ -132,8 +134,11 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
 
     // Bank Details (Step 6)
     accountHolderName: "", bankName: "", accountNumber: "", ifscCode: "", upiId: "",
+
+    // Social Media (Step 7)
+    website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
-    // Declaration & Signature (Step 7)
+    // Declaration & Signature (Step 8)
     declaration1: false,
     declaration2: false,
     declaration3: false,
@@ -215,6 +220,10 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
     }
     
     if (stepNum === 7) {
+      // No required fields in social media step
+    }
+    
+    if (stepNum === 8) {
       if (!formData.signature) newErrors.signature = "Signature is required";
       if (!formData.signatureDate) newErrors.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) newErrors.signaturePlace = "Place is required";
@@ -449,7 +458,7 @@ export default function LeaseAgentComForm({ isOpen, onClose }) {
   };
 
   const handleSubmit = () => {
-    if (validateStep(7)) {
+    if (validateStep(8)) {
       updateForm('signatureDate', new Date().toLocaleDateString());
       console.log("Lease Agent Commercial Form submitted:", formData);
       onClose();
@@ -850,7 +859,7 @@ function MobContentLeaseAgentCom({
     </>
   );
 
-  // STEP 2: Property Details - Lease specific
+  // STEP 2: Property Details
   if (step === 2) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -959,7 +968,7 @@ function MobContentLeaseAgentCom({
     </>
   );
 
-  // STEP 3: Pricing & Amenities - Lease specific
+  // STEP 3: Pricing & Amenities
   if (step === 3) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1149,7 +1158,7 @@ function MobContentLeaseAgentCom({
     </>
   );
 
-  // STEP 5: Upload Documents - Lease specific
+  // STEP 5: Upload Documents
   if (step === 5) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1363,8 +1372,33 @@ function MobContentLeaseAgentCom({
     </>
   );
 
-  // STEP 7: Declaration & Signature
+  // STEP 7: Social Media
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
+        <div className="w-1 h-3 bg-[#00695C] rounded" />
+        <h3 className="text-[11px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <Field label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </Field>
+      <Field label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </Field>
+      <Field label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </Field>
+      <Field label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </Field>
+      <Field label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </Field>
+    </>
+  );
+
+  // STEP 8: Declaration & Signature
+  if (step === 8) return (
     <>
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -1511,7 +1545,7 @@ function DtContentLeaseAgentCom({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Personal Details (Same as mobile)
+  // STEP 0: Personal Details
   if (step === 0) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1559,7 +1593,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 1: Business Information (Same as mobile)
+  // STEP 1: Business Information
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1601,7 +1635,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 2: Property Details - Lease specific (Desktop)
+  // STEP 2: Property Details
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1710,7 +1744,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 3: Pricing & Amenities - Lease specific (Desktop)
+  // STEP 3: Pricing & Amenities
   if (step === 3) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1833,7 +1867,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 4: Media Upload (Desktop)
+  // STEP 4: Media Upload
   if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1899,7 +1933,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 5: Upload Documents - Lease specific (Desktop)
+  // STEP 5: Upload Documents
   if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2082,7 +2116,7 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 6: Bank Details (Desktop)
+  // STEP 6: Bank Details
   if (step === 6) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2113,8 +2147,33 @@ function DtContentLeaseAgentCom({
     </>
   );
 
-  // STEP 7: Declaration & Signature (Desktop)
+  // STEP 7: Social Media
   if (step === 7) return (
+    <>
+      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
+        <div className="w-1 h-4 bg-[#00695C] rounded" />
+        <h3 className="text-[14px] font-bold text-[#00695C]">Social Media & Online Presence</h3>
+      </div>
+      <FieldDt label="Website">
+        <input className={inp} placeholder="Enter website URL" value={formData.website} onChange={(e) => updateForm("website", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Facebook Page">
+        <input className={inp} placeholder="Enter Facebook URL" value={formData.facebook} onChange={(e) => updateForm("facebook", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="Instagram">
+        <input className={inp} placeholder="Enter Instagram URL" value={formData.instagram} onChange={(e) => updateForm("instagram", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="LinkedIn">
+        <input className={inp} placeholder="Enter LinkedIn URL" value={formData.linkedin} onChange={(e) => updateForm("linkedin", e.target.value)} />
+      </FieldDt>
+      <FieldDt label="YouTube Channel">
+        <input className={inp} placeholder="Enter YouTube URL" value={formData.youtube} onChange={(e) => updateForm("youtube", e.target.value)} />
+      </FieldDt>
+    </>
+  );
+
+  // STEP 8: Declaration & Signature
+  if (step === 8) return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
