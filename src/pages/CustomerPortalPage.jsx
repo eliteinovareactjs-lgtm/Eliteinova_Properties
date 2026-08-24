@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, MapPin, Tag, User, UserCog, HardHat, Building2, Landmark, Star, Phone, Hammer, Home, PaintBucket, Droplets, Sparkles, Zap, Bug, Leaf, ShieldCheck, Truck } from "lucide-react";
 import customerPortalBanner from "../assets/customerPortalBanner.jpg";
@@ -125,7 +125,7 @@ const customerPortalCategories = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  PROPERTIES BY POSTER — sample listings for each poster type         */
+/*  PROPERTIES BY POSTER — 12 sample listings for each poster type     */
 /* ------------------------------------------------------------------ */
 
 const posterThemes = {
@@ -135,33 +135,95 @@ const posterThemes = {
   "Property Management": { icon: Building2, accent: "#0B3D33", badgeBg: "#D8E9E4" }
 };
 
-const ownerProperties = [
-  { title: "3BHK Independent Villa", location: "ECR, Chennai", price: "₹1.85 Cr", type: "Sale", image: villa4 },
-  { title: "2BHK Rental Apartment", location: "Anna Nagar, Chennai", price: "₹28,000 / mo", type: "Rent", image: apartment1 },
-  { title: "Commercial Showroom", location: "OMR, Chennai", price: "₹95,000 / mo", type: "Lease", image: commercial2 },
-  { title: "Residential Plot — 2400 sq.ft", location: "Sriperumbudur", price: "₹62 Lakh", type: "Sale", image: land1 }
+// All property images in an array for cycling
+const allPropertyImages = [
+  apartment1, apartment2, apartment3, apartment4, apartment5,
+  commercial1, commercial2, commercial3, commercial4, commercial5,
+  hostel1, hostel2, hostel3, hostel4, hostel5,
+  villa1, villa2, villa3, villa4, villa5,
+  land1, land2, land3, land4, land5
 ];
 
-const agentProperties = [
-  { title: "Luxury Penthouse Apartment", location: "Adyar, Chennai", price: "₹3.2 Cr", type: "Sale", image: apartment4 },
-  { title: "Duplex Residential Unit", location: "Velachery, Chennai", price: "₹1.4 Cr", type: "Sale", image: villa5 },
-  { title: "IT Park Office Space", location: "Sholinganallur, Chennai", price: "₹1.5L / mo", type: "Lease", image: commercial4 },
-  { title: "Co-Living Space", location: "Perungudi, Chennai", price: "₹12,500 / mo", type: "Rent", image: hostel2 }
+const locations = [
+  "ECR, Chennai", "Anna Nagar, Chennai", "OMR, Chennai", "Sriperumbudur",
+  "Adyar, Chennai", "Velachery, Chennai", "Sholinganallur, Chennai",
+  "Perungudi, Chennai", "Porur, Chennai", "Guduvancheri", "Guindy, Chennai",
+  "Thiruporur", "Nungambakkam, Chennai", "Tambaram, Chennai", "T. Nagar, Chennai",
+  "Mogappair, Chennai", "Kodambakkam, Chennai", "Mylapore, Chennai",
+  "Besant Nagar, Chennai", "Royapettah, Chennai"
 ];
 
-const builderProperties = [
-  { title: "Gated Community Apartment", location: "Porur, Chennai", price: "₹78 Lakh onwards", type: "Sale", image: apartment3 },
-  { title: "New Launch Independent Villas", location: "Guduvancheri", price: "₹1.1 Cr onwards", type: "Sale", image: villa1 },
-  { title: "Business Center Units", location: "Guindy, Chennai", price: "₹2.1 Cr onwards", type: "Sale", image: commercial5 },
-  { title: "DTCP Approved Plots", location: "Thiruporur", price: "₹1,850 / sq.ft", type: "Sale", image: land4 }
-];
+const propertyTitles = {
+  Owner: [
+    "3BHK Independent Villa", "2BHK Rental Apartment", "Commercial Showroom",
+    "Residential Plot — 2400 sq.ft", "4BHK Luxury Villa", "1BHK Studio Apartment",
+    "Retail Shop Space", "Agricultural Land — 5 Acres", "Independent House with Garden",
+    "Duplex Residential Unit", "Gated Community Villa", "Corner Plot — 1800 sq.ft"
+  ],
+  Agent: [
+    "Luxury Penthouse Apartment", "Duplex Residential Unit", "IT Park Office Space",
+    "Co-Living Space", "Premium Independent Villa", "Commercial Complex Unit",
+    "Residential Apartment — 3BHK", "Industrial Warehouse", "Beachfront Villa",
+    "Office Space with Cabin", "Studio Apartment", "Retail Showroom"
+  ],
+  Builder: [
+    "Gated Community Apartment", "New Launch Independent Villas", "Business Center Units",
+    "DTCP Approved Plots", "Luxury Apartment Complex", "Premium Villa Project",
+    "Commercial Tower Space", "Residential Township Plots", "Smart Home Apartments",
+    "Eco-Friendly Villas", "Mixed-Use Development", "Affordable Housing Units"
+  ],
+  "Property Management": [
+    "Fully Managed Studio Apartment", "Managed Working Professional Hostel",
+    "Serviced Commercial Complex", "Maintained Independent House",
+    "Managed Luxury Apartment", "Co-Living Managed Space", "Serviced Office Suites",
+    "Managed Retail Outlets", "Maintained Villa Community", "Managed Hostel Facility",
+    "Serviced Business Center", "Managed Residential Tower"
+  ]
+};
 
-const pmProperties = [
-  { title: "Fully Managed Studio Apartment", location: "Nungambakkam, Chennai", price: "₹22,000 / mo", type: "Rent", image: apartment5 },
-  { title: "Managed Working Professional Hostel", location: "Tambaram, Chennai", price: "₹9,500 / mo", type: "Rent", image: hostel4 },
-  { title: "Serviced Commercial Complex", location: "T. Nagar, Chennai", price: "₹1.2L / mo", type: "Lease", image: commercial3 },
-  { title: "Maintained Independent House", location: "Mogappair, Chennai", price: "₹1.05 Cr", type: "Sale", image: villa2 }
-];
+const priceRanges = {
+  Owner: [
+    "₹1.85 Cr", "₹28,000 / mo", "₹95,000 / mo", "₹62 Lakh", "₹2.4 Cr",
+    "₹18,000 / mo", "₹75,000 / mo", "₹45 Lakh", "₹1.2 Cr", "₹1.6 Cr",
+    "₹2.1 Cr", "₹55 Lakh"
+  ],
+  Agent: [
+    "₹3.2 Cr", "₹1.4 Cr", "₹1.5L / mo", "₹12,500 / mo", "₹4.5 Cr",
+    "₹2.8 Cr", "₹85 Lakh", "₹1.8 Cr", "₹6.2 Cr", "₹1.2L / mo",
+    "₹22,000 / mo", "₹1.1L / mo"
+  ],
+  Builder: [
+    "₹78 Lakh onwards", "₹1.1 Cr onwards", "₹2.1 Cr onwards", "₹1,850 / sq.ft",
+    "₹1.6 Cr onwards", "₹2.8 Cr onwards", "₹3.2 Cr onwards", "₹2,100 / sq.ft",
+    "₹95 Lakh onwards", "₹3.5 Cr onwards", "₹4.1 Cr onwards", "₹65 Lakh onwards"
+  ],
+  "Property Management": [
+    "₹22,000 / mo", "₹9,500 / mo", "₹1.2L / mo", "₹1.05 Cr",
+    "₹35,000 / mo", "₹14,000 / mo", "₹85,000 / mo", "₹65,000 / mo",
+    "₹2.3 Cr", "₹11,000 / mo", "₹95,000 / mo", "₹1.8 Cr"
+  ]
+};
+
+const typeOptions = ["Sale", "Rent", "Lease", "Sale", "Sale", "Rent", "Lease", "Sale", "Sale", "Rent", "Lease", "Sale"];
+
+// Generate 12 properties for each poster type
+const generateProperties = (posterKey) => {
+  const titles = propertyTitles[posterKey];
+  const prices = priceRanges[posterKey];
+  
+  return Array.from({ length: 12 }, (_, i) => ({
+    title: titles[i % titles.length],
+    location: locations[i % locations.length],
+    price: prices[i % prices.length],
+    type: typeOptions[i % typeOptions.length],
+    image: allPropertyImages[i % allPropertyImages.length]
+  }));
+};
+
+const ownerProperties = generateProperties("Owner");
+const agentProperties = generateProperties("Agent");
+const builderProperties = generateProperties("Builder");
+const pmProperties = generateProperties("Property Management");
 
 const propertiesByPoster = [
   { key: "owner", poster: "Owner", properties: ownerProperties },
@@ -528,7 +590,7 @@ const PropertyCard = ({ property, poster }) => {
   const PosterIcon = theme.icon;
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-md border border-[#E3ECE8] hover:shadow-xl transition-shadow duration-300 group">
+    <div className="bg-white rounded-lg overflow-hidden shadow-md border border-[#E3ECE8] hover:shadow-xl transition-shadow duration-300 group flex-shrink-0 w-[220px] xs:w-[250px] sm:w-[280px] lg:w-[300px]">
       <div className="relative h-[150px] xs:h-[170px] sm:h-[185px] overflow-hidden">
         <img
           src={property.image}
@@ -567,9 +629,20 @@ const PropertyCard = ({ property, poster }) => {
   );
 };
 
-// A heading + accent divider + grid of property cards for one poster type
+// A heading + accent divider + horizontally scrollable property cards with slide buttons
 const PropertiesByPosterSection = ({ poster, properties }) => {
   const theme = posterThemes[poster];
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const scrollAmount = scrollRef.current.clientWidth * 0.8;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth"
+    });
+  };
+
   return (
     <div className="mb-10 sm:mb-14 last:mb-0">
       <h3
@@ -583,10 +656,34 @@ const PropertiesByPosterSection = ({ poster, properties }) => {
       </p>
       <div className="w-10 sm:w-14 h-[3px] mx-auto mb-6 sm:mb-8" style={{ backgroundColor: theme.accent }} />
 
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {properties.map((property, idx) => (
-          <PropertyCard key={idx} property={property} poster={poster} />
-        ))}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => scroll("left")}
+          className="absolute -left-2 xs:left-0 sm:-left-4 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-[#1E7A6E] text-[#1C2D24] hover:text-white p-1.5 sm:p-2 rounded-full shadow-md border border-[#D1E2DB] transition-colors duration-300"
+          aria-label={`Scroll ${poster} properties left`}
+        >
+          <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+        </button>
+
+        <div
+          ref={scrollRef}
+          className="no-scrollbar flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth px-8 sm:px-12 py-2"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {properties.map((property, idx) => (
+            <PropertyCard key={idx} property={property} poster={poster} />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scroll("right")}
+          className="absolute -right-2 xs:right-0 sm:-right-4 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-[#1E7A6E] text-[#1C2D24] hover:text-white p-1.5 sm:p-2 rounded-full shadow-md border border-[#D1E2DB] transition-colors duration-300"
+          aria-label={`Scroll ${poster} properties right`}
+        >
+          <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+        </button>
       </div>
     </div>
   );
