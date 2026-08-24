@@ -49,10 +49,7 @@ const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] tex
 const availableAmenities = ["Gated Community", "24/7 Security", "Power Backup", "CCTV Surveillance", "24/7 Water Supply", "Wi-Fi Ready", "Children's Play Area", "Gym / Fitness Center", "Balcony / Terrace", "Lift / Elevator", "Visitor Parking", "Nearby School / Hospital"];
 
 // Sell options - integrated as form fields
-const bedroomOptions = ["Studio", "1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
-const bathroomOptions = ["1", "2", "3", "4+"];
 const furnishingOptions = ["Fully Furnished", "Semi Furnished", "Unfurnished"];
-const parkingOptions = ["1 Car", "2 Cars", "3+ Cars"];
 const yesNoOptions = ["Yes", "No"];
 const bankOptions = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"];
 
@@ -66,9 +63,15 @@ export default function IndSellForm({ isOpen, onClose }) {
     aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, passportPhoto: null,
     addressLine1: "", addressLine2: "", city: "", district: "", state: "", pinCode: "",
     // Property Details (Step 2)
-    propertyTitle: "", propertyType: "", propertyAddress: "",
-    propertyCity: "", builtUpArea: "", carpetArea: "", bedrooms: "", bathrooms: "",
-    furnishingStatus: "", parking: "",
+    propertyTitle: "", propertyType: "", 
+    propertyArea: "", // Changed from propertyAddress
+    propertyLandmark: "", // New field
+    propertyCity: "", builtUpArea: "", carpetArea: "", 
+    bedrooms: "", // Will be number input
+    bathrooms: "", // Will be number input
+    furnishingStatus: "", 
+    parking: "", // "yes" or "no"
+    parkingCount: "", // New field for number of parking spaces
     // Property Category & Posted By (Step 2)
     propertyCategory: "individual",
     postedBy: "owner",
@@ -115,6 +118,12 @@ export default function IndSellForm({ isOpen, onClose }) {
 
   const [errors, setErrors] = useState({});
 
+  // Validation helper functions
+  const isOnlyLetters = (value) => /^[A-Za-z\s]+$/.test(value);
+  const isOnlyNumbers = (value) => /^[0-9]+$/.test(value);
+  const isOnlyLettersAndNumbers = (value) => /^[A-Za-z0-9\s]+$/.test(value);
+  const isSixDigitPinCode = (value) => /^[0-9]{6}$/.test(value);
+
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -126,7 +135,26 @@ export default function IndSellForm({ isOpen, onClose }) {
     }
   };
 
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // Specialized handlers with validation
+  const handleAlphaFieldChange = (field, value) => {
+    // Only allow letters and spaces
+    const filtered = value.replace(/[^A-Za-z\s]/g, '');
+    updateForm(field, filtered);
+  };
+
+  const handleNumericFieldChange = (field, value) => {
+    // Only allow digits
+    const filtered = value.replace(/[^0-9]/g, '');
+    updateForm(field, filtered);
+  };
+
+  const handlePinCodeChange = (value) => {
+    // Only allow digits, max 6 characters
+    const filtered = value.replace(/[^0-9]/g, '').slice(0, 6);
+    updateForm('pinCode', filtered);
+  };
+
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -326,6 +354,7 @@ const validateStep = (s) => {
   const e = {};
   if (s === 0) {
     if (!formData.ownerName.trim()) e.ownerName = "Full name is required";
+    else if (!isOnlyLetters(formData.ownerName)) e.ownerName = "Name should contain only letters and spaces";
     if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
     if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
     if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
@@ -339,23 +368,36 @@ const validateStep = (s) => {
     if (!formData.passportPhoto) e.passportPhoto = "Passport-size photo is required";
     if (!formData.addressLine1.trim()) e.addressLine1 = "Address Line 1 is required";
     if (!formData.city.trim()) e.city = "City is required";
+    else if (!isOnlyLetters(formData.city)) e.city = "City should contain only letters and spaces";
     if (!formData.district.trim()) e.district = "District is required";
+    else if (!isOnlyLetters(formData.district)) e.district = "District should contain only letters and spaces";
     if (!formData.state.trim()) e.state = "State is required";
+    else if (!isOnlyLetters(formData.state)) e.state = "State should contain only letters and spaces";
     if (!formData.pinCode.trim()) e.pinCode = "PIN code is required";
+    else if (!isSixDigitPinCode(formData.pinCode)) e.pinCode = "PIN code must be exactly 6 digits";
   }
   if (s === 2) {
     if (!formData.propertyTitle.trim()) e.propertyTitle = "Property title is required";
     if (!formData.propertyType) e.propertyType = "Please select a property type";
-    if (!formData.propertyAddress.trim()) e.propertyAddress = "Property address is required";
+    if (!formData.propertyArea.trim()) e.propertyArea = "Property area is required";
+    else if (!isOnlyLettersAndNumbers(formData.propertyArea)) e.propertyArea = "Property area should contain only letters and numbers";
     if (!formData.propertyCity.trim()) e.propertyCity = "Property city is required";
+    else if (!isOnlyLetters(formData.propertyCity)) e.propertyCity = "Property city should contain only letters and spaces";
     if (!formData.builtUpArea) e.builtUpArea = "Built-up area is required";
+    else if (!isOnlyNumbers(formData.builtUpArea)) e.builtUpArea = "Built-up area must be a number";
     if (!formData.carpetArea) e.carpetArea = "Carpet area is required";
-    if (!formData.bedrooms) e.bedrooms = "Please select number of bedrooms";
-    if (!formData.bathrooms) e.bathrooms = "Please select number of bathrooms";
+    else if (!isOnlyNumbers(formData.carpetArea)) e.carpetArea = "Carpet area must be a number";
+    if (!formData.bedrooms) e.bedrooms = "Number of bedrooms is required";
+    else if (!isOnlyNumbers(formData.bedrooms)) e.bedrooms = "Bedrooms must be a number";
+    if (!formData.bathrooms) e.bathrooms = "Number of bathrooms is required";
+    else if (!isOnlyNumbers(formData.bathrooms)) e.bathrooms = "Bathrooms must be a number";
     if (!formData.furnishingStatus) e.furnishingStatus = "Please select furnishing status";
+    if (formData.parking === "yes" && !formData.parkingCount) e.parkingCount = "Please enter number of parking spaces";
+    if (formData.parking === "yes" && formData.parkingCount && !isOnlyNumbers(formData.parkingCount)) e.parkingCount = "Parking spaces must be a number";
   }
   if (s === 3) {
     if (!formData.expectedPrice) e.expectedPrice = "Expected price is required";
+    else if (!isOnlyNumbers(formData.expectedPrice)) e.expectedPrice = "Expected price must be a number";
   }
   if (s === 4) {
     if (!formData.coverImage) e.coverImage = "Cover image is required";
@@ -366,8 +408,9 @@ const validateStep = (s) => {
   }
   if (s === 6) {
     if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
+    else if (!isOnlyLetters(formData.accountHolderName)) e.accountHolderName = "Account holder name should contain only letters and spaces";
     if (!formData.accountNumber) e.accountNumber = "Account number is required";
-    if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
+    else if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
     if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
     if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
   }
@@ -375,6 +418,7 @@ const validateStep = (s) => {
     if (!formData.signature) e.signature = "Please draw your signature";
     if (!formData.signatureDate) e.signatureDate = "Date is required";
     if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
+    else if (!isOnlyLetters(formData.signaturePlace)) e.signaturePlace = "Place should contain only letters and spaces";
     if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm this to proceed";
     if (!formData.declarationAccurate) e.declarationAccurate = "You must confirm this to proceed";
     if (!formData.declarationTerms) e.declarationTerms = "You must agree to proceed";
@@ -433,6 +477,9 @@ const handleSubmit = () => {
               inp={inMob}
               formData={formData}
               updateForm={updateForm}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
               removeImage={removeImage}
@@ -446,10 +493,7 @@ const handleSubmit = () => {
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              bedroomOptions={bedroomOptions}
-              bathroomOptions={bathroomOptions}
               furnishingOptions={furnishingOptions}
-              parkingOptions={parkingOptions}
               yesNoOptions={yesNoOptions}
               bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
@@ -547,6 +591,9 @@ const handleSubmit = () => {
               inp={inDt}
               formData={formData}
               updateForm={updateForm}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
               imagePreviews={imagePreviews}
               handleImageUpload={handleImageUpload}
               removeImage={removeImage}
@@ -560,10 +607,7 @@ const handleSubmit = () => {
               customAmenitiesList={customAmenitiesList}
               addCustomAmenity={addCustomAmenity}
               removeCustomAmenity={removeCustomAmenity}
-              bedroomOptions={bedroomOptions}
-              bathroomOptions={bathroomOptions}
               furnishingOptions={furnishingOptions}
-              parkingOptions={parkingOptions}
               yesNoOptions={yesNoOptions}
               bankOptions={bankOptions}
               handleCoverImageUpload={handleCoverImageUpload}
@@ -627,7 +671,7 @@ const handleSubmit = () => {
 }
 
 // MOBILE CONTENT - SELL
-function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function MobContentSell({ step, inp, formData, updateForm, handleAlphaFieldChange, handleNumericFieldChange, handlePinCodeChange, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, furnishingOptions, yesNoOptions, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -677,7 +721,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
   if (step === 0) return (
     <>
       <Field label="Full Name" required>
-        <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => updateForm("ownerName", e.target.value)} />
+        <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => handleAlphaFieldChange("ownerName", e.target.value)} />
         {errors.ownerName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerName}</p>}
       </Field>
       <Field label="Mobile Number" required>
@@ -718,7 +762,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
       </Field>
       <Field label="PAN Number">
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </Field>
       <Field label="Upload Aadhaar Card" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
@@ -764,20 +808,23 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <input className={inp} placeholder="House number, building, street" value={formData.addressLine1} onChange={(e) => updateForm("addressLine1", e.target.value)} />
         {errors.addressLine1 && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.addressLine1}</p>}
       </Field>
+      <Field label="Address Line 2">
+        <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
+      </Field>
       <Field label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => handleAlphaFieldChange("city", e.target.value)} />
         {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
       </Field>
       <Field label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
+        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => handleAlphaFieldChange("district", e.target.value)} />
         {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
       </Field>
       <Field label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
+        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => handleAlphaFieldChange("state", e.target.value)} />
         {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
       </Field>
       <Field label="PIN Code" required>
-        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange(e.target.value)} />
         {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
       </Field>
     </>
@@ -794,6 +841,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
         {errors.propertyTitle && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyTitle}</p>}
       </Field>
+
       <Field label="Property Type" required>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
           <label key={t} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
@@ -803,46 +851,42 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         ))}
         {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </Field>
-      <Field label="Property Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
-        {errors.propertyAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyAddress}</p>}
+      
+      <Field label="Property Area" required>
+        <input className={inp} placeholder="e.g. Annanagar, Velachery" value={formData.propertyArea} onChange={(e) => updateForm("propertyArea", e.target.value)} />
+        {errors.propertyArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyArea}</p>}
       </Field>
+      
+      <Field label="Landmark / Nearby Location">
+        <input className={inp} placeholder="e.g. Near Apollo Hospital, Opposite to Metro Station" value={formData.propertyLandmark} onChange={(e) => updateForm("propertyLandmark", e.target.value)} />
+      </Field>
+      
       <Field label="Property City" required>
-        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => handleAlphaFieldChange("propertyCity", e.target.value)} />
         {errors.propertyCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyCity}</p>}
       </Field>
+      
       <Field label="Area Details" required hint="In square feet">
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" min="0" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => handleNumericFieldChange("builtUpArea", e.target.value)} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => handleNumericFieldChange("carpetArea", e.target.value)} />
         </div>
         {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
         {errors.carpetArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.carpetArea}</p>}
       </Field>
+      
       <Field label="Number of Bedrooms" required>
-        <div className="flex flex-wrap gap-2">
-          {bedroomOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-bedrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of bedrooms" value={formData.bedrooms} onChange={(e) => handleNumericFieldChange("bedrooms", e.target.value)} />
         {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </Field>
+
       <Field label="Number of Bathrooms" required>
-        <div className="flex flex-wrap gap-2">
-          {bathroomOptions.map(option => (
-            <label key={option} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-bathrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of bathrooms" value={formData.bathrooms} onChange={(e) => handleNumericFieldChange("bathrooms", e.target.value)} />
         {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </Field>
+
       <Field label="Furnishing Status" required>
-        {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
+        {furnishingOptions.map(f => (
           <label key={f} className="flex items-center gap-2 text-[11px] mb-1 cursor-pointer">
             <input type="radio" name="mob-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishingStatus === f} onChange={() => updateForm("furnishingStatus", f)} readOnly={false} />
             {f}
@@ -850,16 +894,23 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         ))}
         {errors.furnishingStatus && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.furnishingStatus}</p>}
       </Field>
-      <Field label="Parking">
-        <div className="flex gap-4">
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
-            Yes
-          </label>
-          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-            <input type="radio" name="mob-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
-            No
-          </label>
+      
+      <Field label="Parking Facility">
+        <div className="space-y-2">
+          <div className="flex gap-4">
+            <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
+              Yes
+            </label>
+            <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
+              <input type="radio" name="mob-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
+              No
+            </label>
+          </div>
+          {formData.parking === "yes" && (
+            <input className={inp} type="text" inputMode="numeric" placeholder="Number of parking spaces" value={formData.parkingCount} onChange={(e) => handleNumericFieldChange("parkingCount", e.target.value)} />
+          )}
+          {errors.parkingCount && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.parkingCount}</p>}
         </div>
       </Field>
 
@@ -869,7 +920,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <h3 className="text-[11px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
       <Field label="Property Age (Years)">
-        <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => handleNumericFieldChange("propertyAge", e.target.value)} />
       </Field>
       <Field label="Property Condition">
         {["New", "Good", "Renovated", "Needs Renovation"].map(condition => (
@@ -927,20 +978,22 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
+      
       <Field label="Expected Price (₹)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => handleNumericFieldChange("expectedPrice", e.target.value)} />
         {errors.expectedPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.expectedPrice}</p>}
       </Field>
       
       {/* Budget Range */}
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9]/g, '') })} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9]/g, '') })} />
         </div>
       </Field>
+      
       <Field label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
-        <input className={inp} type="number" min="0" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => handleNumericFieldChange("securityDeposit", e.target.value)} />
       </Field>
 
       <Field label="Price Type">
@@ -956,7 +1009,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         </div>
       </Field>
       <Field label="Maintenance (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => handleNumericFieldChange("maintenance", e.target.value)} />
       </Field>
       <Field label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1011,6 +1064,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         )}
         {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </Field>
+
       <Field label="Upload Property Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-sell" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
@@ -1188,7 +1242,8 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
       </div>
       <p className="text-[9px] text-gray-400 mb-2">Enter your bank details for sale proceeds</p>
       <Field label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => handleAlphaFieldChange("accountHolderName", e.target.value)} />
+        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </Field>
       <Field label="Bank Name">
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1197,11 +1252,11 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
         </select>
       </Field>
       <Field label="Account Number" required>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/[^0-9]/g, ''))} />
         {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </Field>
       <Field label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
         {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </Field>
       <Field label="UPI ID">
@@ -1270,12 +1325,13 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
           Clear
         </button>
       </div>
+      {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
       <Field label="Date" required>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
         {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </Field>
       <Field label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => handleAlphaFieldChange("signaturePlace", e.target.value)} />
         {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </Field>
 
@@ -1308,7 +1364,7 @@ function MobContentSell({ step, inp, formData, updateForm, imagePreviews, handle
 }
 
 // DESKTOP CONTENT - SELL
-function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
+function DtContentSell({ step, inp, formData, updateForm, handleAlphaFieldChange, handleNumericFieldChange, handlePinCodeChange, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, handlePassportUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, furnishingOptions, yesNoOptions, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, toggleContactMethod, isValidEmail, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1358,7 +1414,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
   if (step === 0) return (
     <>
       <FieldDt label="Full Name" required>
-        <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => updateForm("ownerName", e.target.value)} />
+        <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => handleAlphaFieldChange("ownerName", e.target.value)} />
         {errors.ownerName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerName}</p>}
       </FieldDt>
       <FieldDt label="Mobile Number" required>
@@ -1399,7 +1455,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
       </FieldDt>
       <FieldDt label="PAN Number">
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
       </FieldDt>
       <FieldDt label="Upload Aadhaar Card" required>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1449,19 +1505,19 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
       </FieldDt>
       <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => handleAlphaFieldChange("city", e.target.value)} />
         {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
       </FieldDt>
       <FieldDt label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
+        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => handleAlphaFieldChange("district", e.target.value)} />
         {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
       </FieldDt>
       <FieldDt label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
+        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => handleAlphaFieldChange("state", e.target.value)} />
         {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
       </FieldDt>
       <FieldDt label="PIN Code" required>
-        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange(e.target.value)} />
         {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
       </FieldDt>
     </>
@@ -1488,46 +1544,42 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         ))}
         {errors.propertyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyType}</p>}
       </FieldDt>
-      <FieldDt label="Property Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address (Flat No., Building, Street, Locality)" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
-        {errors.propertyAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyAddress}</p>}
+      
+      <FieldDt label="Property Area" required>
+        <input className={inp} placeholder="e.g. Annanagar, Velachery" value={formData.propertyArea} onChange={(e) => updateForm("propertyArea", e.target.value)} />
+        {errors.propertyArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyArea}</p>}
       </FieldDt>
+      
+      <FieldDt label="Landmark / Nearby Location">
+        <input className={inp} placeholder="e.g. Near Apollo Hospital, Opposite to Metro Station" value={formData.propertyLandmark} onChange={(e) => updateForm("propertyLandmark", e.target.value)} />
+      </FieldDt>
+      
       <FieldDt label="Property City" required>
-        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => handleAlphaFieldChange("propertyCity", e.target.value)} />
         {errors.propertyCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyCity}</p>}
       </FieldDt>
+      
       <FieldDt label="Area Details" required hint="Enter values in square feet">
         <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" min="0" placeholder="Build-up Area (sq ft)" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Carpet Area (sq ft)" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Build-up Area (sq ft)" value={formData.builtUpArea} onChange={(e) => handleNumericFieldChange("builtUpArea", e.target.value)} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Carpet Area (sq ft)" value={formData.carpetArea} onChange={(e) => handleNumericFieldChange("carpetArea", e.target.value)} />
         </div>
         {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
         {errors.carpetArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.carpetArea}</p>}
       </FieldDt>
+      
       <FieldDt label="Number of Bedrooms" required>
-        <div className="flex flex-wrap gap-2">
-          {bedroomOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bedrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === option} onChange={() => updateForm("bedrooms", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of bedrooms" value={formData.bedrooms} onChange={(e) => handleNumericFieldChange("bedrooms", e.target.value)} />
         {errors.bedrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bedrooms}</p>}
       </FieldDt>
+
       <FieldDt label="Number of Bathrooms" required>
-        <div className="flex flex-wrap gap-2">
-          {bathroomOptions.map(option => (
-            <label key={option} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bathrooms" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === option} onChange={() => updateForm("bathrooms", option)} />
-              {option}
-            </label>
-          ))}
-        </div>
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of bathrooms" value={formData.bathrooms} onChange={(e) => handleNumericFieldChange("bathrooms", e.target.value)} />
         {errors.bathrooms && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bathrooms}</p>}
       </FieldDt>
+
       <FieldDt label="Furnishing Status" required>
-        {["Full Furnish", "Semi Furnish", "Unfurnished"].map(f => (
+        {furnishingOptions.map(f => (
           <label key={f} className="flex items-center gap-2 text-[13px] mb-2 cursor-pointer">
             <input type="radio" name="dt-furnish-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.furnishingStatus === f} onChange={() => updateForm("furnishingStatus", f)} readOnly={false} />
             {f}
@@ -1535,16 +1587,23 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         ))}
         {errors.furnishingStatus && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.furnishingStatus}</p>}
       </FieldDt>
+      
       <FieldDt label="Parking Facility">
-        <div className="flex gap-5">
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
-            Yes, available
-          </label>
-          <label className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="radio" name="dt-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
-            No parking
-          </label>
+        <div className="space-y-2">
+          <div className="flex gap-5">
+            <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "yes"} onChange={() => updateForm("parking", "yes")} readOnly={false} />
+              Yes
+            </label>
+            <label className="flex items-center gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="dt-parking-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.parking === "no"} onChange={() => updateForm("parking", "no")} readOnly={false} />
+              No
+            </label>
+          </div>
+          {formData.parking === "yes" && (
+            <input className={inp} type="text" inputMode="numeric" placeholder="Number of parking spaces" value={formData.parkingCount} onChange={(e) => handleNumericFieldChange("parkingCount", e.target.value)} />
+          )}
+          {errors.parkingCount && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.parkingCount}</p>}
         </div>
       </FieldDt>
 
@@ -1553,7 +1612,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <h3 className="text-[14px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
       <FieldDt label="Property Age (Years)">
-        <input className={inp} type="number" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => handleNumericFieldChange("propertyAge", e.target.value)} />
       </FieldDt>
       <FieldDt label="Property Condition">
         {["New", "Good", "Renovated", "Needs Renovation"].map(condition => (
@@ -1611,18 +1670,21 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
+      
       <FieldDt label="Expected Price (₹)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => handleNumericFieldChange("expectedPrice", e.target.value)} />
         {errors.expectedPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.expectedPrice}</p>}
       </FieldDt>
+      
       <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9]/g, '') })} />
+          <input className={inp} type="text" inputMode="numeric" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9]/g, '') })} />
         </div>
       </FieldDt>
+      
       <FieldDt label="Security Deposit / Deposit Amount (₹)" hint="Enter the token/advance deposit amount, if applicable">
-        <input className={inp} type="number" min="0" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => handleNumericFieldChange("securityDeposit", e.target.value)} />
       </FieldDt>
 
       <FieldDt label="Price Type">
@@ -1638,7 +1700,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         </div>
       </FieldDt>
       <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => handleNumericFieldChange("maintenance", e.target.value)} />
       </FieldDt>
       <FieldDt label="Available From" hint="Date from which the property is available">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1871,7 +1933,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
       </div>
       <p className="text-[11px] text-gray-400 mb-3">Enter your bank details for sale proceeds</p>
       <FieldDt label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => handleAlphaFieldChange("accountHolderName", e.target.value)} />
         {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
       </FieldDt>
       <FieldDt label="Bank Name">
@@ -1881,11 +1943,11 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
         </select>
       </FieldDt>
       <FieldDt label="Account Number" required>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/[^0-9]/g, ''))} />
         {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </FieldDt>
       <FieldDt label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
         {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </FieldDt>
       <FieldDt label="UPI ID">
@@ -1960,7 +2022,7 @@ function DtContentSell({ step, inp, formData, updateForm, imagePreviews, handleI
           {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
         </FieldDt>
         <FieldDt label="Place" required>
-          <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+          <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => handleAlphaFieldChange("signaturePlace", e.target.value)} />
           {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
         </FieldDt>
 
