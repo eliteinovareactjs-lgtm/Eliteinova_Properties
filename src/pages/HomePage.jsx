@@ -197,6 +197,49 @@ const customerPortalCategories = [
 
 const postPropertyRoles = ["Owner", "Agent", "Builder", "Property Management"];
 
+// Four shades from the olive + teal family, plus one pastel green, so the
+// four roles read as a cohesive but distinguishable set. Each entry carries
+// its own "textOnBg" since the pastel shade is too light for white text.
+// Owner = Deep Teal | Agent = Spruce/Forest Green | Builder = Dark Moss Olive | PM = Deep Bottle Green
+const roleColorSchemes = {
+  Owner: {
+    bg: "#0F766E",         // Deep Teal
+    lightBg: "#CCFBF1",    // Pale Teal
+    text: "#0F766E",
+    textOnBg: "#FFFFFF",
+    hoverBg: "#0F766E",
+    hoverText: "#FFFFFF",
+    border: "#0F766E"
+  },
+  Agent: {
+    bg: "#2F6844",         // Spruce / Forest Green
+    lightBg: "#D6E8DA",    // Pale Spruce
+    text: "#2F6844",
+    textOnBg: "#FFFFFF",
+    hoverBg: "#2F6844",
+    hoverText: "#FFFFFF",
+    border: "#2F6844"
+  },
+  Builder: {
+    bg: "#3F5B2E",         // Dark Moss Olive
+    lightBg: "#DCE6D2",    // Pale Moss
+    text: "#3F5B2E",
+    textOnBg: "#FFFFFF",
+    hoverBg: "#3F5B2E",
+    hoverText: "#FFFFFF",
+    border: "#3F5B2E"
+  },
+  "Property Management": {
+    bg: "#1B4D3E",         // Deep Bottle Green
+    lightBg: "#D6E6E0",    // Pale Bottle Green
+    text: "#1B4D3E",
+    textOnBg: "#FFFFFF",
+    hoverBg: "#1B4D3E",
+    hoverText: "#FFFFFF",
+    border: "#1B4D3E"
+  }
+};
+
 const formRegistry = {
   Owner: {
     Individual: { Rent: IndRentForm, Sell: IndSellForm, Lease: IndLeaseForm },
@@ -229,7 +272,7 @@ const formRegistry = {
 };
 
 /* ------------------------------------------------------------------ */
-/*                Property-related ad content                         */
+/*                Property-related ad content - 4 ads each           */
 /* ------------------------------------------------------------------ */
 
 const browseAds = [
@@ -252,6 +295,13 @@ const browseAds = [
     subtitle: "Know your property's true market value in minutes",
     cta: "Get Valuation",
     image: land3,
+    route: "/services"
+  },
+  {
+    title: "Instant Home Sale",
+    subtitle: "Get cash offer for your property in 48 hours",
+    cta: "Sell Now",
+    image: villa1,
     route: "/services"
   }
 ];
@@ -276,6 +326,13 @@ const postingAds = [
     subtitle: "Build trust with a verified badge on your listing",
     cta: "Get Verified",
     image: commercial5,
+    route: "/services"
+  },
+  {
+    title: "Premium Listing Boost",
+    subtitle: "Get 5x more views with featured property status",
+    cta: "Boost Now",
+    image: apartment2,
     route: "/services"
   }
 ];
@@ -405,6 +462,13 @@ const loanAds = [
     cta: "Calculate Now",
     image: land5,
     route: "/find-loan"
+  },
+  {
+    title: "Balance Transfer Facility",
+    subtitle: "Switch your existing home loan for better rates",
+    cta: "Transfer Now",
+    image: commercial4,
+    route: "/find-loan"
   }
 ];
 
@@ -428,6 +492,13 @@ const serviceAds = [
     subtitle: "Help us match you with better pros next time",
     cta: "Leave Feedback",
     image: commercial5,
+    route: "/services"
+  },
+  {
+    title: "Free Site Inspection",
+    subtitle: "Get a free consultation for your renovation project",
+    cta: "Book Inspection",
+    image: villa3,
     route: "/services"
   }
 ];
@@ -516,7 +587,7 @@ const CategoryScrollSection = ({ category, registerRef, onScroll, onCardClick, o
   </div>
 );
 
-// Property-related ad strip (used twice: after Customer Portal, and after Post Property)
+// Property-related ad strip - 4 ads with 2 columns on mobile
 const AdsSection = ({ ads, heading, onNavigate }) => (
   <div className="w-full bg-[#1A3A32] py-8 sm:py-12">
     <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -528,13 +599,13 @@ const AdsSection = ({ ads, heading, onNavigate }) => (
           Sponsored
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-5">
         {ads.map((ad, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => onNavigate(ad.route)}
-            className="group relative text-left rounded-md overflow-hidden shadow-lg h-[130px] xs:h-[150px] sm:h-[190px]"
+            className="group relative text-left rounded-md overflow-hidden shadow-lg h-[110px] xs:h-[130px] sm:h-[150px] md:h-[190px]"
           >
             <img
               src={ad.image}
@@ -542,12 +613,12 @@ const AdsSection = ({ ads, heading, onNavigate }) => (
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A3A32]/85 via-[#1A3A32]/40 to-transparent" />
-            <div className="relative z-10 h-full flex flex-col justify-end p-3 sm:p-4">
-              <h4 className="text-white font-bold text-xs xs:text-sm sm:text-base leading-snug">{ad.title}</h4>
-              <p className="text-white/80 text-[9px] xs:text-[10px] sm:text-xs mt-1 mb-2 sm:mb-3 leading-snug">
+            <div className="relative z-10 h-full flex flex-col justify-end p-2 xs:p-3 sm:p-4">
+              <h4 className="text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base leading-snug">{ad.title}</h4>
+              <p className="text-white/80 text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs mt-0.5 sm:mt-1 mb-1 sm:mb-2 md:mb-3 leading-snug line-clamp-2">
                 {ad.subtitle}
               </p>
-              <span className="inline-flex items-center gap-1 text-[#9FE6D6] text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-wide">
+              <span className="inline-flex items-center gap-1 text-[#9FE6D6] text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-bold tracking-wide">
                 {ad.cta} →
               </span>
             </div>
@@ -941,7 +1012,7 @@ const HomePage = () => {
       </div>
 
       {/* ================================================================ */}
-      {/*  ADS SECTION — property related offers                           */}
+      {/*  ADS SECTION — property related offers (4 ads)                   */}
       {/* ================================================================ */}
       <AdsSection ads={browseAds} heading="Offers For You" onNavigate={handleAdNavigate} />
 
@@ -959,43 +1030,69 @@ const HomePage = () => {
 
           {/* Role selector: Owner / Agent / Builder / Property Management */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
-            {postPropertyRoles.map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => setPostRole(role)}
-                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-[11px] xs:text-xs sm:text-sm tracking-wide transition-all duration-300 border ${
-                  postRole === role
-                    ? "bg-[#1E7A6E] text-white border-[#1E7A6E] shadow-md"
-                    : "bg-white text-[#14534B] border-[#D1E2DB] hover:border-[#1E7A6E]"
-                }`}
-              >
-                {role}
-              </button>
-            ))}
+            {postPropertyRoles.map((role) => {
+              const colors = roleColorSchemes[role];
+              const isActive = postRole === role;
+              return (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setPostRole(role)}
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-[11px] xs:text-xs sm:text-sm tracking-wide transition-all duration-300 border-2"
+                  style={
+                    isActive
+                      ? { backgroundColor: colors.bg, borderColor: colors.bg, color: colors.textOnBg }
+                      : { backgroundColor: "#FFFFFF", color: colors.bg, borderColor: colors.bg }
+                  }
+                >
+                  {role}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Property type grid for the selected role */}
+          {/* Property type grid for the selected role with four unique green shades */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {customerPortalCategories.map((category) => (
-              <button
-                key={category.key}
-                type="button"
-                onClick={() => handlePostTypeClick(category.heading)}
-                className="flex flex-col items-center gap-2 p-4 sm:p-5 bg-[#EAF2EF] hover:bg-[#1E7A6E] rounded-lg border border-[#D1E2DB] transition-all duration-300 group"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
-                  <img
-                    src={category.items[0].image}
-                    alt={category.heading}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <span className="text-[#14534B] group-hover:text-white font-bold text-[11px] xs:text-xs sm:text-sm text-center transition-colors">
-                  {category.heading}
-                </span>
-              </button>
-            ))}
+            {customerPortalCategories.map((category) => {
+              const colors = roleColorSchemes[postRole];
+              return (
+                <button
+                  key={category.key}
+                  type="button"
+                  onClick={() => handlePostTypeClick(category.heading)}
+                  className="flex flex-col items-center gap-2 p-4 sm:p-5 rounded-lg border-2 transition-all duration-300 group hover:scale-105 hover:shadow-lg"
+                  style={{
+                    backgroundColor: colors.lightBg,
+                    borderColor: colors.bg,
+                    transition: "all 0.3s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.bg;
+                    const textEl = e.currentTarget.querySelector('span');
+                    if (textEl) textEl.style.color = colors.textOnBg;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.lightBg;
+                    const textEl = e.currentTarget.querySelector('span');
+                    if (textEl) textEl.style.color = colors.bg;
+                  }}
+                >
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-white shadow-md">
+                    <img
+                      src={category.items[0].image}
+                      alt={category.heading}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span 
+                    className="font-bold text-[11px] xs:text-xs sm:text-sm text-center transition-colors duration-300"
+                    style={{ color: colors.bg }}
+                  >
+                    {category.heading}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1014,7 +1111,7 @@ const HomePage = () => {
       )}
 
       {/* ================================================================ */}
-      {/*  ADS SECTION (after Post Property)                                */}
+      {/*  ADS SECTION (after Post Property) - 4 ads                      */}
       {/* ================================================================ */}
       <AdsSection ads={postingAds} heading="Grow Your Listing" onNavigate={handleAdNavigate} />
 
@@ -1053,7 +1150,7 @@ const HomePage = () => {
       </div>
 
       {/* ================================================================ */}
-      {/*  ADS SECTION (after Find Your Loan)                               */}
+      {/*  ADS SECTION (after Find Your Loan) - 4 ads                     */}
       {/* ================================================================ */}
       <AdsSection ads={loanAds} heading="Loan Offers" onNavigate={handleAdNavigate} />
 
@@ -1092,7 +1189,7 @@ const HomePage = () => {
       </div>
 
       {/* ================================================================ */}
-      {/*  ADS SECTION                                                     */}
+      {/*  ADS SECTION (after Services) - 4 ads                           */}
       {/* ================================================================ */}
       <AdsSection ads={serviceAds} heading="Service Offers" onNavigate={handleAdNavigate} />
     </div>

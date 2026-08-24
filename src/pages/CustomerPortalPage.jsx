@@ -232,6 +232,7 @@ const propertiesByPoster = [
   { key: "pm", poster: "Property Management", properties: pmProperties }
 ];
 
+// 4 ads for each section
 const preListingAds = [
   {
     title: "Zero Brokerage, Always",
@@ -252,6 +253,13 @@ const preListingAds = [
     subtitle: "Book a guided visit for any property below, at no cost",
     cta: "Book a Visit",
     image: villa3,
+    route: "/services"
+  },
+  {
+    title: "Instant Property Alerts",
+    subtitle: "Get notified when new properties match your criteria",
+    cta: "Set Alerts",
+    image: apartment4,
     route: "/services"
   }
 ];
@@ -276,6 +284,13 @@ const postListingAds = [
     subtitle: "Reach thousands of buyers for your new launches",
     cta: "Partner With Us",
     image: land5,
+    route: "/services"
+  },
+  {
+    title: "Featured Listing Boost",
+    subtitle: "Get 5x more visibility with featured property status",
+    cta: "Boost Now",
+    image: villa4,
     route: "/services"
   }
 ];
@@ -371,6 +386,7 @@ const registeredLenders = [
   }
 ];
 
+// 4 ads for loan providers
 const loanProviderAds = [
   {
     title: "Compare Rates in One Place",
@@ -392,6 +408,13 @@ const loanProviderAds = [
     cta: "Register Now",
     image: land2,
     route: "/services"
+  },
+  {
+    title: "Pre-Approved Loans",
+    subtitle: "Get pre-approved for a loan before you start house hunting",
+    cta: "Get Pre-Approved",
+    image: commercial5,
+    route: "/find-loan"
   }
 ];
 
@@ -482,6 +505,7 @@ const registeredServiceProviders = [
   }
 ];
 
+// 4 ads for service providers
 const serviceProviderAds = [
   {
     title: "Bundle & Save 15%",
@@ -502,6 +526,13 @@ const serviceProviderAds = [
     subtitle: "Get discovered by property owners who need your service",
     cta: "Register Now",
     image: commercial2,
+    route: "/services"
+  },
+  {
+    title: "Free Consultation",
+    subtitle: "Get expert advice for your home renovation project",
+    cta: "Book Free Consult",
+    image: villa2,
     route: "/services"
   }
 ];
@@ -775,7 +806,7 @@ const ServiceProviderCard = ({ provider }) => {
   );
 };
 
-// Property-related ad strip
+// Property-related ad strip - 4 ads with 2 columns on mobile
 const AdsSection = ({ ads, heading, onNavigate }) => (
   <div className="w-full bg-[#1A3A32] py-8 sm:py-12">
     <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -787,13 +818,13 @@ const AdsSection = ({ ads, heading, onNavigate }) => (
           Sponsored
         </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-5">
         {ads.map((ad, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => onNavigate(ad.route)}
-            className="group relative text-left rounded-md overflow-hidden shadow-lg h-[130px] xs:h-[150px] sm:h-[190px]"
+            className="group relative text-left rounded-md overflow-hidden shadow-lg h-[110px] xs:h-[130px] sm:h-[150px] md:h-[190px]"
           >
             <img
               src={ad.image}
@@ -801,12 +832,12 @@ const AdsSection = ({ ads, heading, onNavigate }) => (
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A3A32]/85 via-[#1A3A32]/40 to-transparent" />
-            <div className="relative z-10 h-full flex flex-col justify-end p-3 sm:p-4">
-              <h4 className="text-white font-bold text-xs xs:text-sm sm:text-base leading-snug">{ad.title}</h4>
-              <p className="text-white/80 text-[9px] xs:text-[10px] sm:text-xs mt-1 mb-2 sm:mb-3 leading-snug">
+            <div className="relative z-10 h-full flex flex-col justify-end p-2 xs:p-3 sm:p-4">
+              <h4 className="text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base leading-snug">{ad.title}</h4>
+              <p className="text-white/80 text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs mt-0.5 sm:mt-1 mb-1 sm:mb-2 md:mb-3 leading-snug line-clamp-2">
                 {ad.subtitle}
               </p>
-              <span className="inline-flex items-center gap-1 text-[#9FE6D6] text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-wide">
+              <span className="inline-flex items-center gap-1 text-[#9FE6D6] text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-bold tracking-wide">
                 {ad.cta} →
               </span>
             </div>
@@ -924,6 +955,7 @@ const CustomerPortalPage = () => {
           ))}
         </div>
       </section>
+      
       <AdsSection ads={preListingAds} heading="Why Buyers Trust Us" onNavigate={handleAdNavigate} />
 
       {/* ================================================================ */}
