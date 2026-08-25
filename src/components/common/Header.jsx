@@ -1,7 +1,13 @@
+// src/components/common/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { User, Menu, ChevronDown, X, Sparkles, Bell, Search, HelpCircle, Settings, LogOut, Home, Building, Landmark, Warehouse, TrendingUp, Shield, DollarSign, Wrench, PaintBucket, Droplets, Heart, Star, Zap, CheckCircle, Award, MapPin, Globe, Phone, Mail, Calendar, Clock, Briefcase } from "lucide-react";
+import { User, Menu, ChevronDown, X, Sparkles, Bell, Search, HelpCircle, Settings, LogOut, Home, Building, Landmark, Warehouse, TrendingUp, Shield, DollarSign, Wrench, PaintBucket, Droplets, Heart, Star, Zap, CheckCircle, Award, MapPin, Globe, Phone, Mail, Calendar, Clock, Briefcase, LogIn, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo1.png";
+
+// Import Login & Register Components
+import CustomerLogin from '../login/CustomerLogin';
+import CustomerRegister from '../login/CustomerRegister';
+import VendorLogin from '../login/VendorLogin';
 
 // Import Individual Forms (Owner)
 import { IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner/Index.js";
@@ -72,6 +78,16 @@ const Header = ({ onPostPropertyClick }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  
+  // ============ LOGIN & REGISTER STATES ============
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showRegisterPopup, setShowRegisterPopup] = useState(false);
+  const [loginType, setLoginType] = useState(null);
+  const [registerType, setRegisterType] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showCustomerLogin, setShowCustomerLogin] = useState(false);
+  const [showCustomerRegister, setShowCustomerRegister] = useState(false);
+  const [showVendorLogin, setShowVendorLogin] = useState(false);
   
   // State for Role Selection
   const [showRoleSelectionPopup, setShowRoleSelectionPopup] = useState(false);
@@ -266,6 +282,45 @@ const Header = ({ onPostPropertyClick }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ============ LOGIN & REGISTER HANDLERS ============
+  const handleLoginClick = () => {
+    setShowLoginPopup(true);
+    setUserMenuOpen(false);
+  };
+
+  const handleRegisterClick = () => {
+    setShowRegisterPopup(true);
+    setUserMenuOpen(false);
+  };
+
+  const handleLoginTypeSelect = (type) => {
+    setLoginType(type);
+    setShowLoginPopup(false);
+    if (type === 'customer') {
+      setShowCustomerLogin(true);
+    } else if (type === 'vendor') {
+      setShowVendorLogin(true);
+    }
+  };
+
+  const handleRegisterTypeSelect = (type) => {
+    setRegisterType(type);
+    setShowRegisterPopup(false);
+    if (type === 'customer') {
+      setShowCustomerRegister(true);
+    } else if (type === 'vendor') {
+      // You can add VendorRegister component here if needed
+      // For now, we'll use the same customer register
+      setShowCustomerRegister(true);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserMenuOpen(false);
+    // Handle logout logic here
+  };
 
   // ============ LAND & PLOTS HANDLERS (OWNER) ============
   const handleLPActionClick = (action) => {
@@ -962,7 +1017,7 @@ const Header = ({ onPostPropertyClick }) => {
 
             <div className="flex items-center gap-1.5 md:gap-3">
               <div ref={searchRef} className="relative">
-                <button
+                {/* <button
                   onClick={() => setSearchOpen(!searchOpen)}
                   className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center relative group transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-[#00695C]/30"
                   style={{
@@ -972,9 +1027,9 @@ const Header = ({ onPostPropertyClick }) => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-[#00695C] via-[#26A69A] to-[#00695C] opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
                   <Search className="w-5 h-5 text-[#00695C] group-hover:text-[#004D40] transition-colors duration-300" />
-                </button>
+                </button> */}
 
-                {searchOpen && (
+                {/* {searchOpen && (
                   <div className="absolute top-full right-0 mt-2 w-72 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 border border-white/30 animate-dropdown">
                     <form onSubmit={handleSearch} className="p-3">
                       <div className="relative">
@@ -1013,10 +1068,10 @@ const Header = ({ onPostPropertyClick }) => {
                       </div>
                     </form>
                   </div>
-                )}
+                )} */}
               </div>
 
-              <button className="relative group">
+              {/* <button className="relative group">
                 <div className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center relative transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-orange-500/30"
                   style={{
                     background: 'linear-gradient(135deg, #FFEB3B, #FF9800)',
@@ -1031,61 +1086,81 @@ const Header = ({ onPostPropertyClick }) => {
                     <span className="text-white text-[8px] font-bold">{notificationCount}</span>
                   </div>
                 )}
-              </button>
+              </button> */}
 
-              <div className="relative">
-                <button 
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center relative group transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-[#00695C]/30"
-                  style={{
-                    background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
-                    boxShadow: '0 3px 12px rgba(0,105,92,0.2)',
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00695C] via-[#26A69A] to-[#00695C] opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
-                  <div className="absolute -inset-0.5 rounded-full border border-white/20 animate-spin-slow" />
-                  
-                  <User className="w-5 h-5 md:w-6 md:h-6 text-[#00695C] group-hover:text-[#004D40] transition-colors duration-300 relative z-10" />
-                  
-                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse border-2 border-white" />
-                </button>
+              {/* ============ LOGIN & REGISTER BUTTONS ============ */}
+              {!isLoggedIn ? (
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <button
+                    onClick={handleLoginClick}
+                    className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium text-white bg-gradient-to-r from-[#00E5FF]/20 to-[#00FF88]/20 hover:from-[#00E5FF]/40 hover:to-[#00FF88]/40 border border-white/20 hover:border-white/40 transition-all duration-300 flex items-center gap-1.5 hover:scale-105 shadow-lg shadow-[#00E5FF]/10"
+                  >
+                    <LogIn className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    Login
+                  </button>
+                  <button
+                    onClick={handleRegisterClick}
+                    className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium text-[#00695C] bg-gradient-to-r from-[#FFEB3B] to-[#FF9800] hover:from-[#FFD54F] hover:to-[#FFA726] transition-all duration-300 flex items-center gap-1.5 hover:scale-105 shadow-lg shadow-orange-500/30"
+                  >
+                    <UserPlus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    Register
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <button 
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center relative group transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-[#00695C]/30"
+                    style={{
+                      background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
+                      boxShadow: '0 3px 12px rgba(0,105,92,0.2)',
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00695C] via-[#26A69A] to-[#00695C] opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
+                    <div className="absolute -inset-0.5 rounded-full border border-white/20 animate-spin-slow" />
+                    
+                    <User className="w-5 h-5 md:w-6 md:h-6 text-[#00695C] group-hover:text-[#004D40] transition-colors duration-300 relative z-10" />
+                    
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse border-2 border-white" />
+                  </button>
 
-                {userMenuOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 border border-white/30 animate-dropdown">
-                    <div className="p-3 border-b border-[#E8F5E9]">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00695C] to-[#26A69A] flex items-center justify-center shadow-md">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm text-gray-800">John Doe</p>
-                          <p className="text-[8px] text-[#26A69A] font-medium">⭐ Premium</p>
+                  {userMenuOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 border border-white/30 animate-dropdown">
+                      <div className="p-3 border-b border-[#E8F5E9]">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00695C] to-[#26A69A] flex items-center justify-center shadow-md">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm text-gray-800">John Doe</p>
+                            <p className="text-[8px] text-[#26A69A] font-medium">⭐ Premium</p>
+                          </div>
                         </div>
                       </div>
+                      <div className="p-1.5">
+                        {userMenuItems.map((item, index) => (
+                          <button
+                            key={item.name}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 rounded-lg animate-slide-item"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                            onClick={() => {
+                              setUserMenuOpen(false);
+                              if (item.name === "🚪 Logout") {
+                                handleLogout();
+                              } else {
+                                navigate(`/${item.name.toLowerCase().replace(/[👤⚙️❓🚪]/g, '').trim()}`);
+                              }
+                            }}
+                          >
+                            <span className="text-[#26A69A]">{item.icon}</span>
+                            <span>{item.name}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="p-1.5">
-                      {userMenuItems.map((item, index) => (
-                        <button
-                          key={item.name}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 rounded-lg animate-slide-item"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                          onClick={() => {
-                            setUserMenuOpen(false);
-                            if (item.name === "🚪 Logout") {
-                              // Handle logout
-                            } else {
-                              navigate(`/${item.name.toLowerCase().replace(/[👤⚙️❓🚪]/g, '').trim()}`);
-                            }
-                          }}
-                        >
-                          <span className="text-[#26A69A]">{item.icon}</span>
-                          <span>{item.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1253,6 +1328,124 @@ const Header = ({ onPostPropertyClick }) => {
           </div> 
         </nav>
       </header>
+
+      {/* ============ LOGIN POPUP ============ */}
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowLoginPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <LogIn className="w-5 h-5" />
+                Login as
+              </h2>
+              <button 
+                onClick={() => setShowLoginPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Choose your role to continue
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleLoginTypeSelect('customer')}
+                className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-3xl mb-2">👤</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Customer</div>
+                <div className="text-xs text-gray-500 mt-1">Looking for properties</div>
+              </button>
+
+              <button
+                onClick={() => handleLoginTypeSelect('vendor')}
+                className="p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200 hover:border-emerald-500 transition-all duration-300 group"
+              >
+                <div className="text-3xl mb-2">🏢</div>
+                <div className="font-bold text-emerald-700 group-hover:text-emerald-900">Vendor</div>
+                <div className="text-xs text-gray-500 mt-1">Sell or rent properties</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ REGISTER POPUP ============ */}
+      {showRegisterPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade" onClick={() => setShowRegisterPopup(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-dropdown" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#00695C] flex items-center gap-2">
+                <UserPlus className="w-5 h-5" />
+                Register as
+              </h2>
+              <button 
+                onClick={() => setShowRegisterPopup(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              Choose your role to get started
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => handleRegisterTypeSelect('customer')}
+                className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 hover:border-blue-500 transition-all duration-300 group"
+              >
+                <div className="text-3xl mb-2">👤</div>
+                <div className="font-bold text-blue-700 group-hover:text-blue-900">Customer</div>
+                <div className="text-xs text-gray-500 mt-1">Find your dream property</div>
+              </button>
+
+              <button
+                onClick={() => handleRegisterTypeSelect('vendor')}
+                className="p-6 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200 hover:border-emerald-500 transition-all duration-300 group"
+              >
+                <div className="text-3xl mb-2">🏢</div>
+                <div className="font-bold text-emerald-700 group-hover:text-emerald-900">Vendor</div>
+                <div className="text-xs text-gray-500 mt-1">List your properties</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ CUSTOMER LOGIN MODAL ============ */}
+      <CustomerLogin 
+        isOpen={showCustomerLogin} 
+        onClose={() => setShowCustomerLogin(false)}
+        onSwitchToRegister={() => {
+          setShowCustomerLogin(false);
+          setShowCustomerRegister(true);
+        }}
+      />
+
+      {/* ============ CUSTOMER REGISTER MODAL ============ */}
+      <CustomerRegister 
+        isOpen={showCustomerRegister} 
+        onClose={() => setShowCustomerRegister(false)}
+        onSwitchToLogin={() => {
+          setShowCustomerRegister(false);
+          setShowCustomerLogin(true);
+        }}
+      />
+
+      {/* ============ VENDOR LOGIN MODAL ============ */}
+      <VendorLogin 
+        isOpen={showVendorLogin} 
+        onClose={() => setShowVendorLogin(false)}
+        onSwitchToRegister={() => {
+          setShowVendorLogin(false);
+          // Open vendor register if available
+        }}
+      />
 
       {/* ============ ROLE SELECTION POPUP ============ */}
       {showRoleSelectionPopup && (
@@ -2645,6 +2838,46 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 ❓ Help
               </button>
+
+              {/* Mobile Login/Register Options */}
+              {!isLoggedIn ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowLoginPopup(true);
+                      toggleMobileMenu();
+                    }}
+                    className="w-full text-left text-white font-medium py-3 border-b border-white/5 text-sm animate-slide-item flex items-center gap-2"
+                    style={{ animationDelay: '400ms' }}
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRegisterPopup(true);
+                      toggleMobileMenu();
+                    }}
+                    className="w-full text-left text-white font-medium py-3 text-sm animate-slide-item flex items-center gap-2"
+                    style={{ animationDelay: '450ms' }}
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Register
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    toggleMobileMenu();
+                  }}
+                  className="w-full text-left text-white font-medium py-3 text-sm animate-slide-item flex items-center gap-2"
+                  style={{ animationDelay: '400ms' }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              )}
             </div>
           </div>
         </div>
