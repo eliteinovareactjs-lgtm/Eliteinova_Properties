@@ -58,7 +58,7 @@ export default function IndSellForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Owner Details (Step 0)
-    ownerName: "", contactNumber: "", emailId: "", dateOfBirth: "", gender: "",
+    ownerName: "", contactNumber: "", emailId: "", gender: "",
     // Identity Verification (Step 1)
     aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, passportPhoto: null,
     addressLine1: "", addressLine2: "", city: "", district: "", state: "", pinCode: "",
@@ -358,7 +358,6 @@ const validateStep = (s) => {
     if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
     if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
     if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
-    if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
     if (!formData.gender) e.gender = "Please select your gender";
   }
   if (s === 1) {
@@ -419,9 +418,17 @@ const validateStep = (s) => {
     if (!formData.signatureDate) e.signatureDate = "Date is required";
     if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
     else if (!isOnlyLetters(formData.signaturePlace)) e.signaturePlace = "Place should contain only letters and spaces";
-    if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm this to proceed";
-    if (!formData.declarationAccurate) e.declarationAccurate = "You must confirm this to proceed";
-    if (!formData.declarationTerms) e.declarationTerms = "You must agree to proceed";
+    
+    // Check each declaration individually
+    if (!formData.declarationAccepted) {
+      e.declarationAccepted = "You must confirm that you are the legal owner or authorized representative";
+    }
+    if (!formData.declarationAccurate) {
+      e.declarationAccurate = "You must certify that all information is accurate";
+    }
+    if (!formData.declarationTerms) {
+      e.declarationTerms = "You must agree to the Terms & Conditions and Privacy Policy";
+    }
   }
   return e;
 };
@@ -732,10 +739,6 @@ function MobContentSell({ step, inp, formData, updateForm, handleAlphaFieldChang
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </Field>
-      <Field label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
-      </Field>
       <Field label="Gender" required>
         <div className="flex gap-4">
           {["Male", "Female", "Other"].map(g => (
@@ -984,7 +987,6 @@ function MobContentSell({ step, inp, formData, updateForm, handleAlphaFieldChang
         {errors.expectedPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.expectedPrice}</p>}
       </Field>
       
-      {/* Budget Range */}
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-1">
           <input className={inp} type="text" inputMode="numeric" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9]/g, '') })} />
@@ -1335,27 +1337,41 @@ function MobContentSell({ step, inp, formData, updateForm, handleAlphaFieldChang
         {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
       </Field>
 
-      {/* Declaration */}
+      {/* Declaration - Independent Checkboxes */}
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <div className="space-y-1.5">
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
-        </label>
-        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted}</p>}
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
-          <span>I certify that all information and documents provided are accurate and authentic.</span>
-        </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+      <div className="space-y-2">
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+            <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
+          </label>
+          {errors.declarationAccepted && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+            <span>I certify that all information and documents provided are accurate and authentic.</span>
+          </label>
+          {errors.declarationAccurate && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+            <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+          </label>
+          {errors.declarationTerms && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>
+          )}
+        </div>
       </div>
     </>
   );
@@ -1424,10 +1440,6 @@ function DtContentSell({ step, inp, formData, updateForm, handleAlphaFieldChange
       <FieldDt label="Email Address" required hint="We'll send listing updates to this email">
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
-      </FieldDt>
-      <FieldDt label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </FieldDt>
       <FieldDt label="Gender" required>
         <div className="flex gap-5">
@@ -2026,27 +2038,41 @@ function DtContentSell({ step, inp, formData, updateForm, handleAlphaFieldChange
           {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
         </FieldDt>
 
-      {/* Declaration */}
+      {/* Declaration - Independent Checkboxes */}
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <div className="space-y-1.5">
-        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
-        </label>
-        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted}</p>}
-        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
-          <span>I certify that all information and documents provided are accurate and authentic.</span>
-        </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
-        <label className="flex items-start gap-1.5 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+      <div className="space-y-3">
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+            <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
+          </label>
+          {errors.declarationAccepted && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationAccepted}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+            <span>I certify that all information and documents provided are accurate and authentic.</span>
+          </label>
+          {errors.declarationAccurate && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationAccurate}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+            <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+          </label>
+          {errors.declarationTerms && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationTerms}</p>
+          )}
+        </div>
       </div>
     </>
   );

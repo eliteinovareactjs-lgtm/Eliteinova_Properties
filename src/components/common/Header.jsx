@@ -8,6 +8,7 @@ import logo from "../../assets/logo1.png";
 import CustomerLogin from '../login/CustomerLogin';
 import CustomerRegister from '../login/CustomerRegister';
 import VendorLogin from '../login/VendorLogin';
+import VendorRegister from '../login/VendorRegister';
 
 // Import Individual Forms (Owner)
 import { IndRentForm, IndSellForm, IndLeaseForm } from "../Forms/Owner/Index.js";
@@ -88,6 +89,7 @@ const Header = ({ onPostPropertyClick }) => {
   const [showCustomerLogin, setShowCustomerLogin] = useState(false);
   const [showCustomerRegister, setShowCustomerRegister] = useState(false);
   const [showVendorLogin, setShowVendorLogin] = useState(false);
+  const [showVendorRegister, setShowVendorRegister] = useState(false);
   
   // State for Role Selection
   const [showRoleSelectionPopup, setShowRoleSelectionPopup] = useState(false);
@@ -310,9 +312,7 @@ const Header = ({ onPostPropertyClick }) => {
     if (type === 'customer') {
       setShowCustomerRegister(true);
     } else if (type === 'vendor') {
-      // You can add VendorRegister component here if needed
-      // For now, we'll use the same customer register
-      setShowCustomerRegister(true);
+      setShowVendorRegister(true);
     }
   };
 
@@ -1443,7 +1443,17 @@ const Header = ({ onPostPropertyClick }) => {
         onClose={() => setShowVendorLogin(false)}
         onSwitchToRegister={() => {
           setShowVendorLogin(false);
-          // Open vendor register if available
+          setShowVendorRegister(true);
+        }}
+      />
+
+      {/* ============ VENDOR REGISTER MODAL ============ */}
+      <VendorRegister 
+        isOpen={showVendorRegister} 
+        onClose={() => setShowVendorRegister(false)}
+        onSwitchToLogin={() => {
+          setShowVendorRegister(false);
+          setShowVendorLogin(true);
         }}
       />
 
@@ -2197,8 +2207,7 @@ const Header = ({ onPostPropertyClick }) => {
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
               </button>
 
-              <button
-                onClick={() => handleAgentComActionClick("Lease")}
+              <button                onClick={() => handleAgentComActionClick("Lease")}
                 className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">📄</div>

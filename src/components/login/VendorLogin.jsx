@@ -1,6 +1,6 @@
 // src/components/login/VendorLogin.jsx
 import React, { useState, useEffect } from 'react';
-import { X, Building, Mail, Lock, Eye, EyeOff, ArrowRight, Store, Shield } from 'lucide-react';
+import { X, Building, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const VendorLogin = ({ isOpen, onClose, onSwitchToRegister }) => {
@@ -8,8 +8,7 @@ const VendorLogin = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false,
-    vendorType: 'owner'
+    rememberMe: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,8 +46,7 @@ const VendorLogin = ({ isOpen, onClose, onSwitchToRegister }) => {
     setFormData({
       email: '',
       password: '',
-      rememberMe: false,
-      vendorType: 'owner'
+      rememberMe: false
     });
     setError('');
     setLoading(false);
@@ -144,33 +142,6 @@ const VendorLogin = ({ isOpen, onClose, onSwitchToRegister }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                I am a
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: 'owner', label: '🏠 Owner' },
-                  { value: 'agent', label: '🤝 Agent' },
-                  { value: 'builder', label: '🏗️ Builder' },
-                  { value: 'pm', label: '📊 PM' }
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, vendorType: type.value }))}
-                    className={`py-2 px-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                      formData.vendorType === type.value
-                        ? 'bg-gradient-to-r from-[#00695C] to-[#26A69A] text-white shadow-lg shadow-[#00695C]/30'
-                        : 'bg-[#E8F5E9]/30 border-2 border-[#26A69A]/20 text-gray-700 hover:border-[#26A69A]/50'
-                    }`}
-                  >
-                    {type.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Email Address
               </label>
               <div className="relative">
@@ -262,25 +233,6 @@ const VendorLogin = ({ isOpen, onClose, onSwitchToRegister }) => {
                 Register as Vendor
               </button>
             </p>
-          </div>
-
-          <div className="mt-6 flex items-center gap-4">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#26A69A]/20" />
-            <span className="text-xs text-gray-400">Or continue with</span>
-            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#26A69A]/20" />
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button className="py-2.5 px-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#26A69A]/30 hover:bg-[#E8F5E9]/20 transition-all duration-300 flex items-center justify-center gap-2">
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-              <span className="text-sm font-medium text-gray-700">Google</span>
-            </button>
-            <button className="py-2.5 px-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#26A69A]/30 hover:bg-[#E8F5E9]/20 transition-all duration-300 flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              <span className="text-sm font-medium text-gray-700">Facebook</span>
-            </button>
           </div>
         </div>
       </div>

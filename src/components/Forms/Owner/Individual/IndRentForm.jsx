@@ -59,7 +59,7 @@ export default function IndRentForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Owner Details (Step 0)
-    ownerName: "", contactNumber: "", emailId: "", dateOfBirth: "", gender: "",
+    ownerName: "", contactNumber: "", emailId: "", gender: "",
     // Identity Verification (Step 1)
     aadhaarNumber: "", panNumber: "", aadhaarCard: null, panCard: null, passportPhoto: null,
     addressLine1: "", addressLine2: "", city: "", district: "", state: "", pinCode: "",
@@ -368,17 +368,16 @@ export default function IndRentForm({ isOpen, onClose }) {
   };
 
   const validateStep = (s) => {
-  const e = {};
-   if (s === 0) {
-    if (!formData.ownerName.trim()) e.ownerName = "Full name is required";
-    else if (!isOnlyLetters(formData.ownerName)) e.ownerName = "Name should contain only letters and spaces";
-    if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
-    if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
-    if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
-    if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
-    if (!formData.gender) e.gender = "Please select your gender";
-  }
-  if (s === 1) {
+    const e = {};
+    if (s === 0) {
+      if (!formData.ownerName.trim()) e.ownerName = "Full name is required";
+      else if (!isOnlyLetters(formData.ownerName)) e.ownerName = "Name should contain only letters and spaces";
+      if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
+      if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
+      if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
+      if (!formData.gender) e.gender = "Please select your gender";
+    }
+    if (s === 1) {
       if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) e.aadhaarNumber = "Aadhaar number must be exactly 12 digits";
       if (!formData.aadhaarNumber.match(/^[0-9]{12}$/)) e.aadhaarNumber = "Aadhaar number must contain only numbers";
       if (!formData.aadhaarCard) e.aadhaarCard = "Aadhaar card upload is required";
@@ -394,25 +393,25 @@ export default function IndRentForm({ isOpen, onClose }) {
       else if (!isSixDigitPinCode(formData.pinCode)) e.pinCode = "PIN code must be exactly 6 digits";
     }
     if (s === 2) {
-        if (!formData.propertyTitle.trim()) e.propertyTitle = "Property title is required";
-        if (!formData.propertyType) e.propertyType = "Please select a property type";
-        if (!formData.propertyArea.trim()) e.propertyArea = "Property area is required";
-        else if (!isOnlyLettersAndNumbers(formData.propertyArea)) e.propertyArea = "Property area should contain only letters and numbers";
-        if (!formData.propertyCity.trim()) e.propertyCity = "Property city is required";
-        else if (!isOnlyLetters(formData.propertyCity)) e.propertyCity = "Property city should contain only letters and spaces";
-        if (!formData.builtUpArea) e.builtUpArea = "Built-up area is required";
-        else if (!isOnlyNumbers(formData.builtUpArea)) e.builtUpArea = "Built-up area must be a number";
-        if (!formData.carpetArea) e.carpetArea = "Carpet area is required";
-        else if (!isOnlyNumbers(formData.carpetArea)) e.carpetArea = "Carpet area must be a number";
-        if (!formData.bedrooms) e.bedrooms = "Number of bedrooms is required";
-        else if (!isOnlyNumbers(formData.bedrooms)) e.bedrooms = "Bedrooms must be a number";
-        if (!formData.bathrooms) e.bathrooms = "Number of bathrooms is required";
-        else if (!isOnlyNumbers(formData.bathrooms)) e.bathrooms = "Bathrooms must be a number";
-        if (!formData.furnishingStatus) e.furnishingStatus = "Please select furnishing status";
-        if (!formData.occupancyDetails || formData.occupancyDetails.length === 0) e.occupancyDetails = "Please select at least one occupancy type";
-        if (formData.parking === "yes" && !formData.parkingCount) e.parkingCount = "Please enter number of parking spaces";
-        if (formData.parking === "yes" && formData.parkingCount && !isOnlyNumbers(formData.parkingCount)) e.parkingCount = "Parking spaces must be a number";
-      }
+      if (!formData.propertyTitle.trim()) e.propertyTitle = "Property title is required";
+      if (!formData.propertyType) e.propertyType = "Please select a property type";
+      if (!formData.propertyArea.trim()) e.propertyArea = "Property area is required";
+      else if (!isOnlyLettersAndNumbers(formData.propertyArea)) e.propertyArea = "Property area should contain only letters and numbers";
+      if (!formData.propertyCity.trim()) e.propertyCity = "Property city is required";
+      else if (!isOnlyLetters(formData.propertyCity)) e.propertyCity = "Property city should contain only letters and spaces";
+      if (!formData.builtUpArea) e.builtUpArea = "Built-up area is required";
+      else if (!isOnlyNumbers(formData.builtUpArea)) e.builtUpArea = "Built-up area must be a number";
+      if (!formData.carpetArea) e.carpetArea = "Carpet area is required";
+      else if (!isOnlyNumbers(formData.carpetArea)) e.carpetArea = "Carpet area must be a number";
+      if (!formData.bedrooms) e.bedrooms = "Number of bedrooms is required";
+      else if (!isOnlyNumbers(formData.bedrooms)) e.bedrooms = "Bedrooms must be a number";
+      if (!formData.bathrooms) e.bathrooms = "Number of bathrooms is required";
+      else if (!isOnlyNumbers(formData.bathrooms)) e.bathrooms = "Bathrooms must be a number";
+      if (!formData.furnishingStatus) e.furnishingStatus = "Please select furnishing status";
+      if (!formData.occupancyDetails || formData.occupancyDetails.length === 0) e.occupancyDetails = "Please select at least one occupancy type";
+      if (formData.parking === "yes" && !formData.parkingCount) e.parkingCount = "Please enter number of parking spaces";
+      if (formData.parking === "yes" && formData.parkingCount && !isOnlyNumbers(formData.parkingCount)) e.parkingCount = "Parking spaces must be a number";
+    }
     if (s === 3) {
       if (!formData.expectedPrice) e.expectedPrice = "Expected rent is required";
       else if (!isOnlyNumbers(formData.expectedPrice)) e.expectedPrice = "Expected rent must be a number";
@@ -427,21 +426,29 @@ export default function IndRentForm({ isOpen, onClose }) {
       if (!formData.floorPlan) e.floorPlan = "Floor plan is required";
     }
     if (s === 6) {
-        if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
-        else if (!isOnlyLetters(formData.accountHolderName)) e.accountHolderName = "Account holder name should contain only letters and spaces";
-        if (!formData.accountNumber) e.accountNumber = "Account number is required";
-        else if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
-        if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
-        if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
-      }
+      if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
+      else if (!isOnlyLetters(formData.accountHolderName)) e.accountHolderName = "Account holder name should contain only letters and spaces";
+      if (!formData.accountNumber) e.accountNumber = "Account number is required";
+      else if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
+      if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
+      if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+    }
     if (s === 7) {
       if (!formData.signature) e.signature = "Please draw your signature";
       if (!formData.signatureDate) e.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
       else if (!isOnlyLetters(formData.signaturePlace)) e.signaturePlace = "Place should contain only letters and spaces";
-      if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm this to proceed";
-      if (!formData.declarationAccurate) e.declarationAccurate = "You must confirm this to proceed";
-      if (!formData.declarationTerms) e.declarationTerms = "You must agree to proceed";
+      
+      // Check each declaration individually
+      if (!formData.declarationAccepted) {
+        e.declarationAccepted = "You must confirm that you are the legal owner or authorized representative";
+      }
+      if (!formData.declarationAccurate) {
+        e.declarationAccurate = "You must certify that all information is accurate";
+      }
+      if (!formData.declarationTerms) {
+        e.declarationTerms = "You must agree to the Terms & Conditions and Privacy Policy";
+      }
     }
     return e;
   };
@@ -647,7 +654,7 @@ export default function IndRentForm({ isOpen, onClose }) {
               allSignaturePoints={allSignaturePoints}
               setAllSignaturePoints={setAllSignaturePoints}
             />
-                      </div>
+          </div>
 
           <div className="flex flex-col shrink-0 bg-white rounded-b-2xl border-t border-teal-100 overflow-hidden">
             <div className="h-[2px] w-full bg-gradient-to-r from-[#00695C] via-[#26A69A] to-[#80CBC4]" />
@@ -740,21 +747,17 @@ function MobContentRent({ step, inp, formData, updateForm, handleAlphaFieldChang
   // STEP 0: Owner Details
   if (step === 0) return (
     <>
-      <Field label="Full Name" required>
-        <input className={inp} placeholder="Enter your full name" value={formData.ownerName} onChange={(e) => handleAlphaFieldChange("ownerName", e.target.value)} />
+      <Field label="Contact Person Name" required>
+        <input className={inp} placeholder="Enter contact person name" value={formData.ownerName} onChange={(e) => handleAlphaFieldChange("ownerName", e.target.value)} />
         {errors.ownerName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ownerName}</p>}
       </Field>
-      <Field label="Mobile Number" required>
+      <Field label="Contact Person Mobile Number" required>
         <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
         {errors.contactNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.contactNumber}</p>}
       </Field>
-      <Field label="Email Address" required hint="We'll send listing updates to this email">
+      <Field label="Contact Person Email Address" required hint="We'll send listing updates to this email">
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
-      </Field>
-      <Field label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </Field>
       <Field label="Gender" required>
         <div className="flex gap-4">
@@ -1373,22 +1376,36 @@ function MobContentRent({ step, inp, formData, updateForm, handleAlphaFieldChang
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <div className="space-y-1.5">
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
-        </label>
-        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted}</p>}
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
-          <span>I certify that all information and documents provided are accurate and authentic.</span>
-        </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
-        <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+      <div className="space-y-2">
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+            <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
+          </label>
+          {errors.declarationAccepted && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+            <span>I certify that all information and documents provided are accurate and authentic.</span>
+          </label>
+          {errors.declarationAccurate && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+            <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+          </label>
+          {errors.declarationTerms && (
+            <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>
+          )}
+        </div>
       </div>
     </>
   );
@@ -1457,10 +1474,6 @@ function DtContentRent({ step, inp, formData, updateForm, handleAlphaFieldChange
       <FieldDt label="Email Address" required hint="We'll send listing updates to this email">
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
-      </FieldDt>
-      <FieldDt label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </FieldDt>
       <FieldDt label="Gender" required>
         <div className="flex gap-5">
@@ -2078,19 +2091,36 @@ function DtContentRent({ step, inp, formData, updateForm, handleAlphaFieldChange
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Declaration</h3>
       </div>
-      <div className="space-y-2">
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
-          <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
-        </label>
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
-          <span>I certify that all information and documents provided are accurate and authentic.</span>
-        </label>
-        <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
-          <span>I agree to the Terms & Conditions and Privacy Policy.</span>
-        </label>
+      <div className="space-y-3">
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
+            <span>I confirm that I am the legal owner or an authorized representative of this property.</span>
+          </label>
+          {errors.declarationAccepted && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationAccepted}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
+            <span>I certify that all information and documents provided are accurate and authentic.</span>
+          </label>
+          {errors.declarationAccurate && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationAccurate}</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
+            <span>I agree to the Terms & Conditions and Privacy Policy.</span>
+          </label>
+          {errors.declarationTerms && (
+            <p className="text-[11px] text-red-500 font-medium mt-0.5 ml-6">{errors.declarationTerms}</p>
+          )}
+        </div>
       </div>
     </>
   );
