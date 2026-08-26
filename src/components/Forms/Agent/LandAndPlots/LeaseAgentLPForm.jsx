@@ -14,6 +14,56 @@ const subtitles = [
   "Set preferences & confirm"
 ];
 
+// ==================== VALIDATION HELPER FUNCTIONS ====================
+
+// Only allows alphabetic characters and spaces
+const handleAlphaFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+  setter(value);
+};
+
+// Only allows numeric digits
+const handleNumericFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setter(value);
+};
+
+// Only allows digits and limits to 10 characters (for mobile number)
+const handleMobileChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+  setter(value);
+};
+
+// Only allows digits and limits to 12 characters (for Aadhaar)
+const handleAadhaarChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+  setter(value);
+};
+
+// Only allows digits and limits to 6 characters (for PIN code)
+const handlePinCodeChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  setter(value);
+};
+
+// Only allows digits (9-18 characters for account number)
+const handleAccountNumberChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+  setter(value);
+};
+
+// IFSC code validation and formatting
+const handleIfscChange = (setter) => (e) => {
+  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+  setter(value);
+};
+
+// Only allows letters, numbers, and spaces (for area names like "Annanagar Phase 2")
+const handleAreaFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+  setter(value);
+};
+
 const Field = ({ label, required, hint, error, children }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -88,7 +138,7 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Agent Details (Step 0)
-    agentName: "", contactNumber: "", emailId: "", dateOfBirth: "", gender: "",
+    agentName: "", contactNumber: "", emailId: "", gender: "",
     agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", serviceAreas: [],
     officeAddress: "", profilePhoto: null,
 
@@ -154,261 +204,137 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const limitedFiles = files.slice(0, 3 - formData.propertyImages.length);
-    const newImages = [...formData.propertyImages, ...limitedFiles];
-    updateForm("propertyImages", newImages);
-    const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
-    setImagePreviews([...imagePreviews, ...newPreviews]);
-  };
-
-  const removeImage = (index) => {
-    const newImages = formData.propertyImages.filter((_, i) => i !== index);
-    updateForm("propertyImages", newImages);
-    URL.revokeObjectURL(imagePreviews[index]);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setImagePreviews(newPreviews);
-  };
-
-  const handleCoverImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("Cover image must be less than 2MB");
-        return;
-      }
-      updateForm("coverImage", file);
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-      setCoverPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeCoverImage = () => {
-    if (coverPreview) URL.revokeObjectURL(coverPreview);
-    updateForm("coverImage", null);
-    setCoverPreview(null);
-  };
-
-  const handleFloorPlanUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        alert("Floor plan must be a PDF file");
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Floor plan must be less than 5MB");
-        return;
-      }
-      updateForm("floorPlan", file);
-      if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
-      setFloorPlanPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeFloorPlan = () => {
-    if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
-    updateForm("floorPlan", null);
-    setFloorPlanPreview(null);
-  };
-
-  const handleVideoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert("Video must be less than 10MB");
-        return;
-      }
-      updateForm("propertyVideo", file);
-      if (videoPreview) URL.revokeObjectURL(videoPreview);
-      setVideoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeVideo = () => {
-    if (videoPreview) URL.revokeObjectURL(videoPreview);
-    updateForm("propertyVideo", null);
-    setVideoPreview(null);
-  };
-
-  const handleProfilePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("Profile photo must be less than 2MB");
-        return;
-      }
-      updateForm("profilePhoto", file);
-      if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
-      setProfilePhotoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeProfilePhoto = () => {
-    if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
-    updateForm("profilePhoto", null);
-    setProfilePhotoPreview(null);
-  };
-
-  const handleDocumentUpload = (docType, e, maxSize = 5) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        alert(`${docType} must be a PDF file`);
-        return;
-      }
-      if (file.size > maxSize * 1024 * 1024) {
-        alert(`${docType} must be less than ${maxSize}MB`);
-        return;
-      }
-      updateForm(docType, file);
-    }
-  };
-
-  const handlePassportUpload = (docType, e, maxSize = 2) => {
-    const file = e.target.files[0];
-    if (file) {
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!validTypes.includes(file.type)) {
-        alert(`${docType} must be a JPG, JPEG, or PNG file`);
-        return;
-      }
-      if (file.size > maxSize * 1024 * 1024) {
-        alert(`${docType} must be less than ${maxSize}MB`);
-        return;
-      }
-      updateForm(docType, file);
-    }
-  };
-
-  const toggleFeature = (feature) => {
-    const current = formData.selectedFeatures;
-    if (current.includes(feature)) {
-      updateForm("selectedFeatures", current.filter(f => f !== feature));
-    } else {
-      updateForm("selectedFeatures", [...current, feature]);
-    }
-  };
-
-  const toggleContactMethod = (method) => {
-    const current = formData.preferredContactMethod;
-    if (current.includes(method)) {
-      updateForm("preferredContactMethod", current.filter(m => m !== method));
-    } else {
-      updateForm("preferredContactMethod", [...current, method]);
-    }
-  };
-
-  const toggleOccupancy = (occupancy) => {
-    const current = formData.occupancyDetails;
-    if (current.includes(occupancy)) {
-      updateForm("occupancyDetails", current.filter(o => o !== occupancy));
-    } else {
-      updateForm("occupancyDetails", [...current, occupancy]);
-    }
-  };
-
-  const addCustomFeature = () => {
-    const newFeature = formData.otherFeatures.trim();
-    if (newFeature && !formData.selectedFeatures.includes(newFeature) && !customFeaturesList.includes(newFeature)) {
-      setCustomFeaturesList([...customFeaturesList, newFeature]);
-      updateForm("selectedFeatures", [...formData.selectedFeatures, newFeature]);
-      updateForm("otherFeatures", "");
-    }
-  };
-
-  const removeCustomFeature = (feature) => {
-    setCustomFeaturesList(customFeaturesList.filter(f => f !== feature));
-    updateForm("selectedFeatures", formData.selectedFeatures.filter(f => f !== feature));
-  };
-
-  const startDrawing = (e, canvasId) => {
-    const canvas = document.getElementById(canvasId);
-    const rect = canvas.getBoundingClientRect();
-    setIsDrawing(true);
-    setActiveCanvas(canvasId);
-    const point = {
-      x: (e.clientX || e.touches[0].clientX) - rect.left,
-      y: (e.clientY || e.touches[0].clientY) - rect.top
-    };
-    setSignaturePoints([point]);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    const canvas = document.getElementById(activeCanvas);
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const point = {
-      x: (e.clientX || e.touches[0].clientX) - rect.left,
-      y: (e.clientY || e.touches[0].clientY) - rect.top
-    };
-    setSignaturePoints([...signaturePoints, point]);
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-    if (signaturePoints.length > 1 && activeCanvas) {
-      setAllSignaturePoints([...allSignaturePoints, [...signaturePoints]]);
-      const canvas = document.getElementById(activeCanvas);
-      const ctx = canvas.getContext('2d');
-      const dataUrl = canvas.toDataURL('image/png');
-      updateForm('signature', dataUrl);
-    }
-    setActiveCanvas(null);
-  };
-
-  const clearSignature = () => {
-    setSignaturePoints([]);
-    setAllSignaturePoints([]);
-    updateForm('signature', null);
-    ['signatureCanvas', 'm-signatureCanvas', 'dt-signatureCanvas'].forEach(id => {
-      const canvas = document.getElementById(id);
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    });
-  };
+  // ==================== VALIDATION FUNCTIONS ====================
 
   const validateStep = (s) => {
     const e = {};
     if (s === 0) {
-      if (!formData.agentName.trim()) e.agentName = "Agent full name is required";
-      if (!formData.contactNumber || formData.contactNumber.length !== 10) e.contactNumber = "Enter a valid 10-digit mobile number";
-      if (!formData.contactNumber.match(/^[0-9]{10}$/)) e.contactNumber = "Mobile number must contain only digits";
-      if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
-      if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
+      // Agent Name - only letters and spaces
+      if (!formData.agentName.trim()) {
+        e.agentName = "Agent full name is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.agentName)) {
+        e.agentName = "Agent name can only contain letters and spaces";
+      }
+      
+      // Contact Number - exactly 10 digits
+      if (!formData.contactNumber || formData.contactNumber.length !== 10) {
+        e.contactNumber = "Enter a valid 10-digit mobile number";
+      } else if (!/^[0-9]{10}$/.test(formData.contactNumber)) {
+        e.contactNumber = "Mobile number must contain only digits";
+      }
+      
+      // Email
+      if (!formData.emailId || !isValidEmail(formData.emailId)) {
+        e.emailId = "Enter a valid email address";
+      }
+      
       if (!formData.gender) e.gender = "Please select your gender";
-      if (!formData.agencyName.trim()) e.agencyName = "Agency name is required";
-      if (!formData.yearsExperience) e.yearsExperience = "Years of experience is required";
-      if (formData.yearsExperience < 0) e.yearsExperience = "Years of experience cannot be negative";
-      if (!formData.serviceAreas || formData.serviceAreas.length === 0) e.serviceAreas = "Please select at least one service area";
+      
+      // Agency Name - only letters, numbers, and spaces
+      if (!formData.agencyName.trim()) {
+        e.agencyName = "Agency name is required";
+      } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.agencyName)) {
+        e.agencyName = "Agency name can only contain letters, numbers, and spaces";
+      }
+      
+      // Years Experience - numeric only
+      if (!formData.yearsExperience) {
+        e.yearsExperience = "Years of experience is required";
+      } else if (parseFloat(formData.yearsExperience) < 0) {
+        e.yearsExperience = "Years of experience cannot be negative";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.yearsExperience)) {
+        e.yearsExperience = "Enter a valid number";
+      }
+      
+      if (!formData.serviceAreas || formData.serviceAreas.length === 0) {
+        e.serviceAreas = "Please select at least one service area";
+      }
       if (!formData.officeAddress.trim()) e.officeAddress = "Office address is required";
     }
     if (s === 1) {
-      if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) e.aadhaarNumber = "Aadhaar number must be exactly 12 digits";
-      if (!formData.aadhaarNumber.match(/^[0-9]{12}$/)) e.aadhaarNumber = "Aadhaar number must contain only numbers";
+      // Aadhaar - exactly 12 digits
+      if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+        e.aadhaarNumber = "Aadhaar number must be exactly 12 digits";
+      } else if (!/^[0-9]{12}$/.test(formData.aadhaarNumber)) {
+        e.aadhaarNumber = "Aadhaar number must contain only numbers";
+      }
       if (!formData.aadhaarCard) e.aadhaarCard = "Aadhaar card upload is required";
       if (!formData.passportPhoto) e.passportPhoto = "Passport-size photo is required";
-      if (!formData.addressLine1.trim()) e.addressLine1 = "Address Line 1 is required";
-      if (!formData.city.trim()) e.city = "City is required";
-      if (!formData.district.trim()) e.district = "District is required";
-      if (!formData.state.trim()) e.state = "State is required";
-      if (!formData.pinCode.trim()) e.pinCode = "PIN code is required";
+      
+      // Address fields - only letters, numbers, and spaces
+      if (!formData.addressLine1.trim()) {
+        e.addressLine1 = "Address Line 1 is required";
+      } else if (!/^[a-zA-Z0-9\s,.-]+$/.test(formData.addressLine1)) {
+        e.addressLine1 = "Address contains invalid characters";
+      }
+      
+      if (!formData.city.trim()) {
+        e.city = "City is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.city)) {
+        e.city = "City can only contain letters and spaces";
+      }
+      
+      if (!formData.district.trim()) {
+        e.district = "District is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.district)) {
+        e.district = "District can only contain letters and spaces";
+      }
+      
+      if (!formData.state.trim()) {
+        e.state = "State is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.state)) {
+        e.state = "State can only contain letters and spaces";
+      }
+      
+      // PIN Code - exactly 6 digits
+      if (!formData.pinCode.trim()) {
+        e.pinCode = "PIN code is required";
+      } else if (!/^[0-9]{6}$/.test(formData.pinCode)) {
+        e.pinCode = "PIN code must be exactly 6 digits";
+      }
     }
     if (s === 2) {
-      if (!formData.landTitle.trim()) e.landTitle = "Land title is required";
+      if (!formData.landTitle.trim()) {
+        e.landTitle = "Land title is required";
+      } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.landTitle)) {
+        e.landTitle = "Land title can only contain letters, numbers, and spaces";
+      }
+      
       if (!formData.landType) e.landType = "Please select a land type";
       if (!formData.landCategory) e.landCategory = "Please select a land category";
-      if (!formData.landAddress.trim()) e.landAddress = "Land address is required";
-      if (!formData.landCity.trim()) e.landCity = "Land city is required";
-      if (!formData.landArea) e.landArea = "Land area is required";
+      
+      if (!formData.landAddress.trim()) {
+        e.landAddress = "Land address is required";
+      } else if (!/^[a-zA-Z0-9\s,.-]+$/.test(formData.landAddress)) {
+        e.landAddress = "Address contains invalid characters";
+      }
+      
+      if (!formData.landCity.trim()) {
+        e.landCity = "Land city is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.landCity)) {
+        e.landCity = "City can only contain letters and spaces";
+      }
+      
+      if (!formData.landArea) {
+        e.landArea = "Land area is required";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.landArea)) {
+        e.landArea = "Enter a valid number";
+      }
     }
     if (s === 3) {
-      if (!formData.expectedPrice) e.expectedPrice = "Expected lease amount is required";
-      if (!formData.securityDeposit) e.securityDeposit = "Security deposit is required";
+      // Expected Price - numeric
+      if (!formData.expectedPrice) {
+        e.expectedPrice = "Expected lease amount is required";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.expectedPrice)) {
+        e.expectedPrice = "Enter a valid number";
+      }
+      
+      // Security Deposit - numeric
+      if (!formData.securityDeposit) {
+        e.securityDeposit = "Security deposit is required";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.securityDeposit)) {
+        e.securityDeposit = "Enter a valid number";
+      }
     }
     if (s === 4) {
       if (!formData.coverImage) e.coverImage = "Cover image is required";
@@ -419,11 +345,26 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
       if (!formData.leaseAgreement) e.leaseAgreement = "Lease agreement is required";
     }
     if (s === 6) {
-      if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
-      if (!formData.accountNumber) e.accountNumber = "Account number is required";
-      if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
-      if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
-      if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+      // Account Holder Name - only letters and spaces
+      if (!formData.accountHolderName.trim()) {
+        e.accountHolderName = "Account holder name is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.accountHolderName)) {
+        e.accountHolderName = "Account holder name can only contain letters and spaces";
+      }
+      
+      // Account Number - 9-18 digits
+      if (!formData.accountNumber) {
+        e.accountNumber = "Account number is required";
+      } else if (!/^[0-9]{9,18}$/.test(formData.accountNumber)) {
+        e.accountNumber = "Account number must be between 9-18 digits";
+      }
+      
+      // IFSC Code
+      if (!formData.ifscCode.trim()) {
+        e.ifscCode = "IFSC code is required";
+      } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.ifscCode)) {
+        e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+      }
     }
     if (s === 7) {
       // No required fields in social media step
@@ -431,7 +372,14 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
     if (s === 8) {
       if (!formData.signature) e.signature = "Please draw your signature";
       if (!formData.signatureDate) e.signatureDate = "Date is required";
-      if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
+      
+      // Signature Place - only letters and spaces
+      if (!formData.signaturePlace.trim()) {
+        e.signaturePlace = "Place is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.signaturePlace)) {
+        e.signaturePlace = "Place can only contain letters and spaces";
+      }
+      
       if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm this to proceed";
       if (!formData.declarationAccurate) e.declarationAccurate = "You must confirm this to proceed";
       if (!formData.declarationTerms) e.declarationTerms = "You must agree to proceed";
@@ -722,6 +670,48 @@ function MobContentLeaseAgentLP({
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
+  // ==================== HANDLER FUNCTIONS ====================
+  
+  const handleAlphaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    updateForm(field, value);
+  };
+
+  const handleNumericChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    updateForm(field, value);
+  };
+
+  const handleMobileChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAadhaarChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    updateForm(field, value);
+  };
+
+  const handlePinChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    updateForm(field, value);
+  };
+
+  const handleAccountChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+    updateForm(field, value);
+  };
+
+  const handleIfscChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+    updateForm(field, value);
+  };
+
+  const handleAreaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+    updateForm(field, value);
+  };
+
   useEffect(() => {
     const canvas = signatureCanvasRef.current;
     if (canvas) {
@@ -763,23 +753,35 @@ function MobContentLeaseAgentLP({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Personal Information</h3>
       </div>
-      <Field label="Agent Full Name" required>
-        <input className={inp} placeholder="Enter your full name" value={formData.agentName} onChange={(e) => updateForm("agentName", e.target.value)} />
-        {errors.agentName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agentName}</p>}
+      <Field label="Agent Full Name" required error={errors.agentName}>
+        <input 
+          className={inp} 
+          placeholder="Enter your full name" 
+          value={formData.agentName} 
+          onChange={handleAlphaChange("agentName")} 
+        />
       </Field>
-      <Field label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
-        {errors.contactNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.contactNumber}</p>}
+      <Field label="Mobile Number" required error={errors.contactNumber}>
+        <input 
+          className={inp} 
+          type="tel" 
+          inputMode="numeric" 
+          maxLength={10} 
+          placeholder="Enter your 10-digit mobile number" 
+          value={formData.contactNumber} 
+          onChange={handleMobileChange("contactNumber")} 
+        />
       </Field>
-      <Field label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
+      <Field label="Email Address" required error={errors.emailId}>
+        <input 
+          className={inp} 
+          type="email" 
+          placeholder="Enter your email address" 
+          value={formData.emailId} 
+          onChange={(e) => updateForm("emailId", e.target.value)} 
+        />
       </Field>
-      <Field label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
-      </Field>
-      <Field label="Gender" required>
+      <Field label="Gender" required error={errors.gender}>
         <div className="flex gap-4">
           {genderOptions.map(g => (
             <label key={g} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
@@ -788,7 +790,6 @@ function MobContentLeaseAgentLP({
             </label>
           ))}
         </div>
-        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </Field>
       <Field label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -811,21 +812,41 @@ function MobContentLeaseAgentLP({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Agency Information</h3>
       </div>
-      <Field label="Agency Name" required>
-        <input className={inp} placeholder="Enter your agency name" value={formData.agencyName} onChange={(e) => updateForm("agencyName", e.target.value)} />
-        {errors.agencyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agencyName}</p>}
+      <Field label="Agency Name" required error={errors.agencyName}>
+        <input 
+          className={inp} 
+          placeholder="Enter your agency name" 
+          value={formData.agencyName} 
+          onChange={(e) => updateForm("agencyName", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} 
+        />
       </Field>
       <Field label="RERA Registration Number" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter RERA registration number" 
+          value={formData.reraNumber} 
+          onChange={(e) => updateForm("reraNumber", e.target.value)} 
+        />
       </Field>
       <Field label="GST Number" hint="Optional">
-        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter GST number" 
+          value={formData.gstNumber} 
+          onChange={(e) => updateForm("gstNumber", e.target.value)} 
+        />
       </Field>
-      <Field label="Years of Experience" required>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
-        {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
+      <Field label="Years of Experience" required error={errors.yearsExperience}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter years of experience" 
+          value={formData.yearsExperience} 
+          onChange={handleNumericChange("yearsExperience")} 
+        />
       </Field>
-      <Field label="Service Areas" required>
+      <Field label="Service Areas" required error={errors.serviceAreas}>
         <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
           const options = e.target.options;
           const values = [];
@@ -851,11 +872,14 @@ function MobContentLeaseAgentLP({
           <option value="Chandigarh">Chandigarh</option>
           <option value="Other">Other</option>
         </select>
-        {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </Field>
-      <Field label="Office Address" required>
-        <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
-        {errors.officeAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officeAddress}</p>}
+      <Field label="Office Address" required error={errors.officeAddress}>
+        <input 
+          className={inp} 
+          placeholder="Enter your office address" 
+          value={formData.officeAddress} 
+          onChange={(e) => updateForm("officeAddress", e.target.value)} 
+        />
       </Field>
     </>
   );
@@ -867,14 +891,25 @@ function MobContentLeaseAgentLP({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity Verification</h3>
       </div>
-      <Field label="Aadhaar Number" required>
-        <input className={inp} inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
-        {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
+      <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input 
+          className={inp} 
+          inputMode="numeric" 
+          maxLength={12} 
+          placeholder="Enter 12-digit Aadhaar number" 
+          value={formData.aadhaarNumber} 
+          onChange={handleAadhaarChange("aadhaarNumber")} 
+        />
       </Field>
       <Field label="PAN Number">
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter 10-character PAN number" 
+          value={formData.panNumber} 
+          onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} 
+        />
       </Field>
-      <Field label="Upload Aadhaar Card" required>
+      <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-aadhaar-lp-agent" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="m-aadhaar-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -884,7 +919,6 @@ function MobContentLeaseAgentLP({
           </label>
         </div>
         {formData.aadhaarCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.aadhaarCard.name}</p>}
-        {errors.aadhaarCard && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCard}</p>}
       </Field>
       <Field label="Upload PAN Card (Optional)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
@@ -897,7 +931,7 @@ function MobContentLeaseAgentLP({
         </div>
         {formData.panCard && <p className="text-[10px] text-green-600 mt-1">✓ {formData.panCard.name}</p>}
       </Field>
-      <Field label="Upload Passport-size Photo" required>
+      <Field label="Upload Passport-size Photo" required error={errors.passportPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="m-passport-lp-agent" onChange={(e) => handlePassportUpload("passportPhoto", e)} />
           <label htmlFor="m-passport-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -907,34 +941,60 @@ function MobContentLeaseAgentLP({
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[10px] text-green-600 mt-1">✓ {formData.passportPhoto.name}</p>}
-        {errors.passportPhoto && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.passportPhoto}</p>}
       </Field>
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Address Details</h3>
       </div>
-      <Field label="Address Line 1" required>
-        <input className={inp} placeholder="House number, building, street" value={formData.addressLine1} onChange={(e) => updateForm("addressLine1", e.target.value)} />
-        {errors.addressLine1 && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.addressLine1}</p>}
+      <Field label="Address Line 1" required error={errors.addressLine1}>
+        <input 
+          className={inp} 
+          placeholder="House number, building, street" 
+          value={formData.addressLine1} 
+          onChange={(e) => updateForm("addressLine1", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </Field>
       <Field label="Address Line 2">
-        <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Apartment, suite, unit" 
+          value={formData.addressLine2} 
+          onChange={(e) => updateForm("addressLine2", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </Field>
-      <Field label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+      <Field label="City" required error={errors.city}>
+        <input 
+          className={inp} 
+          placeholder="Enter city" 
+          value={formData.city} 
+          onChange={handleAlphaChange("city")} 
+        />
       </Field>
-      <Field label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
-        {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
+      <Field label="District" required error={errors.district}>
+        <input 
+          className={inp} 
+          placeholder="Enter district" 
+          value={formData.district} 
+          onChange={handleAlphaChange("district")} 
+        />
       </Field>
-      <Field label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+      <Field label="State" required error={errors.state}>
+        <input 
+          className={inp} 
+          placeholder="Enter state" 
+          value={formData.state} 
+          onChange={handleAlphaChange("state")} 
+        />
       </Field>
-      <Field label="PIN Code" required>
-        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+      <Field label="PIN Code" required error={errors.pinCode}>
+        <input 
+          className={inp} 
+          inputMode="numeric" 
+          maxLength={6} 
+          placeholder="Enter 6-digit PIN code" 
+          value={formData.pinCode} 
+          onChange={handlePinChange("pinCode")} 
+        />
       </Field>
     </>
   );
@@ -946,46 +1006,76 @@ function MobContentLeaseAgentLP({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Land Details</h3>
       </div>
-      <Field label="Land Title / Name" required>
-        <input className={inp} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", e.target.value)} />
-        {errors.landTitle && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landTitle}</p>}
+      <Field label="Land Title / Name" required error={errors.landTitle}>
+        <input 
+          className={inp} 
+          placeholder="e.g. Green Valley Plot 123" 
+          value={formData.landTitle} 
+          onChange={(e) => updateForm("landTitle", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} 
+        />
       </Field>
-      <Field label="Land Category" required>
+      <Field label="Land Category" required error={errors.landCategory}>
         <select className={inp} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
           <option value="">Select Land Category</option>
           {landCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
-        {errors.landCategory && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landCategory}</p>}
       </Field>
-      <Field label="Land Type" required>
+      <Field label="Land Type" required error={errors.landType}>
         <select className={inp} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
           <option value="">Select Land Type</option>
           {landTypes.map(type => <option key={type} value={type}>{type}</option>)}
         </select>
-        {errors.landType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landType}</p>}
       </Field>
-      <Field label="Land Address" required>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
-        {errors.landAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landAddress}</p>}
+      <Field label="Land Address" required error={errors.landAddress}>
+        <textarea 
+          className={`${ta} min-h-[55px]`} 
+          placeholder="Enter complete land address" 
+          value={formData.landAddress} 
+          onChange={(e) => updateForm("landAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </Field>
-      <Field label="Land City" required>
-        <input className={inp} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", e.target.value)} />
-        {errors.landCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landCity}</p>}
+      <Field label="Land City" required error={errors.landCity}>
+        <input 
+          className={inp} 
+          placeholder="Enter land city name" 
+          value={formData.landCity} 
+          onChange={handleAlphaChange("landCity")} 
+        />
       </Field>
-      <Field label="Land Area" required hint="Enter area in sq ft or acres">
+      <Field label="Land Area" required hint="Enter area in sq ft or acres" error={errors.landArea}>
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" min="0" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", e.target.value)} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Area" 
+            value={formData.landArea} 
+            onChange={(e) => updateForm("landArea", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
           <select className={inp} value={formData.areaUnit} onChange={(e) => updateForm("areaUnit", e.target.value)}>
             <option value="sqft">Sq. Ft.</option>
             <option value="acres">Acres</option>
           </select>
         </div>
-        {errors.landArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landArea}</p>}
       </Field>
       <Field label="Area Range (Min - Max)">
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" min="0" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", e.target.value)} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Min Area" 
+            value={formData.landAreaMin} 
+            onChange={(e) => updateForm("landAreaMin", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Max Area" 
+            value={formData.landAreaMax} 
+            onChange={(e) => updateForm("landAreaMax", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
         </div>
       </Field>
       <Field label="Land Facing">
@@ -1001,7 +1091,14 @@ function MobContentLeaseAgentLP({
         </select>
       </Field>
       <Field label="Road Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", e.target.value)} />
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter road width in feet" 
+          value={formData.roadWidth} 
+          onChange={(e) => updateForm("roadWidth", e.target.value.replace(/\D/g, ''))} 
+        />
       </Field>
       <Field label="Water Source">
         <select className={inp} value={formData.waterSource} onChange={(e) => updateForm("waterSource", e.target.value)}>
@@ -1031,12 +1128,14 @@ function MobContentLeaseAgentLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Lease Preferences</h3>
       </div>
       <Field label="Lease Duration">
-        {leaseDurationOptions.map(d => (
-          <label key={d} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
-            <input type="radio" name="mob-duration-lp-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
-            {d}
-          </label>
-        ))}
+        <div className="flex flex-wrap gap-2">
+          {leaseDurationOptions.map(d => (
+            <label key={d} className="flex items-center gap-1.5 text-[10px] cursor-pointer">
+              <input type="radio" name="mob-duration-lp-agent" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.leaseDuration === d} onChange={() => updateForm("leaseDuration", d)} />
+              {d}
+            </label>
+          ))}
+        </div>
       </Field>
       <Field label="Occupancy Details">
         <div className="flex flex-wrap gap-3">
@@ -1068,19 +1167,45 @@ function MobContentLeaseAgentLP({
         <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
-      <Field label="Expected Lease (₹/month)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 20,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
-        {errors.expectedPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.expectedPrice}</p>}
+      <Field label="Expected Lease (₹/month)" required error={errors.expectedPrice}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="e.g. 20,000" 
+          value={formData.expectedPrice} 
+          onChange={(e) => updateForm("expectedPrice", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </Field>
       <Field label="Budget Range (₹/month)">
         <div className="flex gap-1">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Min" 
+            value={formData.budgetRange.min} 
+            onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9.]/g, '') })} 
+          />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Max" 
+            value={formData.budgetRange.max} 
+            onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9.]/g, '') })} 
+          />
         </div>
       </Field>
-      <Field label="Security Deposit (₹)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
-        {errors.securityDeposit && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.securityDeposit}</p>}
+      <Field label="Security Deposit (₹)" required error={errors.securityDeposit}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="e.g. 50,000" 
+          value={formData.securityDeposit} 
+          onChange={(e) => updateForm("securityDeposit", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </Field>
       <Field label="Price Type">
         <div className="flex gap-4">
@@ -1095,7 +1220,14 @@ function MobContentLeaseAgentLP({
         </div>
       </Field>
       <Field label="Maintenance (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="Enter monthly maintenance" 
+          value={formData.maintenance} 
+          onChange={(e) => updateForm("maintenance", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </Field>
       <Field label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1132,7 +1264,7 @@ function MobContentLeaseAgentLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Media Upload</h3>
       </div>
       <p className="text-[10px] text-center text-gray-400 mb-2">📸 Upload land images and media</p>
-      <Field label="Upload Cover Image" required hint="Max 2MB">
+      <Field label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="m-cover-lp-agent" onChange={handleCoverImageUpload} />
           <label htmlFor="m-cover-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1147,9 +1279,8 @@ function MobContentLeaseAgentLP({
             <button onClick={removeCoverImage} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
-        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </Field>
-      <Field label="Upload Land Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+      <Field label="Upload Land Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="m-imgs-lp-agent" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="m-imgs-lp-agent" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -1168,7 +1299,6 @@ function MobContentLeaseAgentLP({
             ))}
           </div>
         )}
-        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </Field>
       <Field label="Upload Land Video (Optional)" hint="Max 10MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1197,7 +1327,7 @@ function MobContentLeaseAgentLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Legal Documents</h3>
       </div>
       <p className="text-[9px] text-gray-400 mb-2">All documents must be in PDF format (Max 5MB each)</p>
-      <Field label="Upload Floor Plan / Layout" required hint="PDF only (Max 5MB)">
+      <Field label="Upload Floor Plan / Layout" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-floorplan-lp-agent" onChange={handleFloorPlanUpload} />
           <label htmlFor="m-floorplan-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1212,7 +1342,6 @@ function MobContentLeaseAgentLP({
             <button onClick={removeFloorPlan} className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[9px] flex items-center justify-center">✕</button>
           </div>
         )}
-        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </Field>
       <Field label="Sale Deed / Title Deed">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
@@ -1284,7 +1413,7 @@ function MobContentLeaseAgentLP({
         </div>
         {formData.occupancyCertificate && <p className="text-[9px] text-green-600 mt-0.5">✓ {formData.occupancyCertificate.name}</p>}
       </Field>
-      <Field label="Lease Agreement" required>
+      <Field label="Lease Agreement" required error={errors.leaseAgreement}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="m-leaseAgreement-lp-agent" onChange={(e) => handleDocumentUpload("leaseAgreement", e)} />
           <label htmlFor="m-leaseAgreement-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1293,7 +1422,6 @@ function MobContentLeaseAgentLP({
           </label>
         </div>
         {formData.leaseAgreement && <p className="text-[9px] text-green-600 mt-0.5">✓ {formData.leaseAgreement.name}</p>}
-        {errors.leaseAgreement && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.leaseAgreement}</p>}
       </Field>
       <Field label="Other Supporting Documents">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1324,9 +1452,13 @@ function MobContentLeaseAgentLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <p className="text-[9px] text-gray-400 mb-2">Enter your bank details for lease payments</p>
-      <Field label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
-        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
+      <Field label="Account Holder Name" required error={errors.accountHolderName}>
+        <input 
+          className={inp} 
+          placeholder="Enter account holder name" 
+          value={formData.accountHolderName} 
+          onChange={handleAlphaChange("accountHolderName")} 
+        />
       </Field>
       <Field label="Bank Name">
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1334,16 +1466,31 @@ function MobContentLeaseAgentLP({
           {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
         </select>
       </Field>
-      <Field label="Account Number" required>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
-        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
+      <Field label="Account Number" required error={errors.accountNumber}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter account number" 
+          value={formData.accountNumber} 
+          onChange={handleAccountChange("accountNumber")} 
+        />
       </Field>
-      <Field label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
-        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
+      <Field label="IFSC Code" required error={errors.ifscCode}>
+        <input 
+          className={inp} 
+          placeholder="Enter IFSC code" 
+          value={formData.ifscCode} 
+          onChange={handleIfscChange("ifscCode")} 
+        />
       </Field>
       <Field label="UPI ID">
-        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter UPI ID (e.g. name@upi)" 
+          value={formData.upiId} 
+          onChange={(e) => updateForm("upiId", e.target.value)} 
+        />
       </Field>
     </>
   );
@@ -1427,13 +1574,16 @@ function MobContentLeaseAgentLP({
         <button type="button" onClick={clearSignature} className="absolute top-1 right-1 bg-[#00695C] text-white px-2 py-0.5 rounded text-[10px] hover:bg-[#004d42] transition-colors">Clear</button>
       </div>
       {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
-      <Field label="Date" required>
+      <Field label="Date" required error={errors.signatureDate}>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
-        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </Field>
-      <Field label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
-        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
+      <Field label="Place" required error={errors.signaturePlace}>
+        <input 
+          className={inp} 
+          placeholder="Enter place" 
+          value={formData.signaturePlace} 
+          onChange={handleAlphaChange("signaturePlace")} 
+        />
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1445,17 +1595,17 @@ function MobContentLeaseAgentLP({
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or authorized representative of this land owner.</span>
         </label>
-        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted}</p>}
+        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1485,6 +1635,48 @@ function DtContentLeaseAgentLP({
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
+
+  // ==================== HANDLER FUNCTIONS ====================
+  
+  const handleAlphaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    updateForm(field, value);
+  };
+
+  const handleNumericChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    updateForm(field, value);
+  };
+
+  const handleMobileChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAadhaarChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    updateForm(field, value);
+  };
+
+  const handlePinChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    updateForm(field, value);
+  };
+
+  const handleAccountChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+    updateForm(field, value);
+  };
+
+  const handleIfscChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+    updateForm(field, value);
+  };
+
+  const handleAreaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+    updateForm(field, value);
+  };
 
   useEffect(() => {
     const canvas = signatureCanvasRef.current;
@@ -1527,23 +1719,35 @@ function DtContentLeaseAgentLP({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Personal Information</h3>
       </div>
-      <FieldDt label="Agent Full Name" required>
-        <input className={inp} placeholder="Enter your full name" value={formData.agentName} onChange={(e) => updateForm("agentName", e.target.value)} />
-        {errors.agentName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agentName}</p>}
+      <FieldDt label="Agent Full Name" required error={errors.agentName}>
+        <input 
+          className={inp} 
+          placeholder="Enter your full name" 
+          value={formData.agentName} 
+          onChange={handleAlphaChange("agentName")} 
+        />
       </FieldDt>
-      <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter your 10-digit mobile number" value={formData.contactNumber} onChange={(e) => updateForm("contactNumber", e.target.value.replace(/\D/g, "").slice(0, 10))} />
-        {errors.contactNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.contactNumber}</p>}
+      <FieldDt label="Mobile Number" required error={errors.contactNumber}>
+        <input 
+          className={inp} 
+          type="tel" 
+          inputMode="numeric" 
+          maxLength={10} 
+          placeholder="Enter your 10-digit mobile number" 
+          value={formData.contactNumber} 
+          onChange={handleMobileChange("contactNumber")} 
+        />
       </FieldDt>
-      <FieldDt label="Email Address" required>
-        <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
+      <FieldDt label="Email Address" required error={errors.emailId}>
+        <input 
+          className={inp} 
+          type="email" 
+          placeholder="Enter your email address" 
+          value={formData.emailId} 
+          onChange={(e) => updateForm("emailId", e.target.value)} 
+        />
       </FieldDt>
-      <FieldDt label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
-      </FieldDt>
-      <FieldDt label="Gender" required>
+      <FieldDt label="Gender" required error={errors.gender}>
         <div className="flex gap-5">
           {genderOptions.map(g => (
             <label key={g} className="flex items-center gap-2 text-[13px] cursor-pointer">
@@ -1552,7 +1756,6 @@ function DtContentLeaseAgentLP({
             </label>
           ))}
         </div>
-        {errors.gender && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.gender}</p>}
       </FieldDt>
       <FieldDt label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1575,21 +1778,41 @@ function DtContentLeaseAgentLP({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Agency Information</h3>
       </div>
-      <FieldDt label="Agency Name" required>
-        <input className={inp} placeholder="Enter your agency name" value={formData.agencyName} onChange={(e) => updateForm("agencyName", e.target.value)} />
-        {errors.agencyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.agencyName}</p>}
+      <FieldDt label="Agency Name" required error={errors.agencyName}>
+        <input 
+          className={inp} 
+          placeholder="Enter your agency name" 
+          value={formData.agencyName} 
+          onChange={(e) => updateForm("agencyName", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="RERA Registration Number" hint="If applicable">
-        <input className={inp} placeholder="Enter RERA registration number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter RERA registration number" 
+          value={formData.reraNumber} 
+          onChange={(e) => updateForm("reraNumber", e.target.value)} 
+        />
       </FieldDt>
       <FieldDt label="GST Number" hint="Optional">
-        <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter GST number" 
+          value={formData.gstNumber} 
+          onChange={(e) => updateForm("gstNumber", e.target.value)} 
+        />
       </FieldDt>
-      <FieldDt label="Years of Experience" required>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
-        {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
+      <FieldDt label="Years of Experience" required error={errors.yearsExperience}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter years of experience" 
+          value={formData.yearsExperience} 
+          onChange={handleNumericChange("yearsExperience")} 
+        />
       </FieldDt>
-      <FieldDt label="Service Areas" required>
+      <FieldDt label="Service Areas" required error={errors.serviceAreas}>
         <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
           const options = e.target.options;
           const values = [];
@@ -1615,11 +1838,14 @@ function DtContentLeaseAgentLP({
           <option value="Chandigarh">Chandigarh</option>
           <option value="Other">Other</option>
         </select>
-        {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </FieldDt>
-      <FieldDt label="Office Address" required>
-        <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
-        {errors.officeAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officeAddress}</p>}
+      <FieldDt label="Office Address" required error={errors.officeAddress}>
+        <input 
+          className={inp} 
+          placeholder="Enter your office address" 
+          value={formData.officeAddress} 
+          onChange={(e) => updateForm("officeAddress", e.target.value)} 
+        />
       </FieldDt>
     </>
   );
@@ -1631,14 +1857,25 @@ function DtContentLeaseAgentLP({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity Verification</h3>
       </div>
-      <FieldDt label="Aadhaar Number" required>
-        <input className={inp} inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
-        {errors.aadhaarNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarNumber}</p>}
+      <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
+        <input 
+          className={inp} 
+          inputMode="numeric" 
+          maxLength={12} 
+          placeholder="Enter 12-digit Aadhaar number" 
+          value={formData.aadhaarNumber} 
+          onChange={handleAadhaarChange("aadhaarNumber")} 
+        />
       </FieldDt>
       <FieldDt label="PAN Number">
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter 10-character PAN number" 
+          value={formData.panNumber} 
+          onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} 
+        />
       </FieldDt>
-      <FieldDt label="Upload Aadhaar Card" required>
+      <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-aadhaar-lp-agent" onChange={(e) => handleDocumentUpload("aadhaarCard", e)} />
           <label htmlFor="dt-aadhaar-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1648,7 +1885,6 @@ function DtContentLeaseAgentLP({
           </label>
         </div>
         {formData.aadhaarCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.aadhaarCard.name}</p>}
-        {errors.aadhaarCard && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.aadhaarCard}</p>}
       </FieldDt>
       <FieldDt label="Upload PAN Card (Optional)">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1661,7 +1897,7 @@ function DtContentLeaseAgentLP({
         </div>
         {formData.panCard && <p className="text-[13px] text-green-600 mt-2">✓ {formData.panCard.name}</p>}
       </FieldDt>
-      <FieldDt label="Upload Passport-size Photo" required>
+      <FieldDt label="Upload Passport-size Photo" required error={errors.passportPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".jpg,.jpeg,.png" className="hidden" id="dt-passport-lp-agent" onChange={(e) => handlePassportUpload("passportPhoto", e)} />
           <label htmlFor="dt-passport-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1671,35 +1907,61 @@ function DtContentLeaseAgentLP({
           </label>
         </div>
         {formData.passportPhoto && <p className="text-[13px] text-green-600 mt-2">✓ {formData.passportPhoto.name}</p>}
-        {errors.passportPhoto && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.passportPhoto}</p>}
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Address Details</h3>
       </div>
-      <FieldDt label="Address Line 1" required>
-        <input className={inp} placeholder="House number, building, street" value={formData.addressLine1} onChange={(e) => updateForm("addressLine1", e.target.value)} />
-        {errors.addressLine1 && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.addressLine1}</p>}
+      <FieldDt label="Address Line 1" required error={errors.addressLine1}>
+        <input 
+          className={inp} 
+          placeholder="House number, building, street" 
+          value={formData.addressLine1} 
+          onChange={(e) => updateForm("addressLine1", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="Address Line 2">
-        <input className={inp} placeholder="Apartment, suite, unit" value={formData.addressLine2} onChange={(e) => updateForm("addressLine2", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Apartment, suite, unit" 
+          value={formData.addressLine2} 
+          onChange={(e) => updateForm("addressLine2", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </FieldDt>
-      <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+      <FieldDt label="City" required error={errors.city}>
+        <input 
+          className={inp} 
+          placeholder="Enter city" 
+          value={formData.city} 
+          onChange={handleAlphaChange("city")} 
+        />
       </FieldDt>
-      <FieldDt label="District" required>
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
-        {errors.district && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.district}</p>}
+      <FieldDt label="District" required error={errors.district}>
+        <input 
+          className={inp} 
+          placeholder="Enter district" 
+          value={formData.district} 
+          onChange={handleAlphaChange("district")} 
+        />
       </FieldDt>
-      <FieldDt label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+      <FieldDt label="State" required error={errors.state}>
+        <input 
+          className={inp} 
+          placeholder="Enter state" 
+          value={formData.state} 
+          onChange={handleAlphaChange("state")} 
+        />
       </FieldDt>
-      <FieldDt label="PIN Code" required>
-        <input className={inp} type="number" min="0" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+      <FieldDt label="PIN Code" required error={errors.pinCode}>
+        <input 
+          className={inp} 
+          inputMode="numeric" 
+          maxLength={6} 
+          placeholder="Enter 6-digit PIN code" 
+          value={formData.pinCode} 
+          onChange={handlePinChange("pinCode")} 
+        />
       </FieldDt>
     </>
   );
@@ -1711,46 +1973,76 @@ function DtContentLeaseAgentLP({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Land Details</h3>
       </div>
-      <FieldDt label="Land Title / Name" required>
-        <input className={inp} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", e.target.value)} />
-        {errors.landTitle && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landTitle}</p>}
+      <FieldDt label="Land Title / Name" required error={errors.landTitle}>
+        <input 
+          className={inp} 
+          placeholder="e.g. Green Valley Plot 123" 
+          value={formData.landTitle} 
+          onChange={(e) => updateForm("landTitle", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} 
+        />
       </FieldDt>
-      <FieldDt label="Land Category" required>
+      <FieldDt label="Land Category" required error={errors.landCategory}>
         <select className={inp} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
           <option value="">Select Land Category</option>
           {landCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
-        {errors.landCategory && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landCategory}</p>}
       </FieldDt>
-      <FieldDt label="Land Type" required>
+      <FieldDt label="Land Type" required error={errors.landType}>
         <select className={inp} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
           <option value="">Select Land Type</option>
           {landTypes.map(type => <option key={type} value={type}>{type}</option>)}
         </select>
-        {errors.landType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landType}</p>}
       </FieldDt>
-      <FieldDt label="Land Address" required>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
-        {errors.landAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landAddress}</p>}
+      <FieldDt label="Land Address" required error={errors.landAddress}>
+        <textarea 
+          className={`${ta} min-h-[70px]`} 
+          placeholder="Enter complete land address" 
+          value={formData.landAddress} 
+          onChange={(e) => updateForm("landAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} 
+        />
       </FieldDt>
-      <FieldDt label="Land City" required>
-        <input className={inp} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", e.target.value)} />
-        {errors.landCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landCity}</p>}
+      <FieldDt label="Land City" required error={errors.landCity}>
+        <input 
+          className={inp} 
+          placeholder="Enter land city name" 
+          value={formData.landCity} 
+          onChange={handleAlphaChange("landCity")} 
+        />
       </FieldDt>
-      <FieldDt label="Land Area" required hint="Enter area in sq ft or acres">
+      <FieldDt label="Land Area" required hint="Enter area in sq ft or acres" error={errors.landArea}>
         <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" min="0" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", e.target.value)} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Area" 
+            value={formData.landArea} 
+            onChange={(e) => updateForm("landArea", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
           <select className={inp} value={formData.areaUnit} onChange={(e) => updateForm("areaUnit", e.target.value)}>
             <option value="sqft">Sq. Ft.</option>
             <option value="acres">Acres</option>
           </select>
         </div>
-        {errors.landArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.landArea}</p>}
       </FieldDt>
       <FieldDt label="Area Range (Min - Max)">
         <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" min="0" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", e.target.value)} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Min Area" 
+            value={formData.landAreaMin} 
+            onChange={(e) => updateForm("landAreaMin", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Max Area" 
+            value={formData.landAreaMax} 
+            onChange={(e) => updateForm("landAreaMax", e.target.value.replace(/[^0-9.]/g, ''))} 
+          />
         </div>
       </FieldDt>
       <FieldDt label="Land Facing">
@@ -1766,7 +2058,14 @@ function DtContentLeaseAgentLP({
         </select>
       </FieldDt>
       <FieldDt label="Road Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", e.target.value)} />
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter road width in feet" 
+          value={formData.roadWidth} 
+          onChange={(e) => updateForm("roadWidth", e.target.value.replace(/\D/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="Water Source">
         <select className={inp} value={formData.waterSource} onChange={(e) => updateForm("waterSource", e.target.value)}>
@@ -1833,19 +2132,45 @@ function DtContentLeaseAgentLP({
         <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
-      <FieldDt label="Expected Lease (₹/month)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 20,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
-        {errors.expectedPrice && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.expectedPrice}</p>}
+      <FieldDt label="Expected Lease (₹/month)" required error={errors.expectedPrice}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="e.g. 20,000" 
+          value={formData.expectedPrice} 
+          onChange={(e) => updateForm("expectedPrice", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="Budget Range (₹/month)">
         <div className="flex gap-2">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Min" 
+            value={formData.budgetRange.min} 
+            onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9.]/g, '') })} 
+          />
+          <input 
+            className={inp} 
+            type="text" 
+            inputMode="decimal"
+            placeholder="Max" 
+            value={formData.budgetRange.max} 
+            onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9.]/g, '') })} 
+          />
         </div>
       </FieldDt>
-      <FieldDt label="Security Deposit (₹)" required>
-        <input className={inp} type="number" min="0" placeholder="e.g. 50,000" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
-        {errors.securityDeposit && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.securityDeposit}</p>}
+      <FieldDt label="Security Deposit (₹)" required error={errors.securityDeposit}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="e.g. 50,000" 
+          value={formData.securityDeposit} 
+          onChange={(e) => updateForm("securityDeposit", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="Price Type">
         <div className="flex gap-5">
@@ -1860,7 +2185,14 @@ function DtContentLeaseAgentLP({
         </div>
       </FieldDt>
       <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="decimal"
+          placeholder="Enter monthly maintenance amount" 
+          value={formData.maintenance} 
+          onChange={(e) => updateForm("maintenance", e.target.value.replace(/[^0-9.]/g, ''))} 
+        />
       </FieldDt>
       <FieldDt label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1897,7 +2229,7 @@ function DtContentLeaseAgentLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Media Upload</h3>
       </div>
       <p className="text-[11px] text-center text-gray-400 mb-3">📸 Upload land images and media</p>
-      <FieldDt label="Upload Cover Image" required hint="Max 2MB">
+      <FieldDt label="Upload Cover Image" required hint="Max 2MB" error={errors.coverImage}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
           <input type="file" accept="image/*" className="hidden" id="dt-cover-lp-agent" onChange={handleCoverImageUpload} />
           <label htmlFor="dt-cover-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1912,9 +2244,8 @@ function DtContentLeaseAgentLP({
             <button onClick={removeCoverImage} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
-        {errors.coverImage && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.coverImage}</p>}
       </FieldDt>
-      <FieldDt label="Upload Land Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`}>
+      <FieldDt label="Upload Land Photos (Max 3)" required hint={`${formData.propertyImages.length}/3 images uploaded`} error={errors.propertyImages}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
           <input type="file" accept="image/*" multiple className="hidden" id="dt-imgs-lp-agent" onChange={handleImageUpload} disabled={formData.propertyImages.length >= 3} />
           <label htmlFor="dt-imgs-lp-agent" className={`cursor-pointer flex flex-col items-center ${formData.propertyImages.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -1933,7 +2264,6 @@ function DtContentLeaseAgentLP({
             ))}
           </div>
         )}
-        {errors.propertyImages && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.propertyImages}</p>}
       </FieldDt>
       <FieldDt label="Upload Land Video (Optional)" hint="Max 10MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
@@ -1962,7 +2292,7 @@ function DtContentLeaseAgentLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Legal Documents</h3>
       </div>
       <p className="text-[11px] text-gray-400 mb-3">All documents must be in PDF format (Max 5MB each)</p>
-      <FieldDt label="Upload Floor Plan / Layout" required hint="PDF only (Max 5MB)">
+      <FieldDt label="Upload Floor Plan / Layout" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-4 text-center cursor-pointer hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-lp-agent" onChange={handleFloorPlanUpload} />
           <label htmlFor="dt-floorplan-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -1977,7 +2307,6 @@ function DtContentLeaseAgentLP({
             <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
           </div>
         )}
-        {errors.floorPlan && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.floorPlan}</p>}
       </FieldDt>
       <FieldDt label="Sale Deed / Title Deed">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -2049,7 +2378,7 @@ function DtContentLeaseAgentLP({
         </div>
         {formData.occupancyCertificate && <p className="text-[10px] text-green-600 mt-0.5">✓ {formData.occupancyCertificate.name}</p>}
       </FieldDt>
-      <FieldDt label="Lease Agreement" required>
+      <FieldDt label="Lease Agreement" required error={errors.leaseAgreement}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
           <input type="file" accept=".pdf" className="hidden" id="dt-leaseAgreement-lp-agent" onChange={(e) => handleDocumentUpload("leaseAgreement", e)} />
           <label htmlFor="dt-leaseAgreement-lp-agent" className="cursor-pointer flex flex-col items-center">
@@ -2058,7 +2387,6 @@ function DtContentLeaseAgentLP({
           </label>
         </div>
         {formData.leaseAgreement && <p className="text-[10px] text-green-600 mt-0.5">✓ {formData.leaseAgreement.name}</p>}
-        {errors.leaseAgreement && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.leaseAgreement}</p>}
       </FieldDt>
       <FieldDt label="Other Supporting Documents">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -2089,9 +2417,13 @@ function DtContentLeaseAgentLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <p className="text-[11px] text-gray-400 mb-3">Enter your bank details for lease payments</p>
-      <FieldDt label="Account Holder Name" required>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
-        {errors.accountHolderName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountHolderName}</p>}
+      <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
+        <input 
+          className={inp} 
+          placeholder="Enter account holder name" 
+          value={formData.accountHolderName} 
+          onChange={handleAlphaChange("accountHolderName")} 
+        />
       </FieldDt>
       <FieldDt label="Bank Name">
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -2099,16 +2431,31 @@ function DtContentLeaseAgentLP({
           {["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"].map(b => <option key={b} value={b}>{b}</option>)}
         </select>
       </FieldDt>
-      <FieldDt label="Account Number" required>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
-        {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
+      <FieldDt label="Account Number" required error={errors.accountNumber}>
+        <input 
+          className={inp} 
+          type="text" 
+          inputMode="numeric"
+          placeholder="Enter account number" 
+          value={formData.accountNumber} 
+          onChange={handleAccountChange("accountNumber")} 
+        />
       </FieldDt>
-      <FieldDt label="IFSC Code" required>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
-        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
+      <FieldDt label="IFSC Code" required error={errors.ifscCode}>
+        <input 
+          className={inp} 
+          placeholder="Enter IFSC code" 
+          value={formData.ifscCode} 
+          onChange={handleIfscChange("ifscCode")} 
+        />
       </FieldDt>
       <FieldDt label="UPI ID">
-        <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
+        <input 
+          className={inp} 
+          placeholder="Enter UPI ID (e.g. name@upi)" 
+          value={formData.upiId} 
+          onChange={(e) => updateForm("upiId", e.target.value)} 
+        />
       </FieldDt>
     </>
   );
@@ -2192,13 +2539,16 @@ function DtContentLeaseAgentLP({
         <button type="button" onClick={clearSignature} className="absolute top-2 right-3 bg-[#00695C] text-white px-3 py-0.5 rounded text-xs hover:bg-[#004d42] transition-colors">Clear</button>
       </div>
       {errors.signature && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signature}</p>}
-      <FieldDt label="Date" required>
+      <FieldDt label="Date" required error={errors.signatureDate}>
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
-        {errors.signatureDate && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signatureDate}</p>}
       </FieldDt>
-      <FieldDt label="Place" required>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
-        {errors.signaturePlace && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.signaturePlace}</p>}
+      <FieldDt label="Place" required error={errors.signaturePlace}>
+        <input 
+          className={inp} 
+          placeholder="Enter place" 
+          value={formData.signaturePlace} 
+          onChange={handleAlphaChange("signaturePlace")} 
+        />
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2210,17 +2560,17 @@ function DtContentLeaseAgentLP({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or authorized representative of this land owner.</span>
         </label>
-        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccepted}</p>}
+        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccepted}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are accurate and authentic.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );

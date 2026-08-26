@@ -15,6 +15,62 @@ const subtitles = [
   "Confirm & submit"
 ];
 
+// ==================== VALIDATION HELPER FUNCTIONS ====================
+
+// Only allows alphabetic characters and spaces
+const handleAlphaFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+  setter(value);
+};
+
+// Only allows numeric digits
+const handleNumericFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setter(value);
+};
+
+// Only allows digits and limits to 10 characters (for mobile number)
+const handleMobileChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+  setter(value);
+};
+
+// Only allows digits and limits to 12 characters (for Aadhaar)
+const handleAadhaarChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+  setter(value);
+};
+
+// Only allows digits and limits to 6 characters (for PIN code)
+const handlePinCodeChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  setter(value);
+};
+
+// Only allows digits (9-18 characters for account number)
+const handleAccountNumberChange = (setter) => (e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+  setter(value);
+};
+
+// IFSC code validation and formatting
+const handleIfscChange = (setter) => (e) => {
+  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+  setter(value);
+};
+
+// Only allows letters, numbers, and spaces (for area names)
+const handleAreaFieldChange = (setter) => (e) => {
+  const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+  setter(value);
+};
+
+// PAN number formatting (uppercase, alphanumeric)
+const handlePanChange = (setter) => (e) => {
+  const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+  setter(value);
+};
+
 // Field Component with error support
 const Field = ({ label, required, hint, error, children }) => (
   <div className="mb-2">
@@ -355,66 +411,205 @@ export default function SellBuilderIndForm({ isOpen, onClose }) {
     });
   };
 
+  // ==================== VALIDATION FUNCTIONS ====================
+
   const validateStep = (s) => {
     const e = {};
     if (s === 0) {
-      if (!formData.companyName.trim()) e.companyName = "Company name is required";
-      if (!formData.companyRegNumber.trim()) e.companyRegNumber = "Company registration number is required";
-      if (!formData.reraNumber.trim()) e.reraNumber = "RERA registration number is required";
-      if (!formData.yearsOfExperience) e.yearsOfExperience = "Years of experience is required";
-      if (formData.yearsOfExperience < 0) e.yearsOfExperience = "Years of experience cannot be negative";
+      // Company Name - letters, numbers, spaces, and common symbols
+      if (!formData.companyName.trim()) {
+        e.companyName = "Company name is required";
+      } else if (!/^[a-zA-Z0-9\s&.,-]+$/.test(formData.companyName)) {
+        e.companyName = "Company name contains invalid characters";
+      }
+      
+      if (!formData.companyRegNumber.trim()) {
+        e.companyRegNumber = "Company registration number is required";
+      } else if (!/^[a-zA-Z0-9\s-]+$/.test(formData.companyRegNumber)) {
+        e.companyRegNumber = "Registration number contains invalid characters";
+      }
+      
+      if (!formData.reraNumber.trim()) {
+        e.reraNumber = "RERA registration number is required";
+      } else if (!/^[A-Z0-9-]+$/.test(formData.reraNumber)) {
+        e.reraNumber = "RERA number contains invalid characters";
+      }
+      
+      // Years of Experience - numeric
+      if (!formData.yearsOfExperience) {
+        e.yearsOfExperience = "Years of experience is required";
+      } else if (parseFloat(formData.yearsOfExperience) < 0) {
+        e.yearsOfExperience = "Years of experience cannot be negative";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.yearsOfExperience)) {
+        e.yearsOfExperience = "Enter a valid number";
+      }
+      
       if (!formData.companyProfile.trim()) e.companyProfile = "Company profile is required";
     }
     if (s === 1) {
-      if (!formData.authFullName.trim()) e.authFullName = "Authorized person's full name is required";
-      if (!formData.authDesignation.trim()) e.authDesignation = "Designation is required";
-      if (!formData.authMobile || formData.authMobile.length !== 10) e.authMobile = "Enter a valid 10-digit mobile number";
-      if (!formData.authMobile.match(/^[0-9]{10}$/)) e.authMobile = "Mobile number must contain only digits";
-      if (!formData.authEmail || !isValidEmail(formData.authEmail)) e.authEmail = "Enter a valid email address";
+      // Auth Full Name - only letters and spaces
+      if (!formData.authFullName.trim()) {
+        e.authFullName = "Authorized person's full name is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.authFullName)) {
+        e.authFullName = "Name can only contain letters and spaces";
+      }
+      
+      // Auth Designation - letters, numbers, spaces
+      if (!formData.authDesignation.trim()) {
+        e.authDesignation = "Designation is required";
+      } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.authDesignation)) {
+        e.authDesignation = "Designation contains invalid characters";
+      }
+      
+      // Auth Mobile - exactly 10 digits
+      if (!formData.authMobile || formData.authMobile.length !== 10) {
+        e.authMobile = "Enter a valid 10-digit mobile number";
+      } else if (!/^[0-9]{10}$/.test(formData.authMobile)) {
+        e.authMobile = "Mobile number must contain only digits";
+      }
+      
+      // Auth Email
+      if (!formData.authEmail || !isValidEmail(formData.authEmail)) {
+        e.authEmail = "Enter a valid email address";
+      }
+      
       if (!formData.authPhoto) e.authPhoto = "Profile photo is required";
     }
     if (s === 2) {
-      if (!formData.officeAddress.trim()) e.officeAddress = "Office address is required";
-      if (!formData.officeCity.trim()) e.officeCity = "City is required";
-      if (!formData.officeDistrict.trim()) e.officeDistrict = "District is required";
-      if (!formData.officeState.trim()) e.officeState = "State is required";
-      if (!formData.officePinCode || formData.officePinCode.length !== 6) e.officePinCode = "Enter a valid 6-digit PIN code";
-      if (!formData.officePinCode.match(/^[0-9]{6}$/)) e.officePinCode = "PIN code must contain only digits";
+      // Office Address
+      if (!formData.officeAddress.trim()) {
+        e.officeAddress = "Office address is required";
+      } else if (!/^[a-zA-Z0-9\s,.-]+$/.test(formData.officeAddress)) {
+        e.officeAddress = "Address contains invalid characters";
+      }
+      
+      // City - only letters and spaces
+      if (!formData.officeCity.trim()) {
+        e.officeCity = "City is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.officeCity)) {
+        e.officeCity = "City can only contain letters and spaces";
+      }
+      
+      // District - only letters and spaces
+      if (!formData.officeDistrict.trim()) {
+        e.officeDistrict = "District is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.officeDistrict)) {
+        e.officeDistrict = "District can only contain letters and spaces";
+      }
+      
+      // State - only letters and spaces
+      if (!formData.officeState.trim()) {
+        e.officeState = "State is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.officeState)) {
+        e.officeState = "State can only contain letters and spaces";
+      }
+      
+      // PIN Code - exactly 6 digits
+      if (!formData.officePinCode || formData.officePinCode.length !== 6) {
+        e.officePinCode = "Enter a valid 6-digit PIN code";
+      } else if (!/^[0-9]{6}$/.test(formData.officePinCode)) {
+        e.officePinCode = "PIN code must contain only digits";
+      }
     }
     if (s === 3) {
-      if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) e.aadhaarNumber = "Enter a valid 12-digit Aadhaar number";
-      if (!formData.aadhaarNumber.match(/^[0-9]{12}$/)) e.aadhaarNumber = "Aadhaar number must contain only digits";
-      if (!formData.panNumber || formData.panNumber.length !== 10) e.panNumber = "Enter a valid 10-character PAN number";
-      if (!formData.panNumber.match(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/)) e.panNumber = "Enter a valid PAN number format";
+      // Aadhaar - exactly 12 digits
+      if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+        e.aadhaarNumber = "Enter a valid 12-digit Aadhaar number";
+      } else if (!/^[0-9]{12}$/.test(formData.aadhaarNumber)) {
+        e.aadhaarNumber = "Aadhaar number must contain only digits";
+      }
+      
+      // PAN - proper format (ABCDE1234F)
+      if (!formData.panNumber || formData.panNumber.length !== 10) {
+        e.panNumber = "Enter a valid 10-character PAN number";
+      } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panNumber)) {
+        e.panNumber = "Enter a valid PAN number format (e.g., ABCDE1234F)";
+      }
+      
       if (!formData.aadhaarCard) e.aadhaarCard = "Aadhaar card is required";
       if (!formData.panCard) e.panCard = "PAN card is required";
       if (!formData.companyRegCert) e.companyRegCert = "Company registration certificate is required";
       if (!formData.reraCert) e.reraCert = "RERA certificate is required";
     }
     if (s === 4) {
-      if (!formData.propertyTitle.trim()) e.propertyTitle = "Property title is required";
+      // Property Title - letters, numbers, spaces
+      if (!formData.propertyTitle.trim()) {
+        e.propertyTitle = "Property title is required";
+      } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.propertyTitle)) {
+        e.propertyTitle = "Property title contains invalid characters";
+      }
+      
       if (!formData.propertyType) e.propertyType = "Please select a property type";
-      if (!formData.propertyAddress.trim()) e.propertyAddress = "Property address is required";
-      if (!formData.propertyCity.trim()) e.propertyCity = "Property city is required";
-      if (!formData.builtUpArea) e.builtUpArea = "Build-up area is required";
-      if (formData.builtUpArea < 0) e.builtUpArea = "Build-up area cannot be negative";
-      if (!formData.carpetArea) e.carpetArea = "Carpet area is required";
-      if (formData.carpetArea < 0) e.carpetArea = "Carpet area cannot be negative";
+      
+      // Property Address
+      if (!formData.propertyAddress.trim()) {
+        e.propertyAddress = "Property address is required";
+      } else if (!/^[a-zA-Z0-9\s,.-]+$/.test(formData.propertyAddress)) {
+        e.propertyAddress = "Address contains invalid characters";
+      }
+      
+      // Property City - only letters and spaces
+      if (!formData.propertyCity.trim()) {
+        e.propertyCity = "Property city is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.propertyCity)) {
+        e.propertyCity = "City can only contain letters and spaces";
+      }
+      
+      // Built-up Area - numeric
+      if (!formData.builtUpArea) {
+        e.builtUpArea = "Build-up area is required";
+      } else if (parseFloat(formData.builtUpArea) < 0) {
+        e.builtUpArea = "Build-up area cannot be negative";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.builtUpArea)) {
+        e.builtUpArea = "Enter a valid number";
+      }
+      
+      // Carpet Area - numeric
+      if (!formData.carpetArea) {
+        e.carpetArea = "Carpet area is required";
+      } else if (parseFloat(formData.carpetArea) < 0) {
+        e.carpetArea = "Carpet area cannot be negative";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.carpetArea)) {
+        e.carpetArea = "Enter a valid number";
+      }
+      
       if (!formData.bedrooms) e.bedrooms = "Please select number of bedrooms";
       if (!formData.bathrooms) e.bathrooms = "Please select number of bathrooms";
       if (!formData.furnishingStatus) e.furnishingStatus = "Please select furnishing status";
     }
     if (s === 5) {
-      if (!formData.expectedPrice) e.expectedPrice = "Expected price is required";
-      if (formData.expectedPrice < 0) e.expectedPrice = "Amount cannot be negative";
+      // Expected Price - numeric
+      if (!formData.expectedPrice) {
+        e.expectedPrice = "Expected price is required";
+      } else if (parseFloat(formData.expectedPrice) < 0) {
+        e.expectedPrice = "Amount cannot be negative";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.expectedPrice)) {
+        e.expectedPrice = "Enter a valid number";
+      }
+      
       if (!formData.priceType) e.priceType = "Please select price type";
     }
     if (s === 6) {
-      if (!formData.accountHolderName.trim()) e.accountHolderName = "Account holder name is required";
-      if (!formData.accountNumber) e.accountNumber = "Account number is required";
-      if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) e.accountNumber = "Account number must be between 9-18 digits";
-      if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
-      if (!formData.ifscCode.match(/^[A-Z]{4}0[A-Z0-9]{6}$/)) e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+      // Account Holder Name - only letters and spaces
+      if (!formData.accountHolderName.trim()) {
+        e.accountHolderName = "Account holder name is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.accountHolderName)) {
+        e.accountHolderName = "Account holder name can only contain letters and spaces";
+      }
+      
+      // Account Number - 9-18 digits
+      if (!formData.accountNumber) {
+        e.accountNumber = "Account number is required";
+      } else if (!/^[0-9]{9,18}$/.test(formData.accountNumber)) {
+        e.accountNumber = "Account number must be between 9-18 digits";
+      }
+      
+      // IFSC Code
+      if (!formData.ifscCode.trim()) {
+        e.ifscCode = "IFSC code is required";
+      } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.ifscCode)) {
+        e.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
+      }
       if (!formData.bankName) e.bankName = "Bank name is required";
     }
     if (s === 7) {
@@ -431,7 +626,14 @@ export default function SellBuilderIndForm({ isOpen, onClose }) {
     if (s === 9) {
       if (!formData.signature) e.signature = "Please draw your signature";
       if (!formData.signatureDate) e.signatureDate = "Date is required";
-      if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
+      
+      // Signature Place - only letters and spaces
+      if (!formData.signaturePlace.trim()) {
+        e.signaturePlace = "Place is required";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.signaturePlace)) {
+        e.signaturePlace = "Place can only contain letters and spaces";
+      }
+      
       if (!formData.declarationAuthorized) e.declarationAuthorized = "You must confirm this to proceed";
       if (!formData.declarationAccurate) e.declarationAccurate = "You must confirm this to proceed";
       if (!formData.declarationCompliance) e.declarationCompliance = "You must confirm this to proceed";
@@ -691,6 +893,53 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
+  // ==================== HANDLER FUNCTIONS ====================
+  
+  const handleAlphaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    updateForm(field, value);
+  };
+
+  const handleNumericChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    updateForm(field, value);
+  };
+
+  const handleMobileChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAadhaarChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    updateForm(field, value);
+  };
+
+  const handlePinChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    updateForm(field, value);
+  };
+
+  const handleAccountChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+    updateForm(field, value);
+  };
+
+  const handleIfscChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+    updateForm(field, value);
+  };
+
+  const handlePanChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAreaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+    updateForm(field, value);
+  };
+
   useEffect(() => {
     const canvas = signatureCanvasRef.current;
     if (canvas) {
@@ -737,19 +986,19 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
   if (step === 0) return (
     <>
       <Field label="Builder / Company Name" required error={errors.companyName}>
-        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value.replace(/[^a-zA-Z0-9\s&.,-]/g, ''))} />
       </Field>
       <Field label="Company Registration Number" required error={errors.companyRegNumber}>
-        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value.replace(/[^a-zA-Z0-9\s-]/g, ''))} />
       </Field>
       <Field label="RERA Registration Number" required error={errors.reraNumber}>
-        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))} />
       </Field>
       <Field label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </Field>
       <Field label="Years of Experience" required error={errors.yearsOfExperience}>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={handleNumericChange("yearsOfExperience")} />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
@@ -768,19 +1017,19 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
       <Field label="Full Name" required error={errors.authFullName}>
-        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={handleAlphaChange("authFullName")} />
       </Field>
       <Field label="Designation" required error={errors.authDesignation}>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} />
       </Field>
       <Field label="Mobile Number" required error={errors.authMobile}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={handleMobileChange("authMobile")} />
       </Field>
       <Field label="Email Address" required error={errors.authEmail}>
         <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={handleMobileChange("authWhatsapp")} />
       </Field>
       <Field label="Profile Photo" required error={errors.authPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
@@ -809,19 +1058,19 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
       </div>
       <Field label="Office Address" required error={errors.officeAddress}>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} />
       </Field>
       <Field label="City" required error={errors.officeCity}>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={handleAlphaChange("officeCity")} />
       </Field>
       <Field label="District" required error={errors.officeDistrict}>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={handleAlphaChange("officeDistrict")} />
       </Field>
       <Field label="State" required error={errors.officeState}>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={handleAlphaChange("officeState")} />
       </Field>
       <Field label="PIN Code" required error={errors.officePinCode}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value.replace(/\D/g, "").slice(0, 6))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={handlePinChange("officePinCode")} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -837,10 +1086,10 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={handleAadhaarChange("aadhaarNumber")} />
       </Field>
       <Field label="PAN Number" required error={errors.panNumber}>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={handlePanChange("panNumber")} />
       </Field>
 
       <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -925,7 +1174,7 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Property Details</h3>
       </div>
       <Field label="Property Title / Name" required error={errors.propertyTitle}>
-        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
+        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} />
       </Field>
       <Field label="Property Type" required error={errors.propertyType}>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
@@ -936,19 +1185,19 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         ))}
       </Field>
       <Field label="Property Address" required error={errors.propertyAddress}>
-        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[55px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} />
       </Field>
       <Field label="Property City" required error={errors.propertyCity}>
-        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={handleAlphaChange("propertyCity")} />
       </Field>
       <Field label="Area Details" required hint="In square feet">
         <div className="grid grid-cols-2 gap-1.5">
           <div>
-            <input className={inp} type="number" min="0" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+            <input className={inp} type="text" inputMode="decimal" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value.replace(/[^0-9.]/g, ''))} />
             {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
           </div>
           <div>
-            <input className={inp} type="number" min="0" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+            <input className={inp} type="text" inputMode="decimal" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value.replace(/[^0-9.]/g, ''))} />
             {errors.carpetArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.carpetArea}</p>}
           </div>
         </div>
@@ -999,7 +1248,7 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
       <Field label="Property Age (Years)">
-        <input className={inp} type="number" min="0" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age" value={formData.propertyAge} onChange={handleNumericChange("propertyAge")} />
       </Field>
       <Field label="Property Condition">
         {["New", "Good", "Renovated", "Needs Renovation"].map(condition => (
@@ -1058,13 +1307,13 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
       <Field label="Expected Price (₹)" required error={errors.expectedPrice}>
-        <input className={inp} type="number" min="0" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
+        <input className={inp} type="text" inputMode="decimal" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value.replace(/[^0-9.]/g, ''))} />
       </Field>
       
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={inp} type="text" inputMode="decimal" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9.]/g, '') })} />
+          <input className={inp} type="text" inputMode="decimal" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9.]/g, '') })} />
         </div>
       </Field>
 
@@ -1081,7 +1330,7 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         </div>
       </Field>
       <Field label="Maintenance (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input className={inp} type="text" inputMode="decimal" placeholder="Enter monthly maintenance" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value.replace(/[^0-9.]/g, ''))} />
       </Field>
       <Field label="Available From">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1118,7 +1367,7 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <Field label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={handleAlphaChange("accountHolderName")} />
       </Field>
       <Field label="Bank Name" required error={errors.bankName}>
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1127,10 +1376,10 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         </select>
       </Field>
       <Field label="Account Number" required error={errors.accountNumber}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/\D/g, "").slice(0, 18))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={handleAccountChange("accountNumber")} />
       </Field>
       <Field label="IFSC Code" required error={errors.ifscCode}>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={handleIfscChange("ifscCode")} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1365,7 +1614,7 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
       <Field label="Place" required error={errors.signaturePlace}>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={handleAlphaChange("signaturePlace")} />
       </Field>
 
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1378,22 +1627,22 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
-        {errors.declarationCompliance && <p className="text-[10px] text-red-500 font-medium">{errors.declarationCompliance}</p>}
+        {errors.declarationCompliance && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationCompliance}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1405,6 +1654,53 @@ function MobContentSellBuilder({ step, inp, formData, updateForm, imagePreviews,
 function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleVideoUpload, videoPreview, removeVideo, handleDocumentUpload, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, yesNoOptions, bedroomOptions, bathroomOptions, bankOptions, handleCoverImageUpload, handleFloorPlanUpload, coverPreview, floorPlanPreview, removeCoverImage, removeFloorPlan, handleAuthPhotoUpload, authPhotoPreview, removeAuthPhoto, handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints, errors }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
+
+  // ==================== HANDLER FUNCTIONS ====================
+  
+  const handleAlphaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    updateForm(field, value);
+  };
+
+  const handleNumericChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    updateForm(field, value);
+  };
+
+  const handleMobileChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAadhaarChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    updateForm(field, value);
+  };
+
+  const handlePinChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    updateForm(field, value);
+  };
+
+  const handleAccountChange = (field) => (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 18);
+    updateForm(field, value);
+  };
+
+  const handleIfscChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+    updateForm(field, value);
+  };
+
+  const handlePanChange = (field) => (e) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    updateForm(field, value);
+  };
+
+  const handleAreaChange = (field) => (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z0-9\s]/g, '');
+    updateForm(field, value);
+  };
 
   useEffect(() => {
     const canvas = signatureCanvasRef.current;
@@ -1452,19 +1748,19 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
   if (step === 0) return (
     <>
       <FieldDt label="Builder / Company Name" required error={errors.companyName}>
-        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
+        <input className={inp} placeholder="Enter company name" value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value.replace(/[^a-zA-Z0-9\s&.,-]/g, ''))} />
       </FieldDt>
       <FieldDt label="Company Registration Number" required error={errors.companyRegNumber}>
-        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter registration number" value={formData.companyRegNumber} onChange={(e) => updateForm("companyRegNumber", e.target.value.replace(/[^a-zA-Z0-9\s-]/g, ''))} />
       </FieldDt>
       <FieldDt label="RERA Registration Number" required error={errors.reraNumber}>
-        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.reraNumber} onChange={(e) => updateForm("reraNumber", e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))} />
       </FieldDt>
       <FieldDt label="GST Number">
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Years of Experience" required error={errors.yearsOfExperience}>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter years of experience" value={formData.yearsOfExperience} onChange={handleNumericChange("yearsOfExperience")} />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.companyWebsite} onChange={(e) => updateForm("companyWebsite", e.target.value)} />
@@ -1483,19 +1779,19 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Person Details</h3>
       </div>
       <FieldDt label="Full Name" required error={errors.authFullName}>
-        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={inp} placeholder="Enter authorized person's full name" value={formData.authFullName} onChange={handleAlphaChange("authFullName")} />
       </FieldDt>
       <FieldDt label="Designation" required error={errors.authDesignation}>
-        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={inp} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} />
       </FieldDt>
       <FieldDt label="Mobile Number" required error={errors.authMobile}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={handleMobileChange("authMobile")} />
       </FieldDt>
       <FieldDt label="Email Address" required error={errors.authEmail}>
         <input className={inp} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, "").slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={handleMobileChange("authWhatsapp")} />
       </FieldDt>
       <FieldDt label="Profile Photo" required error={errors.authPhoto}>
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1524,19 +1820,19 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
       </div>
       <FieldDt label="Office Address" required error={errors.officeAddress}>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} />
       </FieldDt>
       <FieldDt label="City" required error={errors.officeCity}>
-        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={inp} placeholder="Enter city" value={formData.officeCity} onChange={handleAlphaChange("officeCity")} />
       </FieldDt>
       <FieldDt label="District" required error={errors.officeDistrict}>
-        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={inp} placeholder="Enter district" value={formData.officeDistrict} onChange={handleAlphaChange("officeDistrict")} />
       </FieldDt>
       <FieldDt label="State" required error={errors.officeState}>
-        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={inp} placeholder="Enter state" value={formData.officeState} onChange={handleAlphaChange("officeState")} />
       </FieldDt>
       <FieldDt label="PIN Code" required error={errors.officePinCode}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value.replace(/\D/g, "").slice(0, 6))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={handlePinChange("officePinCode")} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1552,10 +1848,10 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, "").slice(0, 12))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={12} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={handleAadhaarChange("aadhaarNumber")} />
       </FieldDt>
       <FieldDt label="PAN Number" required error={errors.panNumber}>
-        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={inp} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={handlePanChange("panNumber")} />
       </FieldDt>
 
       <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -1640,7 +1936,7 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Property Details</h3>
       </div>
       <FieldDt label="Property Title / Name" required error={errors.propertyTitle}>
-        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value)} />
+        <input className={inp} placeholder="e.g. Green Valley 3BHK Apartment" value={formData.propertyTitle} onChange={(e) => updateForm("propertyTitle", e.target.value.replace(/[^a-zA-Z0-9\s]/g, ''))} />
       </FieldDt>
       <FieldDt label="Property Type" required error={errors.propertyType}>
         {["Independent House", "Independent Villa", "Duplex Residential Unit"].map(t => (
@@ -1651,19 +1947,19 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         ))}
       </FieldDt>
       <FieldDt label="Property Address" required error={errors.propertyAddress}>
-        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[70px]`} placeholder="Enter complete property address" value={formData.propertyAddress} onChange={(e) => updateForm("propertyAddress", e.target.value.replace(/[^a-zA-Z0-9\s,.-]/g, ''))} />
       </FieldDt>
       <FieldDt label="Property City" required error={errors.propertyCity}>
-        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={(e) => updateForm("propertyCity", e.target.value)} />
+        <input className={inp} placeholder="Enter property city name" value={formData.propertyCity} onChange={handleAlphaChange("propertyCity")} />
       </FieldDt>
       <FieldDt label="Area Details" required hint="Enter values in square feet">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <input className={inp} type="number" min="0" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+            <input className={inp} type="text" inputMode="decimal" placeholder="Build-up Area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value.replace(/[^0-9.]/g, ''))} />
             {errors.builtUpArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.builtUpArea}</p>}
           </div>
           <div>
-            <input className={inp} type="number" min="0" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+            <input className={inp} type="text" inputMode="decimal" placeholder="Carpet Area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value.replace(/[^0-9.]/g, ''))} />
             {errors.carpetArea && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.carpetArea}</p>}
           </div>
         </div>
@@ -1714,7 +2010,7 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Sell Preferences</h3>
       </div>
       <FieldDt label="Property Age (Years)">
-        <input className={inp} type="number" min="0" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age" value={formData.propertyAge} onChange={handleNumericChange("propertyAge")} />
       </FieldDt>
       <FieldDt label="Property Condition">
         {["New", "Good", "Renovated", "Needs Renovation"].map(condition => (
@@ -1773,13 +2069,13 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Pricing & Amenities</h3>
       </div>
       <FieldDt label="Expected Price (₹)" required error={errors.expectedPrice}>
-        <input className={inp} type="number" min="0" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value)} />
+        <input className={inp} type="text" inputMode="decimal" placeholder="e.g. 45,00,000" value={formData.expectedPrice} onChange={(e) => updateForm("expectedPrice", e.target.value.replace(/[^0-9.]/g, ''))} />
       </FieldDt>
       
       <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={inp} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={inp} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={inp} type="text" inputMode="decimal" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value.replace(/[^0-9.]/g, '') })} />
+          <input className={inp} type="text" inputMode="decimal" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value.replace(/[^0-9.]/g, '') })} />
         </div>
       </FieldDt>
 
@@ -1796,7 +2092,7 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         </div>
       </FieldDt>
       <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value)} />
+        <input className={inp} type="text" inputMode="decimal" placeholder="Enter monthly maintenance amount" value={formData.maintenance} onChange={(e) => updateForm("maintenance", e.target.value.replace(/[^0-9.]/g, ''))} />
       </FieldDt>
       <FieldDt label="Available From" hint="Date from which the property is available">
         <input className={inp} type="date" value={formData.availableFrom} onChange={(e) => updateForm("availableFrom", e.target.value)} />
@@ -1833,7 +2129,7 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={handleAlphaChange("accountHolderName")} />
       </FieldDt>
       <FieldDt label="Bank Name" required error={errors.bankName}>
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1842,10 +2138,10 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         </select>
       </FieldDt>
       <FieldDt label="Account Number" required error={errors.accountNumber}>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value.replace(/\D/g, "").slice(0, 18))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={handleAccountChange("accountNumber")} />
       </FieldDt>
       <FieldDt label="IFSC Code" required error={errors.ifscCode}>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={handleIfscChange("ifscCode")} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2080,7 +2376,7 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
       <FieldDt label="Place" required error={errors.signaturePlace}>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={handleAlphaChange("signaturePlace")} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2093,22 +2389,22 @@ function DtContentSellBuilder({ step, inp, formData, updateForm, imagePreviews, 
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of the builder/company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationCompliance} onChange={() => updateForm("declarationCompliance", !formData.declarationCompliance)} />
           <span>I agree to comply with all applicable real estate laws and regulations.</span>
         </label>
-        {errors.declarationCompliance && <p className="text-[10px] text-red-500 font-medium">{errors.declarationCompliance}</p>}
+        {errors.declarationCompliance && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationCompliance}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );

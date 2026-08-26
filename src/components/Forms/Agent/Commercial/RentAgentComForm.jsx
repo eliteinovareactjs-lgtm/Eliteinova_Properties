@@ -34,6 +34,27 @@ const subtitles = [
   "Confirm & submit"
 ];
 
+// Helper functions for validation
+const isOnlyLettersAndSpaces = (value) => /^[A-Za-z\s]*$/.test(value);
+const isOnlyDigits = (value) => /^\d*$/.test(value);
+const isAlphanumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
+const isValidIFSC = (code) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(code);
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidPincode = (code) => /^[0-9]{6}$/.test(code);
+
+// Real-time filtering handlers
+const handleAlphaFieldChange = (value) => {
+  return value.replace(/[^A-Za-z\s]/g, '');
+};
+
+const handleNumericFieldChange = (value) => {
+  return value.replace(/\D/g, '');
+};
+
+const handleAlphanumericFieldChange = (value) => {
+  return value.replace(/[^A-Za-z0-9\s]/g, '');
+};
+
 const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -103,14 +124,14 @@ export default function RentAgentComForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Personal Details (Step 0)
-    fullName: "", mobileNumber: "", emailId: "", dateOfBirth: "", gender: "", profilePhoto: null,
+    fullName: "", mobileNumber: "", emailId: "", gender: "", profilePhoto: null,
 
     // Business Information (Step 1)
     agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", 
     serviceAreas: [], officeAddress: "",
     
     // Property Details (Step 2) - Location + Details & Interior combined
-    city: "", area: "", landmark: "", pinCode: "", nearbyConnectivity: "",
+    city: "", area: "", landmark: "", pinCode: "", state: "", district: "", nearbyConnectivity: "",
     commercialType: "", builtUpArea: "", carpetArea: "",
     floorNumber: "", totalFloors: "", facingDirection: "", propertyAge: "",
     frontageWidth: "", ceilingHeight: "", furnishing: "", powerLoad: "",
@@ -160,44 +181,60 @@ export default function RentAgentComForm({ isOpen, onClose }) {
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error for this field when updated
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
-  // Validation functions
   const validateStep = (stepNum) => {
     const newErrors = {};
     
     if (stepNum === 0) {
       if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+      else if (!isOnlyLettersAndSpaces(formData.fullName)) newErrors.fullName = "Only letters and spaces allowed";
       if (!formData.mobileNumber.trim()) newErrors.mobileNumber = "Mobile number is required";
       else if (!/^[0-9]{10}$/.test(formData.mobileNumber)) newErrors.mobileNumber = "Enter a valid 10-digit number";
+      else if (!isOnlyDigits(formData.mobileNumber)) newErrors.mobileNumber = "Mobile number must contain only digits";
       if (!formData.emailId.trim()) newErrors.emailId = "Email is required";
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailId)) newErrors.emailId = "Enter a valid email";
+      else if (!isValidEmail(formData.emailId)) newErrors.emailId = "Enter a valid email";
     }
     
     if (stepNum === 1) {
       if (!formData.agencyName.trim()) newErrors.agencyName = "Agency name is required";
       if (!formData.yearsExperience) newErrors.yearsExperience = "Years of experience is required";
       else if (parseInt(formData.yearsExperience) < 0) newErrors.yearsExperience = "Cannot be negative";
+      else if (!isOnlyDigits(formData.yearsExperience)) newErrors.yearsExperience = "Only digits allowed";
       if (formData.serviceAreas.length === 0) newErrors.serviceAreas = "At least one service area is required";
       if (!formData.officeAddress.trim()) newErrors.officeAddress = "Office address is required";
     }
     
     if (stepNum === 2) {
       if (!formData.city.trim()) newErrors.city = "City is required";
+      else if (!isOnlyLettersAndSpaces(formData.city)) newErrors.city = "Only letters and spaces allowed";
       if (!formData.area.trim()) newErrors.area = "Area is required";
+      else if (!isAlphanumericWithSpaces(formData.area)) newErrors.area = "Only letters, numbers and spaces allowed";
+      if (formData.pinCode && !isValidPincode(formData.pinCode)) newErrors.pinCode = "Enter a valid 6-digit PIN code";
+      if (formData.state && !isOnlyLettersAndSpaces(formData.state)) newErrors.state = "Only letters and spaces allowed";
+      if (formData.district && !isOnlyLettersAndSpaces(formData.district)) newErrors.district = "Only letters and spaces allowed";
       if (!formData.commercialType) newErrors.commercialType = "Commercial type is required";
       if (!formData.builtUpArea) newErrors.builtUpArea = "Built-up area is required";
       else if (parseFloat(formData.builtUpArea) < 0) newErrors.builtUpArea = "Cannot be negative";
+      else if (!isOnlyDigits(formData.builtUpArea)) newErrors.builtUpArea = "Only digits allowed";
+      if (formData.carpetArea && !isOnlyDigits(formData.carpetArea)) newErrors.carpetArea = "Only digits allowed";
+      if (formData.floorNumber && !isOnlyDigits(formData.floorNumber)) newErrors.floorNumber = "Only digits allowed";
+      if (formData.totalFloors && !isOnlyDigits(formData.totalFloors)) newErrors.totalFloors = "Only digits allowed";
+      if (formData.propertyAge && !isOnlyDigits(formData.propertyAge)) newErrors.propertyAge = "Only digits allowed";
+      if (formData.frontageWidth && !isOnlyDigits(formData.frontageWidth)) newErrors.frontageWidth = "Only digits allowed";
+      if (formData.ceilingHeight && !isOnlyDigits(formData.ceilingHeight)) newErrors.ceilingHeight = "Only digits allowed";
+      if (formData.parkingCapacity && !isOnlyDigits(formData.parkingCapacity)) newErrors.parkingCapacity = "Only digits allowed";
       if (!formData.businessType) newErrors.businessType = "Business type is required";
     }
     
     if (stepNum === 3) {
       if (!formData.monthlyRent) newErrors.monthlyRent = "Monthly rent is required";
       else if (parseFloat(formData.monthlyRent) < 0) newErrors.monthlyRent = "Cannot be negative";
+      else if (!isOnlyDigits(formData.monthlyRent)) newErrors.monthlyRent = "Only digits allowed";
+      if (formData.securityDeposit && !isOnlyDigits(formData.securityDeposit)) newErrors.securityDeposit = "Only digits allowed";
       if (!formData.leaseDuration) newErrors.leaseDuration = "Lease duration is required";
     }
     
@@ -217,9 +254,12 @@ export default function RentAgentComForm({ isOpen, onClose }) {
     
     if (stepNum === 6) {
       if (!formData.accountHolderName.trim()) newErrors.accountHolderName = "Account holder name is required";
+      else if (!isOnlyLettersAndSpaces(formData.accountHolderName)) newErrors.accountHolderName = "Only letters and spaces allowed";
       if (!formData.bankName) newErrors.bankName = "Bank name is required";
       if (!formData.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
+      else if (!formData.accountNumber.match(/^[0-9]{9,18}$/)) newErrors.accountNumber = "Account number must be between 9-18 digits";
       if (!formData.ifscCode.trim()) newErrors.ifscCode = "IFSC code is required";
+      else if (!isValidIFSC(formData.ifscCode)) newErrors.ifscCode = "Enter a valid IFSC code (e.g., SBIN0001234)";
     }
     
     if (stepNum === 7) {
@@ -230,6 +270,7 @@ export default function RentAgentComForm({ isOpen, onClose }) {
       if (!formData.signature) newErrors.signature = "Signature is required";
       if (!formData.signatureDate) newErrors.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) newErrors.signaturePlace = "Place is required";
+      else if (!isOnlyLettersAndSpaces(formData.signaturePlace)) newErrors.signaturePlace = "Only letters and spaces allowed";
       if (!formData.declaration1) newErrors.declaration1 = "You must accept this declaration";
       if (!formData.declaration2) newErrors.declaration2 = "You must accept this declaration";
       if (!formData.declaration3) newErrors.declaration3 = "You must accept this declaration";
@@ -354,6 +395,9 @@ export default function RentAgentComForm({ isOpen, onClose }) {
         return;
       }
       updateForm(docType, file);
+      if (errors[docType]) {
+        setErrors(prev => ({ ...prev, [docType]: "" }));
+      }
     }
   };
 
@@ -554,6 +598,14 @@ export default function RentAgentComForm({ isOpen, onClose }) {
               setServiceAreaInput={setServiceAreaInput}
               addServiceArea={addServiceArea}
               removeServiceArea={removeServiceArea}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
+              isOnlyLettersAndSpaces={isOnlyLettersAndSpaces}
+              isOnlyDigits={isOnlyDigits}
+              isValidIFSC={isValidIFSC}
+              isValidEmail={isValidEmail}
+              isValidPincode={isValidPincode}
             />
           </div>
 
@@ -673,6 +725,14 @@ export default function RentAgentComForm({ isOpen, onClose }) {
               setServiceAreaInput={setServiceAreaInput}
               addServiceArea={addServiceArea}
               removeServiceArea={removeServiceArea}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
+              isOnlyLettersAndSpaces={isOnlyLettersAndSpaces}
+              isOnlyDigits={isOnlyDigits}
+              isValidIFSC={isValidIFSC}
+              isValidEmail={isValidEmail}
+              isValidPincode={isValidPincode}
             />
           </div>
 
@@ -729,7 +789,9 @@ function MobContentRentAgentCom({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   genderOptions, commercialTypeOptions, businessTypeOptions,
-  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea
+  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
+  isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, isValidPincode
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -780,16 +842,13 @@ function MobContentRentAgentCom({
   if (step === 0) return (
     <>
       <Field label="Full Name" required error={errors.fullName}>
-        <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
+        <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Mobile Number" required error={errors.mobileNumber}>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} maxLength={10} />
+        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", handleNumericFieldChange(e.target.value).slice(0, 10))} maxLength={10} />
       </Field>
       <Field label="Email Address" required error={errors.emailId}>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </Field>
-      <Field label="Date of Birth">
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
       </Field>
       <Field label="Gender">
         <div className="flex gap-4">
@@ -837,10 +896,10 @@ function MobContentRentAgentCom({
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </Field>
       <Field label="Years of Experience" required error={errors.yearsExperience}>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Number of Active Listings">
-        <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Service Areas" required error={errors.serviceAreas}>
         <div className="flex gap-1">
@@ -862,7 +921,7 @@ function MobContentRentAgentCom({
     </>
   );
 
-  // STEP 2: Property Details (Location + Commercial Details)
+  // STEP 2: Property Details (Location + Commercial Details) - Updated with validation
   if (step === 2) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -870,16 +929,22 @@ function MobContentRentAgentCom({
         <h3 className="text-[11px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
       <Field label="City" required error={errors.city}>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Area / Locality" required error={errors.area}>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", handleAlphanumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </Field>
-      <Field label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+      <Field label="State" error={errors.state}>
+        <input className={inp} placeholder="Enter state name" value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
+      </Field>
+      <Field label="District" error={errors.district}>
+        <input className={inp} placeholder="Enter district name" value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+      </Field>
+      <Field label="PIN Code" hint="Exactly 6 digits" error={errors.pinCode}>
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
       </Field>
       <Field label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -900,16 +965,16 @@ function MobContentRentAgentCom({
         </div>
       </Field>
       <Field label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
-        <input className={inp} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", handleNumericFieldChange(e.target.value))} />
       </Field>
-      <Field label="Carpet Area (sq.ft)" hint="In square feet">
-        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <Field label="Carpet Area (sq.ft)" hint="In square feet" error={errors.carpetArea}>
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", handleNumericFieldChange(e.target.value))} />
       </Field>
-      <Field label="Floor Number">
-        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+      <Field label="Floor Number" error={errors.floorNumber}>
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", handleNumericFieldChange(e.target.value))} />
       </Field>
-      <Field label="Total Floors">
-        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+      <Field label="Total Floors" error={errors.totalFloors}>
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
@@ -921,14 +986,14 @@ function MobContentRentAgentCom({
           ))}
         </div>
       </Field>
-      <Field label="Property Age">
-        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      <Field label="Property Age" error={errors.propertyAge}>
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", handleNumericFieldChange(e.target.value))} />
       </Field>
-      <Field label="Frontage Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
+      <Field label="Frontage Width (ft)" error={errors.frontageWidth}>
+        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", handleNumericFieldChange(e.target.value))} />
       </Field>
-      <Field label="Ceiling Height (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
+      <Field label="Ceiling Height (ft)" error={errors.ceilingHeight}>
+        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Furnishing Status">
         <div className="grid grid-cols-2 gap-1">
@@ -943,8 +1008,8 @@ function MobContentRentAgentCom({
       <Field label="Power Load Capacity (KVA/HP)">
         <input className={inp} placeholder="Enter power load capacity" value={formData.powerLoad} onChange={(e) => updateForm("powerLoad", e.target.value)} />
       </Field>
-      <Field label="Parking Capacity">
-        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
+      <Field label="Parking Capacity" error={errors.parkingCapacity}>
+        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Business Type Suitable" required error={errors.businessType}>
         <div className="grid grid-cols-2 gap-1">
@@ -979,13 +1044,13 @@ function MobContentRentAgentCom({
         <h3 className="text-[11px] font-bold text-[#00695C]">📄 Rental Details</h3>
       </div>
       <Field label="Monthly Rent (₹)" required error={errors.monthlyRent}>
-        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.monthlyRent} onChange={(e) => updateForm("monthlyRent", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.monthlyRent} onChange={(e) => updateForm("monthlyRent", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Budget Range (₹/month)" hint="Set a budget range for negotiation">
         <input className={inp} placeholder="e.g., 50000-80000" value={formData.budgetRange} onChange={(e) => updateForm("budgetRange", e.target.value)} />
       </Field>
-      <Field label="Security Deposit (₹)">
-        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+      <Field label="Security Deposit (₹)" error={errors.securityDeposit}>
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Lease Duration" required error={errors.leaseDuration}>
         <div className="grid grid-cols-2 gap-1">
@@ -1353,7 +1418,7 @@ function MobContentRentAgentCom({
       </div>
       <p className="text-[9px] text-gray-400 mb-2">Enter your bank details for payments</p>
       <Field label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Bank Name" required error={errors.bankName}>
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1363,11 +1428,11 @@ function MobContentRentAgentCom({
           ))}
         </select>
       </Field>
-      <Field label="Account Number" required error={errors.accountNumber}>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <Field label="Account Number" required hint="9-18 digits" error={errors.accountNumber}>
+        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value).slice(0, 18))} />
       </Field>
-      <Field label="IFSC Code" required error={errors.ifscCode}>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <Field label="IFSC Code" required hint="e.g., SBIN0001234" error={errors.ifscCode}>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1439,7 +1504,7 @@ function MobContentRentAgentCom({
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
       <Field label="Place" required error={errors.signaturePlace}>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1456,7 +1521,7 @@ function MobContentRentAgentCom({
           />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declaration1 && <p className="text-[10px] text-red-500 mt-0.5">{errors.declaration1}</p>}
+        {errors.declaration1 && <p className="text-[10px] text-red-500 ml-5">{errors.declaration1}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input 
             type="checkbox" 
@@ -1466,7 +1531,7 @@ function MobContentRentAgentCom({
           />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declaration2 && <p className="text-[10px] text-red-500 mt-0.5">{errors.declaration2}</p>}
+        {errors.declaration2 && <p className="text-[10px] text-red-500 ml-5">{errors.declaration2}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input 
             type="checkbox" 
@@ -1476,7 +1541,7 @@ function MobContentRentAgentCom({
           />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declaration3 && <p className="text-[10px] text-red-500 mt-0.5">{errors.declaration3}</p>}
+        {errors.declaration3 && <p className="text-[10px] text-red-500 ml-5">{errors.declaration3}</p>}
       </div>
     </>
   );
@@ -1501,7 +1566,9 @@ function DtContentRentAgentCom({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   genderOptions, commercialTypeOptions, businessTypeOptions,
-  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea
+  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
+  isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, isValidPincode
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1556,16 +1623,13 @@ function DtContentRentAgentCom({
         <h3 className="text-[14px] font-bold text-[#00695C]">Personal Information</h3>
       </div>
       <FieldDt label="Full Name" required error={errors.fullName}>
-        <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
+        <input className={inp} placeholder="Enter your full name" value={formData.fullName} onChange={(e) => updateForm("fullName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Mobile Number" required error={errors.mobileNumber}>
-        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} maxLength={10} />
+        <input className={inp} type="tel" placeholder="Enter your 10-digit mobile number" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", handleNumericFieldChange(e.target.value).slice(0, 10))} maxLength={10} />
       </FieldDt>
       <FieldDt label="Email Address" required error={errors.emailId}>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Date of Birth">
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
       </FieldDt>
       <FieldDt label="Gender">
         <div className="flex gap-5">
@@ -1613,10 +1677,10 @@ function DtContentRentAgentCom({
         <input className={inp} placeholder="Enter GST number" value={formData.gstNumber} onChange={(e) => updateForm("gstNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Years of Experience" required error={errors.yearsExperience}>
-        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter years of experience" value={formData.yearsExperience} onChange={(e) => updateForm("yearsExperience", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Number of Active Listings">
-        <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Service Areas" required error={errors.serviceAreas}>
         <div className="flex gap-2">
@@ -1638,7 +1702,7 @@ function DtContentRentAgentCom({
     </>
   );
 
-  // STEP 2: Property Details (Location + Commercial Details)
+  // STEP 2: Property Details (Location + Commercial Details) - Updated with validation
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1646,16 +1710,22 @@ function DtContentRentAgentCom({
         <h3 className="text-[14px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
       <FieldDt label="City" required error={errors.city}>
-        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
+        <input className={inp} placeholder="Enter city name" value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Area / Locality" required error={errors.area}>
-        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        <input className={inp} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", handleAlphanumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code">
-        <input className={inp} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
+      <FieldDt label="State" error={errors.state}>
+        <input className={inp} placeholder="Enter state name" value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
+      </FieldDt>
+      <FieldDt label="District" error={errors.district}>
+        <input className={inp} placeholder="Enter district name" value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+      </FieldDt>
+      <FieldDt label="PIN Code" hint="Exactly 6 digits" error={errors.pinCode}>
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
       </FieldDt>
       <FieldDt label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => updateForm("nearbyConnectivity", e.target.value)} />
@@ -1676,16 +1746,16 @@ function DtContentRentAgentCom({
         </div>
       </FieldDt>
       <FieldDt label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
-        <input className={inp} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
-      <FieldDt label="Carpet Area (sq.ft)" hint="In square feet">
-        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+      <FieldDt label="Carpet Area (sq.ft)" hint="In square feet" error={errors.carpetArea}>
+        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
-      <FieldDt label="Floor Number">
-        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+      <FieldDt label="Floor Number" error={errors.floorNumber}>
+        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
-      <FieldDt label="Total Floors">
-        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+      <FieldDt label="Total Floors" error={errors.totalFloors}>
+        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
@@ -1697,14 +1767,14 @@ function DtContentRentAgentCom({
           ))}
         </div>
       </FieldDt>
-      <FieldDt label="Property Age">
-        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+      <FieldDt label="Property Age" error={errors.propertyAge}>
+        <input className={inp} type="number" min="0" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
-      <FieldDt label="Frontage Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", e.target.value)} />
+      <FieldDt label="Frontage Width (ft)" error={errors.frontageWidth}>
+        <input className={inp} type="number" min="0" placeholder="Enter frontage width" value={formData.frontageWidth} onChange={(e) => updateForm("frontageWidth", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
-      <FieldDt label="Ceiling Height (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", e.target.value)} />
+      <FieldDt label="Ceiling Height (ft)" error={errors.ceilingHeight}>
+        <input className={inp} type="number" min="0" placeholder="Enter ceiling height" value={formData.ceilingHeight} onChange={(e) => updateForm("ceilingHeight", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Furnishing Status">
         <div className="flex flex-wrap gap-3">
@@ -1719,8 +1789,8 @@ function DtContentRentAgentCom({
       <FieldDt label="Power Load Capacity (KVA/HP)">
         <input className={inp} placeholder="Enter power load capacity" value={formData.powerLoad} onChange={(e) => updateForm("powerLoad", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Parking Capacity">
-        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", e.target.value)} />
+      <FieldDt label="Parking Capacity" error={errors.parkingCapacity}>
+        <input className={inp} type="number" min="0" placeholder="Number of parking slots" value={formData.parkingCapacity} onChange={(e) => updateForm("parkingCapacity", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Business Type Suitable" required error={errors.businessType}>
         <div className="flex flex-wrap gap-3">
@@ -1755,13 +1825,13 @@ function DtContentRentAgentCom({
         <h3 className="text-[14px] font-bold text-[#00695C]">📄 Rental Details</h3>
       </div>
       <FieldDt label="Monthly Rent (₹)" required error={errors.monthlyRent}>
-        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.monthlyRent} onChange={(e) => updateForm("monthlyRent", e.target.value)} />
+        <input className={inp} type="number" min="0" placeholder="Enter monthly rent amount" value={formData.monthlyRent} onChange={(e) => updateForm("monthlyRent", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Budget Range (₹/month)" hint="Set a budget range for negotiation">
         <input className={inp} placeholder="e.g., 50000-80000" value={formData.budgetRange} onChange={(e) => updateForm("budgetRange", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Security Deposit (₹)">
-        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+      <FieldDt label="Security Deposit (₹)" error={errors.securityDeposit}>
+        <input className={inp} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Lease Duration" required error={errors.leaseDuration}>
         <div className="flex flex-wrap gap-3">
@@ -2128,7 +2198,7 @@ function DtContentRentAgentCom({
       </div>
       <p className="text-[11px] text-gray-400 mb-3">Enter your bank details for payments</p>
       <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={inp} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Bank Name" required error={errors.bankName}>
         <select className={inp} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -2138,11 +2208,11 @@ function DtContentRentAgentCom({
           ))}
         </select>
       </FieldDt>
-      <FieldDt label="Account Number" required error={errors.accountNumber}>
-        <input className={inp} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+      <FieldDt label="Account Number" required hint="9-18 digits" error={errors.accountNumber}>
+        <input className={inp} type="tel" inputMode="numeric" maxLength={18} placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value).slice(0, 18))} />
       </FieldDt>
-      <FieldDt label="IFSC Code" required error={errors.ifscCode}>
-        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value)} />
+      <FieldDt label="IFSC Code" required hint="e.g., SBIN0001234" error={errors.ifscCode}>
+        <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2214,7 +2284,7 @@ function DtContentRentAgentCom({
         <input className={inp} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
       <FieldDt label="Place" required error={errors.signaturePlace}>
-        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={inp} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2231,7 +2301,7 @@ function DtContentRentAgentCom({
           />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declaration1 && <p className="text-[12px] text-red-500 mt-0.5">{errors.declaration1}</p>}
+        {errors.declaration1 && <p className="text-[12px] text-red-500 ml-6">{errors.declaration1}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input 
             type="checkbox" 
@@ -2241,7 +2311,7 @@ function DtContentRentAgentCom({
           />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declaration2 && <p className="text-[12px] text-red-500 mt-0.5">{errors.declaration2}</p>}
+        {errors.declaration2 && <p className="text-[12px] text-red-500 ml-6">{errors.declaration2}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
           <input 
             type="checkbox" 
@@ -2251,7 +2321,7 @@ function DtContentRentAgentCom({
           />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declaration3 && <p className="text-[12px] text-red-500 mt-0.5">{errors.declaration3}</p>}
+        {errors.declaration3 && <p className="text-[12px] text-red-500 ml-6">{errors.declaration3}</p>}
       </div>
     </>
   );
