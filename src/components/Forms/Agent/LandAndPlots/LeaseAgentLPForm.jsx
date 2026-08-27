@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ImagePlus, Video, X, FileText, User, Home, PenTool, Building } from "lucide-react";
+import { ArrowLeft, ImagePlus, Video, X, FileText, User, Home, PenTool, Building, Search, ChevronDown } from "lucide-react";
 
 const steps = ["Agent Details", "Identity Verification", "Land Details", "Pricing & Amenities", "Media Upload", "Legal Documents", "Bank Details", "Social Media", "Communication & Declaration"];
 const subtitles = [
@@ -133,6 +133,202 @@ const contactMethods = ["Phone Call", "WhatsApp", "Email"];
 const contactTimes = ["Morning", "Afternoon", "Evening", "Anytime"];
 const genderOptions = ["Male", "Female", "Other"];
 
+const serviceAreasOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", 
+  "Pune", "Ahmedabad", "Kolkata", "Surat", "Jaipur", 
+  "Lucknow", "Nagpur", "Indore", "Bhopal", "Chandigarh", "Other"
+];
+
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, selected, onChange, placeholder = "Search and select...", className = "", disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={(e) => removeOption(item, e)} />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]">
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, selected, onChange, placeholder = "Search and select...", className = "", disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" onClick={(e) => removeOption(item, e)} />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label key={option} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]">
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function LeaseAgentLPForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
@@ -203,6 +399,175 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
   };
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // ==================== FILE / MEDIA / SIGNATURE HANDLERS ====================
+  // (Previously missing — this is what was throwing "handleImageUpload is not defined")
+
+  const readFileAsDataURL = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  // ---- Profile photo (Step 0) ----
+  const handleProfilePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    updateForm("profilePhoto", file);
+    setProfilePhotoPreview(await readFileAsDataURL(file));
+  };
+  const removeProfilePhoto = () => {
+    updateForm("profilePhoto", null);
+    setProfilePhotoPreview(null);
+  };
+
+  // ---- Cover image (Step 4) ----
+  const handleCoverImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    updateForm("coverImage", file);
+    setCoverPreview(await readFileAsDataURL(file));
+  };
+  const removeCoverImage = () => {
+    updateForm("coverImage", null);
+    setCoverPreview(null);
+  };
+
+  // ---- Property images, max 3 (Step 4) ----
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    const remainingSlots = 3 - formData.propertyImages.length;
+    const filesToAdd = files.slice(0, remainingSlots);
+    if (filesToAdd.length === 0) return;
+    updateForm("propertyImages", [...formData.propertyImages, ...filesToAdd]);
+    const previews = await Promise.all(filesToAdd.map(readFileAsDataURL));
+    setImagePreviews((prev) => [...prev, ...previews]);
+    e.target.value = ""; // allow re-selecting the same file later
+  };
+  const removeImage = (idx) => {
+    updateForm(
+      "propertyImages",
+      formData.propertyImages.filter((_, i) => i !== idx)
+    );
+    setImagePreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  // ---- Property video (Step 4) ----
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    updateForm("propertyVideo", file);
+    setVideoPreview(await readFileAsDataURL(file));
+  };
+  const removeVideo = () => {
+    updateForm("propertyVideo", null);
+    setVideoPreview(null);
+  };
+
+  // ---- Floor plan (Step 5) ----
+  const handleFloorPlanUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      alert("Only PDF files are allowed");
+      return;
+    }
+    updateForm("floorPlan", file);
+    setFloorPlanPreview(file.name);
+  };
+  const removeFloorPlan = () => {
+    updateForm("floorPlan", null);
+    setFloorPlanPreview(null);
+  };
+
+  // ---- Generic single-file document upload (Aadhaar, PAN, legal docs, etc.) ----
+  const handleDocumentUpload = (field, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    updateForm(field, file);
+  };
+
+  // ---- Passport-size photo (Step 1) ----
+  const handlePassportUpload = (field, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    updateForm(field, file);
+  };
+
+  // ---- Land features chips (Step 3) ----
+  const toggleFeature = (feature) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedFeatures: prev.selectedFeatures.includes(feature)
+        ? prev.selectedFeatures.filter((f) => f !== feature)
+        : [...prev.selectedFeatures, feature],
+    }));
+  };
+  const addCustomFeature = () => {
+    const value = formData.otherFeatures.trim();
+    if (!value) return;
+    setCustomFeaturesList((prev) => (prev.includes(value) ? prev : [...prev, value]));
+    updateForm("otherFeatures", "");
+  };
+  const removeCustomFeature = (feature) => {
+    setCustomFeaturesList((prev) => prev.filter((f) => f !== feature));
+  };
+
+  // ---- Contact method / occupancy checkboxes ----
+  const toggleContactMethod = (method) => {
+    setFormData((prev) => ({
+      ...prev,
+      preferredContactMethod: prev.preferredContactMethod.includes(method)
+        ? prev.preferredContactMethod.filter((m) => m !== method)
+        : [...prev.preferredContactMethod, method],
+    }));
+  };
+  const toggleOccupancy = (occ) => {
+    setFormData((prev) => ({
+      ...prev,
+      occupancyDetails: prev.occupancyDetails.includes(occ)
+        ? prev.occupancyDetails.filter((o) => o !== occ)
+        : [...prev.occupancyDetails, occ],
+    }));
+  };
+
+  // ---- Signature canvas (Step 8) ----
+  const getCanvasPoint = (e, canvasId) => {
+    const canvas = document.getElementById(canvasId);
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  };
+  const startDrawing = (e, canvasId) => {
+    e.preventDefault();
+    setIsDrawing(true);
+    setActiveCanvas(canvasId);
+    setSignaturePoints([getCanvasPoint(e, canvasId)]);
+  };
+  const draw = (e) => {
+    if (!isDrawing || !activeCanvas) return;
+    e.preventDefault();
+    setSignaturePoints((prev) => [...prev, getCanvasPoint(e, activeCanvas)]);
+  };
+  const stopDrawing = () => {
+    if (!isDrawing) return;
+    setIsDrawing(false);
+    if (signaturePoints.length > 1) {
+      setAllSignaturePoints((prev) => [...prev, signaturePoints]);
+      updateForm("signature", true);
+    }
+    setSignaturePoints([]);
+  };
+  const clearSignature = () => {
+    setAllSignaturePoints([]);
+    setSignaturePoints([]);
+    updateForm("signature", null);
+  };
 
   // ==================== VALIDATION FUNCTIONS ====================
 
@@ -481,6 +846,8 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
               profilePhotoPreview={profilePhotoPreview}
               removeProfilePhoto={removeProfilePhoto}
               genderOptions={genderOptions}
+              serviceAreasOptions={serviceAreasOptions}
+              SearchableMultiSelect={SearchableMultiSelect}
             />
           </div>
 
@@ -603,6 +970,8 @@ export default function LeaseAgentLPForm({ isOpen, onClose }) {
               profilePhotoPreview={profilePhotoPreview}
               removeProfilePhoto={removeProfilePhoto}
               genderOptions={genderOptions}
+              serviceAreasOptions={serviceAreasOptions}
+              SearchableMultiSelectDt={SearchableMultiSelectDt}
             />
           </div>
 
@@ -665,7 +1034,7 @@ function MobContentLeaseAgentLP({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto,
-  genderOptions
+  genderOptions, serviceAreasOptions, SearchableMultiSelect
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -847,31 +1216,12 @@ function MobContentLeaseAgentLP({
         />
       </Field>
       <Field label="Service Areas" required error={errors.serviceAreas}>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelect
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </Field>
       <Field label="Office Address" required error={errors.officeAddress}>
         <input 
@@ -1631,7 +1981,7 @@ function DtContentLeaseAgentLP({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto,
-  genderOptions
+  genderOptions, serviceAreasOptions, SearchableMultiSelectDt
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1813,31 +2163,12 @@ function DtContentLeaseAgentLP({
         />
       </FieldDt>
       <FieldDt label="Service Areas" required error={errors.serviceAreas}>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelectDt
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </FieldDt>
       <FieldDt label="Office Address" required error={errors.officeAddress}>
         <input 

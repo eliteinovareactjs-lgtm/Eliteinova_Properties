@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, User, Mail, Phone, Calendar as CalendarIcon, UserCheck, File, MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, CheckSquare, PenTool } from "lucide-react";
+import { ArrowLeft, ImagePlus, Video, X, MapPin, Bed, Bath, Home, Car, Trees, Building, Lock, Camera, Wifi, Shield, Sun, Coffee, Users, Briefcase, Square, TrendingUp, Clock, FileText, CheckCircle, Sprout, Leaf, Dumbbell, Waves, Hotel, ParkingCircle, Landmark, ArrowUpDown, Calendar, User, Mail, Phone, Calendar as CalendarIcon, UserCheck, File, MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, CheckSquare, PenTool, Search, ChevronDown } from "lucide-react";
 
 const steps = ["Personal Details", "Business Information", "Property Details", "Pricing & Amenities", "Media Upload", "Legal Documents", "Bank Details", "Social Media", "Declaration"];
 const subtitles = [
@@ -21,6 +21,225 @@ const isAlphanumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
 const isValidIFSC = (code) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(code);
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isOnlyDigitsAndSpaces = (value) => /^[\d\s]*$/.test(value);
+
+// Service Areas options
+const serviceAreasOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", 
+  "Pune", "Ahmedabad", "Kolkata", "Surat", "Jaipur", 
+  "Lucknow", "Nagpur", "Indore", "Bhopal", "Chandigarh", "Other"
+];
+
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Real-time filtering handlers
 const handleAlphaFieldChange = (value) => {
@@ -492,6 +711,8 @@ export default function LeaseAgentIndForm({ isOpen, onClose }) {
               isOnlyDigits={isOnlyDigits}
               isValidIFSC={isValidIFSC}
               isValidEmail={isValidEmail}
+              serviceAreasOptions={serviceAreasOptions}
+              SearchableMultiSelect={SearchableMultiSelect}
             />
           </div>
 
@@ -613,6 +834,8 @@ export default function LeaseAgentIndForm({ isOpen, onClose }) {
               isOnlyDigits={isOnlyDigits}
               isValidIFSC={isValidIFSC}
               isValidEmail={isValidEmail}
+              serviceAreasOptions={serviceAreasOptions}
+              SearchableMultiSelectDt={SearchableMultiSelectDt}
             />
           </div>
 
@@ -658,7 +881,7 @@ export default function LeaseAgentIndForm({ isOpen, onClose }) {
 }
 
 // MOBILE CONTENT
-function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleCoverImageUpload, coverPreview, removeCoverImage, handleVideoUpload, videoPreview, removeVideo, handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto, handleDocumentUpload, floorPlanPreview, handleFloorPlanUpload, removeFloorPlan, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints, handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange, isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail }) {
+function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleCoverImageUpload, coverPreview, removeCoverImage, handleVideoUpload, videoPreview, removeVideo, handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto, handleDocumentUpload, floorPlanPreview, handleFloorPlanUpload, removeFloorPlan, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints, handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange, isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, serviceAreasOptions, SearchableMultiSelect }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -749,7 +972,7 @@ function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, 
     </>
   );
 
-  // STEP 1: Business Information
+  // STEP 1: Business Information (UPDATED with SearchableMultiSelect)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -774,31 +997,12 @@ function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, 
         <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Service Areas" required>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelect
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
         {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </Field>
       <Field label="Office Address" required>
@@ -1375,7 +1579,7 @@ function MobContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, 
 }
 
 // DESKTOP CONTENT
-function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleCoverImageUpload, coverPreview, removeCoverImage, handleVideoUpload, videoPreview, removeVideo, handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto, handleDocumentUpload, floorPlanPreview, handleFloorPlanUpload, removeFloorPlan, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints, handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange, isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail }) {
+function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, handleImageUpload, removeImage, handleCoverImageUpload, coverPreview, removeCoverImage, handleVideoUpload, videoPreview, removeVideo, handleProfilePhotoUpload, profilePhotoPreview, removeProfilePhoto, handleDocumentUpload, floorPlanPreview, handleFloorPlanUpload, removeFloorPlan, toggleAmenity, availableAmenities, customAmenitiesList, addCustomAmenity, removeCustomAmenity, bedroomOptions, bathroomOptions, furnishingOptions, parkingOptions, yesNoOptions, bankOptions, errors, startDrawing, draw, stopDrawing, clearSignature, signaturePoints, allSignaturePoints, setAllSignaturePoints, handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange, isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, serviceAreasOptions, SearchableMultiSelectDt }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
 
@@ -1466,7 +1670,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 1: Business Information
+  // STEP 1: Business Information (UPDATED with SearchableMultiSelectDt)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1491,31 +1695,12 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
         <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Service Areas" required>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelectDt
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
         {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </FieldDt>
       <FieldDt label="Office Address" required>
@@ -1525,7 +1710,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 2: Property Details + Lease Preferences (Updated)
+  // STEP 2: Property Details + Lease Preferences (Desktop - same as mobile but with Dt styles)
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1689,7 +1874,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 3: Pricing & Amenities
+  // STEP 3: Pricing & Amenities (Desktop - same as mobile)
   if (step === 3) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1756,7 +1941,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 4: Media Upload
+  // STEP 4: Media Upload (Desktop - same as mobile)
   if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1823,7 +2008,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 5: Legal Documents
+  // STEP 5: Legal Documents (Desktop - same as mobile)
   if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1961,7 +2146,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 6: Bank Details
+  // STEP 6: Bank Details (Desktop - same as mobile)
   if (step === 6) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2018,7 +2203,7 @@ function DtContentLeaseAgent({ step, inp, formData, updateForm, imagePreviews, h
     </>
   );
 
-  // STEP 8: Declaration
+  // STEP 8: Declaration (Desktop - same as mobile)
   if (step === 8) return (
     <>
 

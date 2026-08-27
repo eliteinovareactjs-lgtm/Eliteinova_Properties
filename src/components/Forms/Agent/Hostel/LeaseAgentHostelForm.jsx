@@ -8,7 +8,8 @@ import {
   Compass, RefreshCw, User, Calendar as CalendarIcon, UserCheck, File, 
   MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, 
   CheckSquare, PenTool, IndianRupee, DollarSign, BookOpen, Tv,
-  Award, Building2, Construction, Hammer, HardHat, Ruler, PaintBucket
+  Award, Building2, Construction, Hammer, HardHat, Ruler, PaintBucket,
+  Search, ChevronDown
 } from "lucide-react";
 
 const steps = [
@@ -50,6 +51,225 @@ const bankOptions = [
   "Other"
 ];
 
+// Service Areas options
+const serviceAreaOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", 
+  "Pune", "Kolkata", "Ahmedabad", "Surat", "Jaipur", 
+  "Lucknow", "Nagpur", "Indore", "Bhopal", "Chandigarh", "Other"
+];
+
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -87,7 +307,6 @@ const genderOptions = ["Male", "Female", "Other"];
 const hostelTypeOptions = ["Boys Hostel", "Girls Hostel", "Co-Living Space", "Working Professional Hostel"];
 const paymentFrequencyOptions = ["Monthly", "Quarterly", "Half-Yearly", "Yearly"];
 const leaseRenewalOptions = ["Automatic", "Negotiable", "Fixed Term"];
-const serviceAreaOptions = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", "Pune", "Kolkata", "Ahmedabad", "Other"];
 
 const hostelLeaseAmenities = [
   { id: "wifi", label: "WiFi", icon: <Wifi className="w-4 h-4" /> },
@@ -121,14 +340,15 @@ const isOnlyLettersAndSpaces = (value) => /^[A-Za-z\s]*$/.test(value);
 const isOnlyNumbers = (value) => /^\d*$/.test(value);
 const isAlphaNumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
 const isValidIFSC = (value) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value);
+const isValidMobile = (value) => /^\d{10}$/.test(value);
 
 export default function LeaseAgentHostelForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    // Personal Details (Step 0)
-    fullName: "", mobileNumber: "", emailId: "", dateOfBirth: "", gender: "", profilePhoto: null,
+    // Personal Details (Step 0) - Removed dateOfBirth
+    fullName: "", mobileNumber: "", emailId: "", gender: "", profilePhoto: null,
 
     // Business Information (Step 1)
     agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", 
@@ -141,8 +361,6 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
     facingDirection: "", balcony: "",
     builtUpArea: "", carpetArea: "",
     hostelCategory: "", genderType: "",
-    modularKitchen: "", wardrobes: "", airConditioning: "",
-    utilityArea: "", smartHomeFeatures: "", appliancesIncluded: "",
     propertyAge: "", ownershipType: "",
     
     // Pricing & Amenities (Step 3)
@@ -173,10 +391,10 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
     // Social Media (Step 7)
     website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
-    // Declaration & Signature (Step 8)
-    declarationAccepted1: false,
-    declarationAccepted2: false,
-    declarationAccepted3: false,
+    // Declaration & Signature (Step 8) - Fixed with individual checkboxes
+    declarationAccepted: false,
+    declarationAccurate: false,
+    declarationTerms: false,
     signature: null, signatureDate: "", signaturePlace: ""
   });
 
@@ -448,8 +666,8 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
     if (s === 0) {
       if (!formData.fullName.trim()) e.fullName = "Full name is required";
       else if (!isOnlyLettersAndSpaces(formData.fullName)) e.fullName = "Only letters and spaces allowed";
-      if (!formData.mobileNumber || formData.mobileNumber.length !== 10) e.mobileNumber = "Enter a valid 10-digit mobile number";
-      else if (!isOnlyNumbers(formData.mobileNumber)) e.mobileNumber = "Mobile number must contain only digits";
+      if (!formData.mobileNumber) e.mobileNumber = "Mobile number is required";
+      else if (!isValidMobile(formData.mobileNumber)) e.mobileNumber = "Enter a valid 10-digit mobile number";
       if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
       if (!formData.gender) e.gender = "Please select your gender";
       if (!formData.profilePhoto) e.profilePhoto = "Profile photo is required";
@@ -465,6 +683,7 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
       if (!formData.city.trim()) e.city = "City is required";
       else if (!isOnlyLettersAndSpaces(formData.city)) e.city = "Only letters and spaces allowed";
       if (!formData.area.trim()) e.area = "Area/Locality is required";
+      if (formData.pinCode && formData.pinCode.length > 0 && !/^\d{6}$/.test(formData.pinCode)) e.pinCode = "Enter a valid 6-digit PIN code";
       if (!formData.hostelType) e.hostelType = "Hostel type is required";
       if (!formData.hostelCategory) e.hostelCategory = "Hostel category is required";
       if (!formData.genderType) e.genderType = "Gender type is required";
@@ -476,10 +695,15 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
       if (!formData.ownershipType) e.ownershipType = "Ownership type is required";
       if (!formData.builtUpArea) e.builtUpArea = "Built-up area is required";
       else if (!isOnlyNumbers(formData.builtUpArea)) e.builtUpArea = "Only numbers allowed";
+      if (formData.carpetArea && !isOnlyNumbers(formData.carpetArea)) e.carpetArea = "Only numbers allowed";
+      if (formData.totalFloors && !isOnlyNumbers(formData.totalFloors)) e.totalFloors = "Only numbers allowed";
+      if (formData.floorNumber && !isOnlyNumbers(formData.floorNumber)) e.floorNumber = "Only numbers allowed";
+      if (formData.propertyAge && !isOnlyNumbers(formData.propertyAge)) e.propertyAge = "Only numbers allowed";
     }
     if (s === 3) {
       if (!formData.leaseAmount) e.leaseAmount = "Lease amount is required";
       else if (!isOnlyNumbers(formData.leaseAmount)) e.leaseAmount = "Only numbers allowed";
+      if (formData.securityDeposit && !isOnlyNumbers(formData.securityDeposit)) e.securityDeposit = "Only numbers allowed";
       if (!formData.leaseDuration) e.leaseDuration = "Lease duration is required";
       if (!formData.paymentFrequency) e.paymentFrequency = "Payment frequency is required";
       if (!formData.immediateOccupancy) e.immediateOccupancy = "Please specify occupancy availability";
@@ -515,9 +739,9 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
       if (!formData.signatureDate) e.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
       else if (!isOnlyLettersAndSpaces(formData.signaturePlace)) e.signaturePlace = "Only letters and spaces allowed";
-      if (!formData.declarationAccepted1) e.declarationAccepted1 = "You must confirm legal agency representation to proceed";
-      if (!formData.declarationAccepted2) e.declarationAccepted2 = "You must certify accuracy to proceed";
-      if (!formData.declarationAccepted3) e.declarationAccepted3 = "You must agree to terms to proceed";
+      if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm legal agency representation to proceed";
+      if (!formData.declarationAccurate) e.declarationAccurate = "You must certify accuracy to proceed";
+      if (!formData.declarationTerms) e.declarationTerms = "You must agree to terms to proceed";
     }
     return e;
   };
@@ -624,6 +848,7 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
               serviceAreaOptions={serviceAreaOptions}
               bankOptions={bankOptions}
               ownershipTypeOptions={["Freehold", "Leasehold", "Co-operative Society", "Individual Ownership"]}
+              SearchableMultiSelect={SearchableMultiSelect}
             />
           </div>
 
@@ -754,6 +979,7 @@ export default function LeaseAgentHostelForm({ isOpen, onClose }) {
               serviceAreaOptions={serviceAreaOptions}
               bankOptions={bankOptions}
               ownershipTypeOptions={["Freehold", "Leasehold", "Co-operative Society", "Individual Ownership"]}
+              SearchableMultiSelectDt={SearchableMultiSelectDt}
             />
           </div>
 
@@ -817,7 +1043,8 @@ function MobContentLeaseAgentHostel({
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
   paymentFrequencyOptions, leaseRenewalOptions,
-  toggleNearbyPlace, serviceAreaOptions, bankOptions, ownershipTypeOptions
+  toggleNearbyPlace, serviceAreaOptions, bankOptions, ownershipTypeOptions,
+  SearchableMultiSelect
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -864,7 +1091,7 @@ function MobContentLeaseAgentHostel({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Personal Details
+  // STEP 0: Personal Details (Removed Date of Birth)
   if (step === 0) return (
     <>
       <Field label="Full Name" required error={errors.fullName}>
@@ -875,9 +1102,6 @@ function MobContentLeaseAgentHostel({
       </Field>
       <Field label="Email Address" required error={errors.emailId}>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </Field>
-      <Field label="Date of Birth">
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
       </Field>
       <Field label="Gender" required error={errors.gender}>
         <div className="flex gap-4">
@@ -908,7 +1132,7 @@ function MobContentLeaseAgentHostel({
     </>
   );
 
-  // STEP 1: Business Information
+  // STEP 1: Business Information (with SearchableMultiSelect)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -931,14 +1155,12 @@ function MobContentLeaseAgentHostel({
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => handleNumericFieldChange("activeListings", e.target.value)} />
       </Field>
       <Field label="Service Areas" required error={errors.serviceAreas}>
-        <div className="grid grid-cols-2 gap-1">
-          {serviceAreaOptions.map(area => (
-            <label key={area} className="flex items-center gap-1 text-[10px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.serviceAreas.includes(area)} onChange={() => toggleArrayItem("serviceAreas", area)} />
-              {area}
-            </label>
-          ))}
-        </div>
+        <SearchableMultiSelect
+          options={serviceAreaOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </Field>
       <Field label="Office Address" required error={errors.officeAddress}>
         <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
@@ -962,8 +1184,8 @@ function MobContentLeaseAgentHostel({
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => handleAlphaNumericFieldChange("landmark", e.target.value)} />
       </Field>
-      <Field label="PIN Code">
-        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+      <Field label="PIN Code" hint="Exactly 6 digits" error={errors.pinCode}>
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
       </Field>
       <Field label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => handleAlphaNumericFieldChange("nearbyConnectivity", e.target.value)} />
@@ -1009,7 +1231,7 @@ function MobContentLeaseAgentHostel({
       <Field label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => handleNumericFieldChange("builtUpArea", e.target.value)} />
       </Field>
-      <Field label="Carpet Area (sq.ft)" hint="In square feet">
+      <Field label="Carpet Area (sq.ft)" hint="In square feet" error={errors.carpetArea}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => handleNumericFieldChange("carpetArea", e.target.value)} />
       </Field>
       
@@ -1061,10 +1283,10 @@ function MobContentLeaseAgentHostel({
         </div>
       </Field>
 
-      <Field label="Total Floors">
+      <Field label="Total Floors" error={errors.totalFloors}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => handleNumericFieldChange("totalFloors", e.target.value)} />
       </Field>
-      <Field label="Floor Number">
+      <Field label="Floor Number" error={errors.floorNumber}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => handleNumericFieldChange("floorNumber", e.target.value)} />
       </Field>
       <Field label="Facing Direction">
@@ -1093,7 +1315,7 @@ function MobContentLeaseAgentHostel({
         <h3 className="text-[11px] font-bold text-[#00695C]">📋 Lease Details</h3>
       </div>
 
-      <Field label="Property Age">
+      <Field label="Property Age" error={errors.propertyAge}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => handleNumericFieldChange("propertyAge", e.target.value)} />
       </Field>
 
@@ -1169,7 +1391,7 @@ function MobContentLeaseAgentHostel({
       <Field label="Lease Amount (₹/month)" required error={errors.leaseAmount}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => handleNumericFieldChange("leaseAmount", e.target.value)} />
       </Field>
-      <Field label="Security / Deposit Amount (₹)" hint="If applicable">
+      <Field label="Security / Deposit Amount (₹)" hint="If applicable" error={errors.securityDeposit}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => handleNumericFieldChange("securityDeposit", e.target.value)} />
       </Field>
       <Field label="Lease Duration" required error={errors.leaseDuration}>
@@ -1577,7 +1799,7 @@ function MobContentLeaseAgentHostel({
     </>
   );
 
-  // STEP 8: Declaration & Signature
+  // STEP 8: Declaration & Signature (Fixed with individual checkboxes)
   if (step === 8) return (
     <>
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1626,22 +1848,22 @@ function MobContentLeaseAgentHostel({
       </div>
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted1}</p>}
+        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted}</p>}
         
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted2}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>}
         
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted3}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1668,7 +1890,8 @@ function DtContentLeaseAgentHostel({
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   roomTypeOptions, bathroomOptions, genderOptions, hostelTypeOptions,
   paymentFrequencyOptions, leaseRenewalOptions,
-  toggleNearbyPlace, serviceAreaOptions, bankOptions, ownershipTypeOptions
+  toggleNearbyPlace, serviceAreaOptions, bankOptions, ownershipTypeOptions,
+  SearchableMultiSelectDt
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1715,7 +1938,7 @@ function DtContentLeaseAgentHostel({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Personal Details (Desktop)
+  // STEP 0: Personal Details (Desktop) - Removed Date of Birth
   if (step === 0) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1730,9 +1953,6 @@ function DtContentLeaseAgentHostel({
       </FieldDt>
       <FieldDt label="Email Address" required error={errors.emailId}>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Date of Birth">
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
       </FieldDt>
       <FieldDt label="Gender" required error={errors.gender}>
         <div className="flex gap-5">
@@ -1763,7 +1983,7 @@ function DtContentLeaseAgentHostel({
     </>
   );
 
-  // STEP 1: Business Information (Desktop)
+  // STEP 1: Business Information (Desktop) - with SearchableMultiSelectDt
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1786,14 +2006,12 @@ function DtContentLeaseAgentHostel({
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => handleNumericFieldChange("activeListings", e.target.value)} />
       </FieldDt>
       <FieldDt label="Service Areas" required error={errors.serviceAreas}>
-        <div className="grid grid-cols-3 gap-2">
-          {serviceAreaOptions.map(area => (
-            <label key={area} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.serviceAreas.includes(area)} onChange={() => toggleArrayItem("serviceAreas", area)} />
-              {area}
-            </label>
-          ))}
-        </div>
+        <SearchableMultiSelectDt
+          options={serviceAreaOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </FieldDt>
       <FieldDt label="Office Address" required error={errors.officeAddress}>
         <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
@@ -1817,8 +2035,8 @@ function DtContentLeaseAgentHostel({
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => handleAlphaNumericFieldChange("landmark", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code">
-        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+      <FieldDt label="PIN Code" hint="Exactly 6 digits" error={errors.pinCode}>
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => handleAlphaNumericFieldChange("nearbyConnectivity", e.target.value)} />
@@ -1864,7 +2082,7 @@ function DtContentLeaseAgentHostel({
       <FieldDt label="Built-up Area (sq.ft)" required hint="In square feet" error={errors.builtUpArea}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter built-up area in sq.ft" value={formData.builtUpArea} onChange={(e) => handleNumericFieldChange("builtUpArea", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Carpet Area (sq.ft)" hint="In square feet">
+      <FieldDt label="Carpet Area (sq.ft)" hint="In square feet" error={errors.carpetArea}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter carpet area in sq.ft" value={formData.carpetArea} onChange={(e) => handleNumericFieldChange("carpetArea", e.target.value)} />
       </FieldDt>
       
@@ -1916,10 +2134,10 @@ function DtContentLeaseAgentHostel({
         </div>
       </FieldDt>
 
-      <FieldDt label="Total Floors">
+      <FieldDt label="Total Floors" error={errors.totalFloors}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => handleNumericFieldChange("totalFloors", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Floor Number">
+      <FieldDt label="Floor Number" error={errors.floorNumber}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => handleNumericFieldChange("floorNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Facing Direction">
@@ -1948,7 +2166,7 @@ function DtContentLeaseAgentHostel({
         <h3 className="text-[14px] font-bold text-[#00695C]">📋 Lease Details</h3>
       </div>
 
-      <FieldDt label="Property Age">
+      <FieldDt label="Property Age" error={errors.propertyAge}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter property age in years" value={formData.propertyAge} onChange={(e) => handleNumericFieldChange("propertyAge", e.target.value)} />
       </FieldDt>
 
@@ -2024,7 +2242,7 @@ function DtContentLeaseAgentHostel({
       <FieldDt label="Lease Amount (₹/month)" required error={errors.leaseAmount}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => handleNumericFieldChange("leaseAmount", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Security / Deposit Amount (₹)" hint="If applicable">
+      <FieldDt label="Security / Deposit Amount (₹)" hint="If applicable" error={errors.securityDeposit}>
         <input className={inp} type="text" inputMode="numeric" placeholder="Enter security/deposit amount" value={formData.securityDeposit} onChange={(e) => handleNumericFieldChange("securityDeposit", e.target.value)} />
       </FieldDt>
       <FieldDt label="Lease Duration" required error={errors.leaseDuration}>
@@ -2431,7 +2649,7 @@ function DtContentLeaseAgentHostel({
     </>
   );
 
-  // STEP 8: Declaration & Signature (Desktop)
+  // STEP 8: Declaration & Signature (Desktop) - Fixed with individual checkboxes
   if (step === 8) return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2480,22 +2698,22 @@ function DtContentLeaseAgentHostel({
       </div>
       <div className="space-y-2">
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declarationAccepted1 && <p className="text-[12px] text-red-500 ml-6">{errors.declarationAccepted1}</p>}
+        {errors.declarationAccepted && <p className="text-[12px] text-red-500 ml-6">{errors.declarationAccepted}</p>}
         
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declarationAccepted2 && <p className="text-[12px] text-red-500 ml-6">{errors.declarationAccepted2}</p>}
+        {errors.declarationAccurate && <p className="text-[12px] text-red-500 ml-6">{errors.declarationAccurate}</p>}
         
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declarationAccepted3 && <p className="text-[12px] text-red-500 ml-6">{errors.declarationAccepted3}</p>}
+        {errors.declarationTerms && <p className="text-[12px] text-red-500 ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );

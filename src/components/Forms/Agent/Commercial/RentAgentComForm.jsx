@@ -7,7 +7,7 @@ import {
   Droplet, Layers, Layout, Smartphone, Mail, Phone, MessageCircle, Globe, 
   Compass, RefreshCw, User, Calendar as CalendarIcon, UserCheck, File, 
   MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, 
-  CheckSquare, PenTool, Store, Warehouse, Factory 
+  CheckSquare, PenTool, Store, Warehouse, Factory, Search, ChevronDown
 } from "lucide-react";
 
 const steps = [
@@ -53,6 +53,225 @@ const handleNumericFieldChange = (value) => {
 
 const handleAlphanumericFieldChange = (value) => {
   return value.replace(/[^A-Za-z0-9\s]/g, '');
+};
+
+// Service Areas options
+const serviceAreasOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", 
+  "Pune", "Ahmedabad", "Kolkata", "Surat", "Jaipur", 
+  "Lucknow", "Nagpur", "Indore", "Bhopal", "Chandigarh", "Other"
+];
+
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Field = ({ label, required, hint, children, error }) => (
@@ -177,7 +396,6 @@ export default function RentAgentComForm({ isOpen, onClose }) {
   const [signaturePoints, setSignaturePoints] = useState([]);
   const [allSignaturePoints, setAllSignaturePoints] = useState([]);
   const [activeCanvas, setActiveCanvas] = useState(null);
-  const [serviceAreaInput, setServiceAreaInput] = useState("");
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -428,18 +646,6 @@ export default function RentAgentComForm({ isOpen, onClose }) {
     }
   };
 
-  const addServiceArea = () => {
-    if (serviceAreaInput.trim() && !formData.serviceAreas.includes(serviceAreaInput.trim())) {
-      updateForm("serviceAreas", [...formData.serviceAreas, serviceAreaInput.trim()]);
-      setServiceAreaInput("");
-      setErrors(prev => ({ ...prev, serviceAreas: "" }));
-    }
-  };
-
-  const removeServiceArea = (area) => {
-    updateForm("serviceAreas", formData.serviceAreas.filter(a => a !== area));
-  };
-
   const addCustomAmenity = () => {
     const newAmenity = formData.otherAmenities.trim();
     if (newAmenity && !formData.selectedAmenities.includes(newAmenity) && !customAmenitiesList.includes(newAmenity)) {
@@ -594,10 +800,7 @@ export default function RentAgentComForm({ isOpen, onClose }) {
               commercialTypeOptions={commercialTypeOptions}
               businessTypeOptions={businessTypeOptions}
               bankNameOptions={bankNameOptions}
-              serviceAreaInput={serviceAreaInput}
-              setServiceAreaInput={setServiceAreaInput}
-              addServiceArea={addServiceArea}
-              removeServiceArea={removeServiceArea}
+              serviceAreasOptions={serviceAreasOptions}
               handleAlphaFieldChange={handleAlphaFieldChange}
               handleNumericFieldChange={handleNumericFieldChange}
               handleAlphanumericFieldChange={handleAlphanumericFieldChange}
@@ -721,10 +924,7 @@ export default function RentAgentComForm({ isOpen, onClose }) {
               commercialTypeOptions={commercialTypeOptions}
               businessTypeOptions={businessTypeOptions}
               bankNameOptions={bankNameOptions}
-              serviceAreaInput={serviceAreaInput}
-              setServiceAreaInput={setServiceAreaInput}
-              addServiceArea={addServiceArea}
-              removeServiceArea={removeServiceArea}
+              serviceAreasOptions={serviceAreasOptions}
               handleAlphaFieldChange={handleAlphaFieldChange}
               handleNumericFieldChange={handleNumericFieldChange}
               handleAlphanumericFieldChange={handleAlphanumericFieldChange}
@@ -789,7 +989,7 @@ function MobContentRentAgentCom({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   genderOptions, commercialTypeOptions, businessTypeOptions,
-  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea,
+  bankNameOptions, serviceAreasOptions,
   handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
   isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, isValidPincode
 }) {
@@ -879,7 +1079,7 @@ function MobContentRentAgentCom({
     </>
   );
 
-  // STEP 1: Business Information
+  // STEP 1: Business Information (UPDATED with SearchableMultiSelect)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -902,18 +1102,12 @@ function MobContentRentAgentCom({
         <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Service Areas" required error={errors.serviceAreas}>
-        <div className="flex gap-1">
-          <input className={`${inp} flex-1`} placeholder="Enter service area and press Add" value={serviceAreaInput} onChange={(e) => setServiceAreaInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addServiceArea()} />
-          <button onClick={addServiceArea} className="px-2 py-1 text-[11px] bg-[#00695C] text-white rounded-lg">Add</button>
-        </div>
-        <div className="flex flex-wrap gap-1 mt-1">
-          {formData.serviceAreas.map(area => (
-            <span key={area} className="px-1.5 py-0.5 text-[10px] bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
-              {area}
-              <X className="w-2.5 h-2.5 cursor-pointer hover:text-red-200" onClick={() => removeServiceArea(area)} />
-            </span>
-          ))}
-        </div>
+        <SearchableMultiSelect
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </Field>
       <Field label="Office Address" required error={errors.officeAddress}>
         <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
@@ -921,7 +1115,7 @@ function MobContentRentAgentCom({
     </>
   );
 
-  // STEP 2: Property Details (Location + Commercial Details) - Updated with validation
+  // STEP 2: Property Details (Location + Commercial Details)
   if (step === 2) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1566,7 +1760,7 @@ function DtContentRentAgentCom({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   genderOptions, commercialTypeOptions, businessTypeOptions,
-  bankNameOptions, serviceAreaInput, setServiceAreaInput, addServiceArea, removeServiceArea,
+  bankNameOptions, serviceAreasOptions,
   handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
   isOnlyLettersAndSpaces, isOnlyDigits, isValidIFSC, isValidEmail, isValidPincode
 }) {
@@ -1660,7 +1854,7 @@ function DtContentRentAgentCom({
     </>
   );
 
-  // STEP 1: Business Information
+  // STEP 1: Business Information (UPDATED with SearchableMultiSelectDt)
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1683,18 +1877,12 @@ function DtContentRentAgentCom({
         <input className={inp} type="number" min="0" placeholder="Enter number of active listings" value={formData.activeListings} onChange={(e) => updateForm("activeListings", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Service Areas" required error={errors.serviceAreas}>
-        <div className="flex gap-2">
-          <input className={`${inp} flex-1`} placeholder="Enter service area and press Add" value={serviceAreaInput} onChange={(e) => setServiceAreaInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addServiceArea()} />
-          <button onClick={addServiceArea} className="px-3 py-1.5 text-[13px] bg-[#00695C] text-white rounded-lg hover:bg-[#004d42] transition-colors">Add</button>
-        </div>
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {formData.serviceAreas.map(area => (
-            <span key={area} className="px-2.5 py-1.5 text-[13px] bg-[#00695C] text-white rounded-full border border-[#00695C] flex items-center gap-1">
-              {area}
-              <X className="w-3.5 h-3.5 cursor-pointer hover:text-red-200" onClick={() => removeServiceArea(area)} />
-            </span>
-          ))}
-        </div>
+        <SearchableMultiSelectDt
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
       </FieldDt>
       <FieldDt label="Office Address" required error={errors.officeAddress}>
         <input className={inp} placeholder="Enter your office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
@@ -1702,7 +1890,7 @@ function DtContentRentAgentCom({
     </>
   );
 
-  // STEP 2: Property Details (Location + Commercial Details) - Updated with validation
+  // STEP 2: Property Details (Location + Commercial Details)
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">

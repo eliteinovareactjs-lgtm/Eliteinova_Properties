@@ -26,6 +26,64 @@ const validateMobile = (mobile) => {
   return re.test(mobile);
 };
 
+const validatePinCode = (pincode) => {
+  const re = /^[0-9]{6}$/;
+  return re.test(pincode);
+};
+
+const validateAadhaar = (aadhaar) => {
+  const re = /^[0-9]{12}$/;
+  return re.test(aadhaar);
+};
+
+const validatePAN = (pan) => {
+  const re = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  return re.test(pan);
+};
+
+const validateIFSC = (ifsc) => {
+  const re = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+  return re.test(ifsc);
+};
+
+const validateAccountNumber = (acc) => {
+  const re = /^[0-9]{9,18}$/;
+  return re.test(acc);
+};
+
+// Real-time filtering helpers
+const handleAlphaFieldChange = (value) => {
+  return value.replace(/[^a-zA-Z\s]/g, '');
+};
+
+const handleNumericFieldChange = (value) => {
+  return value.replace(/\D/g, '');
+};
+
+const handleAlphaNumericFieldChange = (value) => {
+  return value.replace(/[^a-zA-Z0-9\s]/g, '');
+};
+
+const handlePinCodeChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 6);
+};
+
+const handleMobileChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 10);
+};
+
+const handleAadhaarChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 12);
+};
+
+const handlePANChange = (value) => {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+};
+
+const handleIFSCChange = (value) => {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+};
+
 const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -179,7 +237,7 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
           newErrors.pmYearsOfExperience = "Years of experience is required";
           isValid = false;
         }
-        if (!formData.pmCompanyLogoDoc) {
+        if (!formData.pmCompanyLogo) {
           newErrors.pmCompanyLogo = "Company logo is required";
           isValid = false;
         }
@@ -229,19 +287,19 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
           newErrors.officeState = "State is required";
           isValid = false;
         }
-        if (!formData.officePinCode || formData.officePinCode.length !== 6) {
+        if (!formData.officePinCode || !validatePinCode(formData.officePinCode)) {
           newErrors.officePinCode = "Please enter a valid 6-digit PIN code";
           isValid = false;
         }
         break;
 
       case 3: // Identity & Business Verification
-        if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+        if (!formData.aadhaarNumber || !validateAadhaar(formData.aadhaarNumber)) {
           newErrors.aadhaarNumber = "Please enter a valid 12-digit Aadhaar number";
           isValid = false;
         }
-        if (!formData.panNumber || formData.panNumber.length !== 10) {
-          newErrors.panNumber = "Please enter a valid 10-character PAN number";
+        if (!formData.panNumber || !validatePAN(formData.panNumber)) {
+          newErrors.panNumber = "Please enter a valid 10-character PAN number (e.g., ABCDE1234F)";
           isValid = false;
         }
         if (!formData.aadhaarCard) {
@@ -283,7 +341,7 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
           newErrors.landCity = "Land city is required";
           isValid = false;
         }
-        if (!formData.landArea) {
+        if (!formData.landArea || parseFloat(formData.landArea) <= 0) {
           newErrors.landArea = "Land area is required";
           isValid = false;
         }
@@ -313,12 +371,12 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
           newErrors.bankName = "Please select a bank";
           isValid = false;
         }
-        if (!formData.accountNumber || formData.accountNumber.length < 9) {
-          newErrors.accountNumber = "Please enter a valid account number";
+        if (!formData.accountNumber || !validateAccountNumber(formData.accountNumber)) {
+          newErrors.accountNumber = "Please enter a valid account number (9-18 digits)";
           isValid = false;
         }
-        if (!formData.ifscCode || formData.ifscCode.length < 11) {
-          newErrors.ifscCode = "Please enter a valid IFSC code";
+        if (!formData.ifscCode || !validateIFSC(formData.ifscCode)) {
+          newErrors.ifscCode = "Please enter a valid IFSC code (e.g., SBIN0001234)";
           isValid = false;
         }
         break;
@@ -360,19 +418,19 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
 
       case 9: // Declaration
         if (!formData.declarationAuthorized) {
-          newErrors.declarationAuthorized = "You must accept this declaration";
+          newErrors.declarationAuthorized = "You must confirm that you are the authorized representative";
           isValid = false;
         }
         if (!formData.declarationAccurate) {
-          newErrors.declarationAccurate = "You must accept this declaration";
+          newErrors.declarationAccurate = "You must certify that all information is accurate";
           isValid = false;
         }
         if (!formData.declarationAuthorization) {
-          newErrors.declarationAuthorization = "You must accept this declaration";
+          newErrors.declarationAuthorization = "You must confirm authorization from property owners";
           isValid = false;
         }
         if (!formData.declarationTerms) {
-          newErrors.declarationTerms = "You must accept this declaration";
+          newErrors.declarationTerms = "You must agree to the Terms & Conditions";
           isValid = false;
         }
         if (!formData.signature) {
@@ -404,6 +462,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
     updateForm("propertyImages", newImages);
     const newPreviews = limitedFiles.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
+    if (errors.propertyImages) {
+      setErrors(prev => ({ ...prev, propertyImages: null }));
+    }
   };
 
   const removeImage = (index) => {
@@ -424,6 +485,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
       updateForm("coverImage", file);
       if (coverPreview) URL.revokeObjectURL(coverPreview);
       setCoverPreview(URL.createObjectURL(file));
+      if (errors.coverImage) {
+        setErrors(prev => ({ ...prev, coverImage: null }));
+      }
     }
   };
 
@@ -447,6 +511,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
       updateForm("floorPlan", file);
       if (floorPlanPreview) URL.revokeObjectURL(floorPlanPreview);
       setFloorPlanPreview(URL.createObjectURL(file));
+      if (errors.floorPlan) {
+        setErrors(prev => ({ ...prev, floorPlan: null }));
+      }
     }
   };
 
@@ -487,6 +554,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
         return;
       }
       updateForm(docType, file);
+      if (errors[docType]) {
+        setErrors(prev => ({ ...prev, [docType]: null }));
+      }
     }
   };
 
@@ -505,6 +575,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
       updateForm("authPhoto", file);
       if (authPhotoPreview) URL.revokeObjectURL(authPhotoPreview);
       setAuthPhotoPreview(URL.createObjectURL(file));
+      if (errors.authPhoto) {
+        setErrors(prev => ({ ...prev, authPhoto: null }));
+      }
     }
   };
 
@@ -526,15 +599,18 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
         alert("Company logo must be less than 2MB");
         return;
       }
-      updateForm("pmCompanyLogoDoc", file);
+      updateForm("pmCompanyLogo", file);
       if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
       setCompanyLogoPreview(URL.createObjectURL(file));
+      if (errors.pmCompanyLogo) {
+        setErrors(prev => ({ ...prev, pmCompanyLogo: null }));
+      }
     }
   };
 
   const removeCompanyLogo = () => {
     if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
-    updateForm("pmCompanyLogoDoc", null);
+    updateForm("pmCompanyLogo", null);
     setCompanyLogoPreview(null);
   };
 
@@ -612,6 +688,9 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
       const ctx = canvas.getContext('2d');
       const dataUrl = canvas.toDataURL('image/png');
       updateForm('signature', dataUrl);
+      if (errors.signature) {
+        setErrors(prev => ({ ...prev, signature: null }));
+      }
     }
     setActiveCanvas(null);
   };
@@ -733,6 +812,14 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
               toggleArrayItem={toggleArrayItem}
               bankOptions={bankOptions}
               customFeaturesList={customFeaturesList}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphaNumericFieldChange={handleAlphaNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
+              handleMobileChange={handleMobileChange}
+              handleAadhaarChange={handleAadhaarChange}
+              handlePANChange={handlePANChange}
+              handleIFSCChange={handleIFSCChange}
             />
           </div>
 
@@ -852,6 +939,14 @@ export default function LeasePMLPForm({ isOpen, onClose }) {
               toggleArrayItem={toggleArrayItem}
               bankOptions={bankOptions}
               customFeaturesList={customFeaturesList}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphaNumericFieldChange={handleAlphaNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
+              handleMobileChange={handleMobileChange}
+              handleAadhaarChange={handleAadhaarChange}
+              handlePANChange={handlePANChange}
+              handleIFSCChange={handleIFSCChange}
             />
           </div>
 
@@ -907,7 +1002,10 @@ function MobContentLeasePMLP({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  toggleArrayItem, bankOptions, customFeaturesList
+  toggleArrayItem, bankOptions, customFeaturesList,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
+  handlePinCodeChange, handleMobileChange, handleAadhaarChange,
+  handlePANChange, handleIFSCChange
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -954,23 +1052,27 @@ function MobContentLeasePMLP({
     }
   }, [signaturePoints, allSignaturePoints]);
 
+  const getErrorClass = (field) => {
+    return errors[field] ? errorBorder : "";
+  };
+
   // STEP 0: Business Details
   if (step === 0) return (
     <>
       <Field label="Property Management Company Name" required error={errors.pmCompanyName}>
-        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmCompanyName')}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
-        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmBusinessRegNumber')}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="RERA Registration Number (If Applicable)">
-        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="GST Number (Optional)">
-        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Years of Experience" required error={errors.pmYearsOfExperience}>
-        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="text" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -992,7 +1094,7 @@ function MobContentLeasePMLP({
         )}
       </Field>
       <Field label="Company Description" required error={errors.pmCompanyDescription}>
-        <textarea className={`${ta} min-h-[60px] ${errors.pmCompanyDescription ? errorBorder : ''}`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
+        <textarea className={`${ta} min-h-[60px] ${getErrorClass('pmCompanyDescription')}`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </Field>
     </>
   );
@@ -1005,22 +1107,22 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <Field label="Full Name" required error={errors.authFullName}>
-        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authFullName')}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Designation" required error={errors.authDesignation}>
-        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authDesignation')}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Mobile Number" required error={errors.authMobile}>
-        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${getErrorClass('authMobile')}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", handleMobileChange(e.target.value))} />
       </Field>
       <Field label="Email Address" required error={errors.authEmail}>
-        <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authEmail')}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", handleMobileChange(e.target.value))} />
       </Field>
       <Field label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-2.5 text-center hover:bg-green-50">
+        <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="m-authphoto-lp" onChange={handleAuthPhotoUpload} />
           <label htmlFor="m-authphoto-lp" className="cursor-pointer flex flex-col items-center">
             <User className="w-6 h-6 text-[#00695C]" />
@@ -1046,19 +1148,19 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Office Address</h3>
       </div>
       <Field label="Office Address" required error={errors.officeAddress}>
-        <textarea className={`${ta} min-h-[55px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[55px] ${getErrorClass('officeAddress')}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </Field>
       <Field label="City" required error={errors.officeCity}>
-        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeCity')}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="District" required error={errors.officeDistrict}>
-        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeDistrict')}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="State" required error={errors.officeState}>
-        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeState')}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="PIN Code" required error={errors.officePinCode}>
-        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officePinCode')}`} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", handlePinCodeChange(e.target.value))} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1074,10 +1176,10 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${getErrorClass('aadhaarNumber')}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", handleAadhaarChange(e.target.value))} />
       </Field>
       <Field label="PAN Number" required error={errors.panNumber}>
-        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${getErrorClass('panNumber')}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", handlePANChange(e.target.value))} />
       </Field>
 
       <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -1162,29 +1264,29 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Land Details</h3>
       </div>
       <Field label="Land Title / Name" required error={errors.landTitle}>
-        <input className={`${inp} ${errors.landTitle ? errorBorder : ''}`} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('landTitle')}`} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Land Category" required error={errors.landCategory}>
-        <select className={`${inp} ${errors.landCategory ? errorBorder : ''}`} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('landCategory')}`} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
           <option value="">Select Land Category</option>
           {landCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
       </Field>
       <Field label="Land Type" required error={errors.landType}>
-        <select className={`${inp} ${errors.landType ? errorBorder : ''}`} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('landType')}`} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
           <option value="">Select Land Type</option>
           {landTypes.map(type => <option key={type} value={type}>{type}</option>)}
         </select>
       </Field>
       <Field label="Land Address" required error={errors.landAddress}>
-        <textarea className={`${ta} min-h-[55px] ${errors.landAddress ? errorBorder : ''}`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[55px] ${getErrorClass('landAddress')}`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
       </Field>
       <Field label="Land City" required error={errors.landCity}>
-        <input className={`${inp} ${errors.landCity ? errorBorder : ''}`} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('landCity')}`} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Land Area" required hint="Enter area in sq ft or acres" error={errors.landArea}>
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={`${inp} ${errors.landArea ? errorBorder : ''}`} type="number" min="0" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", e.target.value)} />
+          <input className={`${inp} ${getErrorClass('landArea')}`} type="text" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", handleNumericFieldChange(e.target.value))} />
           <select className={inp} value={formData.areaUnit} onChange={(e) => updateForm("areaUnit", e.target.value)}>
             <option value="sqft">Sq. Ft.</option>
             <option value="acres">Acres</option>
@@ -1193,8 +1295,8 @@ function MobContentLeasePMLP({
       </Field>
       <Field label="Area Range (Min - Max)">
         <div className="grid grid-cols-2 gap-1.5">
-          <input className={inp} type="number" min="0" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", e.target.value)} />
+          <input className={inp} type="text" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", handleNumericFieldChange(e.target.value))} />
+          <input className={inp} type="text" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", handleNumericFieldChange(e.target.value))} />
         </div>
       </Field>
       <Field label="Land Facing">
@@ -1210,7 +1312,7 @@ function MobContentLeasePMLP({
         </select>
       </Field>
       <Field label="Road Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Water Source">
         <select className={inp} value={formData.waterSource} onChange={(e) => updateForm("waterSource", e.target.value)}>
@@ -1278,18 +1380,18 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">📄 Lease Details</h3>
       </div>
       <Field label="Lease Amount (₹/month)" required error={errors.leaseAmount}>
-        <input className={`${inp} ${errors.leaseAmount ? errorBorder : ''}`} type="number" min="0" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('leaseAmount')}`} type="text" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", handleNumericFieldChange(e.target.value))} />
       </Field>
       
       <Field label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: handleNumericFieldChange(e.target.value) })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: handleNumericFieldChange(e.target.value) })} />
         </div>
       </Field>
 
       <Field label="Security Deposit (₹)" required error={errors.securityDeposit}>
-        <input className={`${inp} ${errors.securityDeposit ? errorBorder : ''}`} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('securityDeposit')}`} type="text" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Price Type" required error={errors.priceType}>
         <div className="flex gap-4">
@@ -1383,10 +1485,10 @@ function MobContentLeasePMLP({
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <Field label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('accountHolderName')}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Bank Name" required error={errors.bankName}>
-        <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('bankName')}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
           <option value="">Select Bank</option>
           {bankOptions.map(bank => (
             <option key={bank} value={bank}>{bank}</option>
@@ -1394,10 +1496,10 @@ function MobContentLeasePMLP({
         </select>
       </Field>
       <Field label="Account Number" required error={errors.accountNumber}>
-        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('accountNumber')}`} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="IFSC Code" required error={errors.ifscCode}>
-        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${getErrorClass('ifscCode')}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", handleIFSCChange(e.target.value))} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1638,6 +1740,7 @@ function MobContentLeasePMLP({
       <label className="flex items-center gap-2 text-[10px] font-semibold text-[#00695C] mb-1">
         <PenTool className="w-3.5 h-3.5" /> Authorized Signatory <span className="text-red-500">*</span>
       </label>
+      {errors.signature && <p className="text-[10px] text-red-500 mb-1">{errors.signature}</p>}
       <p className="text-[10px] text-gray-500 mb-1.5">Draw your signature in the box below</p>
       <div className="relative">
         <canvas
@@ -1662,12 +1765,11 @@ function MobContentLeasePMLP({
           Clear
         </button>
       </div>
-      {errors.signature && <p className="text-[10px] text-red-500 mt-0.5">{errors.signature}</p>}
       <Field label="Date" required error={errors.signatureDate}>
-        <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('signatureDate')}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
       <Field label="Place" required error={errors.signaturePlace}>
-        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('signaturePlace')}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </Field>
 
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1680,22 +1782,22 @@ function MobContentLeasePMLP({
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorization} onChange={() => updateForm("declarationAuthorization", !formData.declarationAuthorization)} />
           <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
         </label>
-        {errors.declarationAuthorization && <p className="text-[10px] text-red-500">{errors.declarationAuthorization}</p>}
+        {errors.declarationAuthorization && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAuthorization}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1719,7 +1821,10 @@ function DtContentLeasePMLP({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  toggleArrayItem, bankOptions, customFeaturesList
+  toggleArrayItem, bankOptions, customFeaturesList,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
+  handlePinCodeChange, handleMobileChange, handleAadhaarChange,
+  handlePANChange, handleIFSCChange
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1766,23 +1871,27 @@ function DtContentLeasePMLP({
     }
   }, [signaturePoints, allSignaturePoints]);
 
+  const getErrorClass = (field) => {
+    return errors[field] ? errorBorder : "";
+  };
+
   // STEP 0: Business Details (Desktop)
   if (step === 0) return (
     <>
       <FieldDt label="Property Management Company Name" required error={errors.pmCompanyName}>
-        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmCompanyName')}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
-        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmBusinessRegNumber')}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="RERA Registration Number (If Applicable)">
-        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="GST Number (Optional)">
-        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Years of Experience" required error={errors.pmYearsOfExperience}>
-        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="text" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -1804,7 +1913,7 @@ function DtContentLeasePMLP({
         )}
       </FieldDt>
       <FieldDt label="Company Description" required error={errors.pmCompanyDescription}>
-        <textarea className={`${ta} min-h-[70px] ${errors.pmCompanyDescription ? errorBorder : ''}`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
+        <textarea className={`${ta} min-h-[70px] ${getErrorClass('pmCompanyDescription')}`} placeholder="Describe your property management company" value={formData.pmCompanyDescription} onChange={(e) => updateForm("pmCompanyDescription", e.target.value)} />
       </FieldDt>
     </>
   );
@@ -1817,22 +1926,22 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <FieldDt label="Full Name" required error={errors.authFullName}>
-        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authFullName')}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Designation" required error={errors.authDesignation}>
-        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authDesignation')}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Mobile Number" required error={errors.authMobile}>
-        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${getErrorClass('authMobile')}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", handleMobileChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Email Address" required error={errors.authEmail}>
-        <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('authEmail')}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", handleMobileChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
-        <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
+        <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
           <input type="file" accept="image/*" className="hidden" id="dt-authphoto-lp" onChange={handleAuthPhotoUpload} />
           <label htmlFor="dt-authphoto-lp" className="cursor-pointer flex flex-col items-center">
             <User className="w-7 h-7 text-[#00695C]" />
@@ -1858,19 +1967,19 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Office Address</h3>
       </div>
       <FieldDt label="Office Address" required error={errors.officeAddress}>
-        <textarea className={`${ta} min-h-[70px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[70px] ${getErrorClass('officeAddress')}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </FieldDt>
       <FieldDt label="City" required error={errors.officeCity}>
-        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeCity')}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="District" required error={errors.officeDistrict}>
-        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeDistrict')}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="State" required error={errors.officeState}>
-        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officeState')}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="PIN Code" required error={errors.officePinCode}>
-        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('officePinCode')}`} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", handlePinCodeChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1886,10 +1995,10 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${getErrorClass('aadhaarNumber')}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", handleAadhaarChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="PAN Number" required error={errors.panNumber}>
-        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${getErrorClass('panNumber')}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", handlePANChange(e.target.value))} />
       </FieldDt>
 
       <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -1974,29 +2083,29 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Land Details</h3>
       </div>
       <FieldDt label="Land Title / Name" required error={errors.landTitle}>
-        <input className={`${inp} ${errors.landTitle ? errorBorder : ''}`} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('landTitle')}`} placeholder="e.g. Green Valley Plot 123" value={formData.landTitle} onChange={(e) => updateForm("landTitle", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Land Category" required error={errors.landCategory}>
-        <select className={`${inp} ${errors.landCategory ? errorBorder : ''}`} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('landCategory')}`} value={formData.landCategory} onChange={(e) => updateForm("landCategory", e.target.value)}>
           <option value="">Select Land Category</option>
           {landCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
       </FieldDt>
       <FieldDt label="Land Type" required error={errors.landType}>
-        <select className={`${inp} ${errors.landType ? errorBorder : ''}`} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('landType')}`} value={formData.landType} onChange={(e) => updateForm("landType", e.target.value)}>
           <option value="">Select Land Type</option>
           {landTypes.map(type => <option key={type} value={type}>{type}</option>)}
         </select>
       </FieldDt>
       <FieldDt label="Land Address" required error={errors.landAddress}>
-        <textarea className={`${ta} min-h-[70px] ${errors.landAddress ? errorBorder : ''}`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
+        <textarea className={`${ta} min-h-[70px] ${getErrorClass('landAddress')}`} placeholder="Enter complete land address" value={formData.landAddress} onChange={(e) => updateForm("landAddress", e.target.value)} />
       </FieldDt>
       <FieldDt label="Land City" required error={errors.landCity}>
-        <input className={`${inp} ${errors.landCity ? errorBorder : ''}`} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('landCity')}`} placeholder="Enter land city name" value={formData.landCity} onChange={(e) => updateForm("landCity", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Land Area" required hint="Enter area in sq ft or acres" error={errors.landArea}>
         <div className="grid grid-cols-2 gap-2">
-          <input className={`${inp} ${errors.landArea ? errorBorder : ''}`} type="number" min="0" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", e.target.value)} />
+          <input className={`${inp} ${getErrorClass('landArea')}`} type="text" placeholder="Area" value={formData.landArea} onChange={(e) => updateForm("landArea", handleNumericFieldChange(e.target.value))} />
           <select className={inp} value={formData.areaUnit} onChange={(e) => updateForm("areaUnit", e.target.value)}>
             <option value="sqft">Sq. Ft.</option>
             <option value="acres">Acres</option>
@@ -2005,8 +2114,8 @@ function DtContentLeasePMLP({
       </FieldDt>
       <FieldDt label="Area Range (Min - Max)">
         <div className="grid grid-cols-2 gap-2">
-          <input className={inp} type="number" min="0" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", e.target.value)} />
-          <input className={inp} type="number" min="0" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", e.target.value)} />
+          <input className={inp} type="text" placeholder="Min Area" value={formData.landAreaMin} onChange={(e) => updateForm("landAreaMin", handleNumericFieldChange(e.target.value))} />
+          <input className={inp} type="text" placeholder="Max Area" value={formData.landAreaMax} onChange={(e) => updateForm("landAreaMax", handleNumericFieldChange(e.target.value))} />
         </div>
       </FieldDt>
       <FieldDt label="Land Facing">
@@ -2022,7 +2131,7 @@ function DtContentLeasePMLP({
         </select>
       </FieldDt>
       <FieldDt label="Road Width (ft)">
-        <input className={inp} type="number" min="0" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter road width in feet" value={formData.roadWidth} onChange={(e) => updateForm("roadWidth", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Water Source">
         <select className={inp} value={formData.waterSource} onChange={(e) => updateForm("waterSource", e.target.value)}>
@@ -2090,18 +2199,18 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">📄 Lease Details</h3>
       </div>
       <FieldDt label="Lease Amount (₹/month)" required error={errors.leaseAmount}>
-        <input className={`${inp} ${errors.leaseAmount ? errorBorder : ''}`} type="number" min="0" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('leaseAmount')}`} type="text" placeholder="Enter lease amount" value={formData.leaseAmount} onChange={(e) => updateForm("leaseAmount", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       
       <FieldDt label="Budget Range (₹/month)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: handleNumericFieldChange(e.target.value) })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: handleNumericFieldChange(e.target.value) })} />
         </div>
       </FieldDt>
 
       <FieldDt label="Security Deposit (₹)" required error={errors.securityDeposit}>
-        <input className={`${inp} ${errors.securityDeposit ? errorBorder : ''}`} type="number" min="0" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('securityDeposit')}`} type="text" placeholder="Enter security deposit amount" value={formData.securityDeposit} onChange={(e) => updateForm("securityDeposit", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Price Type" required error={errors.priceType}>
         <div className="flex gap-5">
@@ -2195,10 +2304,10 @@ function DtContentLeasePMLP({
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('accountHolderName')}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Bank Name" required error={errors.bankName}>
-        <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
+        <select className={`${inp} ${getErrorClass('bankName')}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
           <option value="">Select Bank</option>
           {bankOptions.map(bank => (
             <option key={bank} value={bank}>{bank}</option>
@@ -2206,10 +2315,10 @@ function DtContentLeasePMLP({
         </select>
       </FieldDt>
       <FieldDt label="Account Number" required error={errors.accountNumber}>
-        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('accountNumber')}`} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="IFSC Code" required error={errors.ifscCode}>
-        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${getErrorClass('ifscCode')}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", handleIFSCChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2450,6 +2559,7 @@ function DtContentLeasePMLP({
       <label className="flex items-center gap-2 text-[13px] font-semibold text-[#00695C] mb-2">
         <PenTool className="w-4 h-4" /> Authorized Signatory <span className="text-red-500">*</span>
       </label>
+      {errors.signature && <p className="text-[12px] text-red-500 mb-2">{errors.signature}</p>}
       <p className="text-[12px] text-gray-500 mb-2">Draw your signature in the box below</p>
       <div className="relative">
         <canvas
@@ -2474,12 +2584,11 @@ function DtContentLeasePMLP({
           Clear
         </button>
       </div>
-      {errors.signature && <p className="text-[10px] text-red-500 mt-1">{errors.signature}</p>}
       <FieldDt label="Date" required error={errors.signatureDate}>
-        <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('signatureDate')}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
       <FieldDt label="Place" required error={errors.signaturePlace}>
-        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={`${inp} ${getErrorClass('signaturePlace')}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2492,22 +2601,22 @@ function DtContentLeasePMLP({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorization} onChange={() => updateForm("declarationAuthorization", !formData.declarationAuthorization)} />
           <span>I have the necessary authorization from property owners to list and manage their properties on this platform.</span>
         </label>
-        {errors.declarationAuthorization && <p className="text-[10px] text-red-500">{errors.declarationAuthorization}</p>}
+        {errors.declarationAuthorization && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAuthorization}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );

@@ -7,7 +7,7 @@ import {
   Droplet, Layers, Layout, Smartphone, Mail, Phone, MessageCircle, Globe, 
   Compass, RefreshCw, User, Calendar as CalendarIcon, UserCheck, File, 
   MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, 
-  CheckSquare, PenTool 
+  CheckSquare, PenTool, Search, ChevronDown 
 } from "lucide-react";
 
 const steps = [
@@ -85,6 +85,13 @@ const propertyTypeOptions = [
 ];
 const bankOptions = ["State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank", "Punjab National Bank", "Bank of Baroda", "Canara Bank", "Kotak Mahindra Bank", "IndusInd Bank", "Other"];
 
+// Service Areas options
+const serviceAreasOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad", 
+  "Pune", "Ahmedabad", "Kolkata", "Surat", "Jaipur", 
+  "Lucknow", "Nagpur", "Indore", "Bhopal", "Chandigarh", "Other"
+];
+
 const apartmentRentAmenities = [
   { id: "coveredParking", label: "Covered Parking", icon: <ParkingCircle className="w-4 h-4" /> },
   { id: "lift", label: "Lift / Elevator", icon: <ArrowUpDown className="w-4 h-4" /> },
@@ -106,12 +113,226 @@ const interiorFeaturesList = ["Modular Kitchen", "Wardrobes", "Air Conditioning"
 const appliancesList = ["Refrigerator", "AC", "Washing Machine", "Microwave", "Dishwasher", "Water Purifier", "TV", "Oven"];
 const nearbyPlacesList = ["School", "Hospital", "Metro / Bus Stop", "Shopping Mall / Market", "IT Park / Business Hub", "Airport Access"];
 
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3 h-3 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, 
+  selected, 
+  onChange, 
+  placeholder = "Search and select...",
+  className = "",
+  disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X 
+                  className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" 
+                  onClick={(e) => removeOption(item, e)}
+                />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Validation helper functions
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const isOnlyLettersAndSpaces = (value) => /^[A-Za-z\s]*$/.test(value);
 const isOnlyNumbers = (value) => /^\d*$/.test(value);
 const isAlphaNumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
 const isValidIFSC = (value) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value);
+const isValidPIN = (value) => /^\d{6}$/.test(value);
+const isValidMobile = (value) => /^\d{10}$/.test(value);
 const isValidURL = (value) => {
   if (!value) return true;
   try {
@@ -127,7 +348,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
 
   const [formData, setFormData] = useState({
     // Personal Details (Step 0)
-    fullName: "", mobileNumber: "", emailId: "", dateOfBirth: "", gender: "", profilePhoto: null,
+    fullName: "", mobileNumber: "", emailId: "", gender: "", profilePhoto: null,
 
     // Business Information (Step 1)
     agencyName: "", reraNumber: "", gstNumber: "", yearsExperience: "", activeListings: "", serviceAreas: [],
@@ -165,9 +386,9 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     website: "", facebook: "", instagram: "", linkedin: "", youtube: "",
     
     // Declaration & Signature (Step 8)
-    declarationAccepted1: false,
-    declarationAccepted2: false,
-    declarationAccepted3: false,
+    declarationAccepted: false,
+    declarationAccurate: false,
+    declarationTerms: false,
     signature: null, signatureDate: "", signaturePlace: ""
   });
 
@@ -445,10 +666,9 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
     if (s === 0) {
       if (!formData.fullName.trim()) e.fullName = "Full name is required";
       else if (!isOnlyLettersAndSpaces(formData.fullName)) e.fullName = "Only letters and spaces allowed";
-      if (!formData.mobileNumber || formData.mobileNumber.length !== 10) e.mobileNumber = "Enter a valid 10-digit mobile number";
-      else if (!isOnlyNumbers(formData.mobileNumber)) e.mobileNumber = "Mobile number must contain only digits";
+      if (!formData.mobileNumber) e.mobileNumber = "Mobile number is required";
+      else if (!isValidMobile(formData.mobileNumber)) e.mobileNumber = "Enter a valid 10-digit mobile number";
       if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
-      if (!formData.dateOfBirth) e.dateOfBirth = "Date of birth is required";
       if (!formData.gender) e.gender = "Please select your gender";
     }
     if (s === 1) {
@@ -498,9 +718,9 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
       if (!formData.signatureDate) e.signatureDate = "Date is required";
       if (!formData.signaturePlace.trim()) e.signaturePlace = "Place is required";
       else if (!isOnlyLettersAndSpaces(formData.signaturePlace)) e.signaturePlace = "Only letters and spaces allowed";
-      if (!formData.declarationAccepted1) e.declarationAccepted1 = "You must confirm this to proceed";
-      if (!formData.declarationAccepted2) e.declarationAccepted2 = "You must confirm this to proceed";
-      if (!formData.declarationAccepted3) e.declarationAccepted3 = "You must agree to proceed";
+      if (!formData.declarationAccepted) e.declarationAccepted = "You must confirm legal ownership to proceed";
+      if (!formData.declarationAccurate) e.declarationAccurate = "You must certify accuracy to proceed";
+      if (!formData.declarationTerms) e.declarationTerms = "You must agree to the terms to proceed";
     }
     return e;
   };
@@ -608,6 +828,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               interiorFeaturesList={interiorFeaturesList}
               appliancesList={appliancesList}
               nearbyPlacesList={nearbyPlacesList}
+              serviceAreasOptions={serviceAreasOptions}
             />
           </div>
 
@@ -739,6 +960,7 @@ export default function RentAgentApartForm({ isOpen, onClose }) {
               interiorFeaturesList={interiorFeaturesList}
               appliancesList={appliancesList}
               nearbyPlacesList={nearbyPlacesList}
+              serviceAreasOptions={serviceAreasOptions}
             />
           </div>
 
@@ -803,7 +1025,8 @@ function MobContentRentAgentApart({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions,
-  interiorFeaturesList, appliancesList, nearbyPlacesList
+  interiorFeaturesList, appliancesList, nearbyPlacesList,
+  serviceAreasOptions
 })  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -850,7 +1073,7 @@ function MobContentRentAgentApart({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Personal Details
+  // STEP 0: Personal Details (Removed Date of Birth)
   if (step === 0) return (
     <>
       <Field label="Full Name" required>
@@ -864,10 +1087,6 @@ function MobContentRentAgentApart({
       <Field label="Email Address" required>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
-      </Field>
-      <Field label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </Field>
       <Field label="Gender" required>
         <div className="flex gap-4">
@@ -915,31 +1134,12 @@ function MobContentRentAgentApart({
         {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
       </Field>
       <Field label="Service Areas" required>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelect
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
         {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </Field>
       <Field label="Office Address" required>
@@ -967,8 +1167,9 @@ function MobContentRentAgentApart({
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => handleAlphaNumericFieldChange("landmark", e.target.value)} />
       </Field>
-      <Field label="PIN Code">
-        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+      <Field label="PIN Code" hint="Exactly 6 digits">
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
       </Field>
       <Field label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => handleAlphaNumericFieldChange("nearbyConnectivity", e.target.value)} />
@@ -1481,7 +1682,7 @@ function MobContentRentAgentApart({
         {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </Field>
       <Field label="Account Number" required>
-        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => handleNumericFieldChange("accountNumber", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number (9-18 digits)" value={formData.accountNumber} onChange={(e) => handleNumericFieldChange("accountNumber", e.target.value)} />
         {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </Field>
       <Field label="IFSC Code" required>
@@ -1519,7 +1720,7 @@ function MobContentRentAgentApart({
     </>
   );
 
-  // STEP 8: Declaration & Signature
+  // STEP 8: Declaration & Signature (Fixed with individual checkboxes)
   if (step === 8) return (
     <>
 
@@ -1571,20 +1772,20 @@ function MobContentRentAgentApart({
       </div>
       <div className="space-y-1.5">
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted1}</p>}
+        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted2}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
+          <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationAccepted3}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1612,7 +1813,8 @@ function DtContentRentAgentApart({
   startDrawing, draw, stopDrawing, clearSignature,
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
   bedroomOptions, bathroomOptions, genderOptions, propertyTypeOptions,
-  interiorFeaturesList, appliancesList, nearbyPlacesList
+  interiorFeaturesList, appliancesList, nearbyPlacesList,
+  serviceAreasOptions
 })  {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1659,7 +1861,7 @@ function DtContentRentAgentApart({
     }
   }, [signaturePoints, allSignaturePoints]);
 
-  // STEP 0: Personal Details
+  // STEP 0: Personal Details (Removed Date of Birth)
   if (step === 0) return (
     <>
       <FieldDt label="Full Name" required>
@@ -1673,10 +1875,6 @@ function DtContentRentAgentApart({
       <FieldDt label="Email Address" required>
         <input className={inp} type="email" placeholder="Enter your email address" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
         {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
-      </FieldDt>
-      <FieldDt label="Date of Birth" required>
-        <input className={inp} type="date" value={formData.dateOfBirth} onChange={(e) => updateForm("dateOfBirth", e.target.value)} />
-        {errors.dateOfBirth && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.dateOfBirth}</p>}
       </FieldDt>
       <FieldDt label="Gender" required>
         <div className="flex gap-5">
@@ -1724,31 +1922,12 @@ function DtContentRentAgentApart({
         {errors.yearsExperience && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.yearsExperience}</p>}
       </FieldDt>
       <FieldDt label="Service Areas" required>
-        <select className={inp} multiple value={formData.serviceAreas} onChange={(e) => {
-          const options = e.target.options;
-          const values = [];
-          for (let i = 0; i < options.length; i++) {
-            if (options[i].selected) values.push(options[i].value);
-          }
-          updateForm("serviceAreas", values);
-        }}>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Pune">Pune</option>
-          <option value="Ahmedabad">Ahmedabad</option>
-          <option value="Kolkata">Kolkata</option>
-          <option value="Surat">Surat</option>
-          <option value="Jaipur">Jaipur</option>
-          <option value="Lucknow">Lucknow</option>
-          <option value="Nagpur">Nagpur</option>
-          <option value="Indore">Indore</option>
-          <option value="Bhopal">Bhopal</option>
-          <option value="Chandigarh">Chandigarh</option>
-          <option value="Other">Other</option>
-        </select>
+        <SearchableMultiSelectDt
+          options={serviceAreasOptions}
+          selected={formData.serviceAreas || []}
+          onChange={(value) => updateForm("serviceAreas", value)}
+          placeholder="Search and select service areas..."
+        />
         {errors.serviceAreas && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceAreas}</p>}
       </FieldDt>
       <FieldDt label="Office Address" required>
@@ -1758,7 +1937,7 @@ function DtContentRentAgentApart({
     </>
   );
 
-  // STEP 2: Property Details (Location + Details & Interior combined)
+  // STEP 2: Property Details
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -1776,8 +1955,9 @@ function DtContentRentAgentApart({
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => handleAlphaNumericFieldChange("landmark", e.target.value)} />
       </FieldDt>
-      <FieldDt label="PIN Code">
-        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+      <FieldDt label="PIN Code" hint="Exactly 6 digits">
+        <input className={inp} type="text" inputMode="numeric" maxLength={6} placeholder="Enter 6-digit PIN code" value={formData.pinCode} onChange={(e) => handlePinCodeChange("pinCode", e.target.value)} />
+        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
       </FieldDt>
       <FieldDt label="Nearby Connectivity">
         <input className={inp} placeholder="Metro, Bus, Highway" value={formData.nearbyConnectivity} onChange={(e) => handleAlphaNumericFieldChange("nearbyConnectivity", e.target.value)} />
@@ -2130,7 +2310,7 @@ function DtContentRentAgentApart({
     </>
   );
 
-  // STEP 5: Upload Documents (Identity, Agency & Legal documents combined)
+  // STEP 5: Upload Documents
   if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2290,7 +2470,7 @@ function DtContentRentAgentApart({
         {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </FieldDt>
       <FieldDt label="Account Number" required>
-        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => handleNumericFieldChange("accountNumber", e.target.value)} />
+        <input className={inp} type="text" inputMode="numeric" placeholder="Enter account number (9-18 digits)" value={formData.accountNumber} onChange={(e) => handleNumericFieldChange("accountNumber", e.target.value)} />
         {errors.accountNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accountNumber}</p>}
       </FieldDt>
       <FieldDt label="IFSC Code" required>
@@ -2328,7 +2508,7 @@ function DtContentRentAgentApart({
     </>
   );
 
-  // STEP 8: Declaration & Signature
+  // STEP 8: Declaration & Signature (Fixed with individual checkboxes)
   if (step === 8) return (
     <>
 
@@ -2380,20 +2560,20 @@ function DtContentRentAgentApart({
       </div>
       <div className="space-y-2">
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted1} onChange={() => updateForm("declarationAccepted1", !formData.declarationAccepted1)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted} onChange={() => updateForm("declarationAccepted", !formData.declarationAccepted)} />
           <span>I confirm that I am a licensed real estate agent or an authorized representative of my agency.</span>
         </label>
-        {errors.declarationAccepted1 && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccepted1}</p>}
+        {errors.declarationAccepted && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccepted}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted2} onChange={() => updateForm("declarationAccepted2", !formData.declarationAccepted2)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents submitted are true and accurate.</span>
         </label>
-        {errors.declarationAccepted2 && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccepted2}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-2 text-[13px] cursor-pointer">
-          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccepted3} onChange={() => updateForm("declarationAccepted3", !formData.declarationAccepted3)} />
+          <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy of the platform.</span>
         </label>
-        {errors.declarationAccepted3 && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationAccepted3}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 font-medium ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );

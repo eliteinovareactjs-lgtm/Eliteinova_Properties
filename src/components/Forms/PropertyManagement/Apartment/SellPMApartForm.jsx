@@ -26,6 +26,64 @@ const validateMobile = (mobile) => {
   return re.test(mobile);
 };
 
+const validatePinCode = (pincode) => {
+  const re = /^[0-9]{6}$/;
+  return re.test(pincode);
+};
+
+const validateAadhaar = (aadhaar) => {
+  const re = /^[0-9]{12}$/;
+  return re.test(aadhaar);
+};
+
+const validatePAN = (pan) => {
+  const re = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  return re.test(pan);
+};
+
+const validateIFSC = (ifsc) => {
+  const re = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+  return re.test(ifsc);
+};
+
+const validateAccountNumber = (acc) => {
+  const re = /^[0-9]{9,18}$/;
+  return re.test(acc);
+};
+
+// Real-time filtering helpers
+const handleAlphaFieldChange = (value) => {
+  return value.replace(/[^a-zA-Z\s]/g, '');
+};
+
+const handleNumericFieldChange = (value) => {
+  return value.replace(/\D/g, '');
+};
+
+const handleAlphaNumericFieldChange = (value) => {
+  return value.replace(/[^a-zA-Z0-9\s]/g, '');
+};
+
+const handlePinCodeChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 6);
+};
+
+const handleMobileChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 10);
+};
+
+const handleAadhaarChange = (value) => {
+  return value.replace(/\D/g, '').slice(0, 12);
+};
+
+const handlePANChange = (value) => {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+};
+
+const handleIFSCChange = (value) => {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
+};
+
 const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -241,19 +299,19 @@ export default function SellPMApartForm({ isOpen, onClose }) {
           newErrors.officeState = "State is required";
           isValid = false;
         }
-        if (!formData.officePinCode || formData.officePinCode.length !== 6) {
+        if (!formData.officePinCode || !validatePinCode(formData.officePinCode)) {
           newErrors.officePinCode = "Please enter a valid 6-digit PIN code";
           isValid = false;
         }
         break;
 
       case 3: // Identity & Business Verification
-        if (!formData.aadhaarNumber || formData.aadhaarNumber.length !== 12) {
+        if (!formData.aadhaarNumber || !validateAadhaar(formData.aadhaarNumber)) {
           newErrors.aadhaarNumber = "Please enter a valid 12-digit Aadhaar number";
           isValid = false;
         }
-        if (!formData.panNumber || formData.panNumber.length !== 10) {
-          newErrors.panNumber = "Please enter a valid 10-character PAN number";
+        if (!formData.panNumber || !validatePAN(formData.panNumber)) {
+          newErrors.panNumber = "Please enter a valid 10-character PAN number (e.g., ABCDE1234F)";
           isValid = false;
         }
         if (!formData.aadhaarCard) {
@@ -287,12 +345,12 @@ export default function SellPMApartForm({ isOpen, onClose }) {
           newErrors.builtUpArea = "Built-up area is required";
           isValid = false;
         }
-        if (!formData.bedrooms) {
-          newErrors.bedrooms = "Please select number of bedrooms";
+        if (!formData.bedrooms || parseInt(formData.bedrooms) <= 0) {
+          newErrors.bedrooms = "Please enter number of bedrooms";
           isValid = false;
         }
-        if (!formData.bathrooms) {
-          newErrors.bathrooms = "Please select number of bathrooms";
+        if (!formData.bathrooms || parseInt(formData.bathrooms) <= 0) {
+          newErrors.bathrooms = "Please enter number of bathrooms";
           isValid = false;
         }
         if (!formData.furnishing) {
@@ -325,12 +383,12 @@ export default function SellPMApartForm({ isOpen, onClose }) {
           newErrors.bankName = "Please select a bank";
           isValid = false;
         }
-        if (!formData.accountNumber || formData.accountNumber.length < 9) {
-          newErrors.accountNumber = "Please enter a valid account number";
+        if (!formData.accountNumber || !validateAccountNumber(formData.accountNumber)) {
+          newErrors.accountNumber = "Please enter a valid account number (9-18 digits)";
           isValid = false;
         }
-        if (!formData.ifscCode || formData.ifscCode.length < 11) {
-          newErrors.ifscCode = "Please enter a valid IFSC code";
+        if (!formData.ifscCode || !validateIFSC(formData.ifscCode)) {
+          newErrors.ifscCode = "Please enter a valid IFSC code (e.g., SBIN0001234)";
           isValid = false;
         }
         break;
@@ -372,19 +430,19 @@ export default function SellPMApartForm({ isOpen, onClose }) {
 
       case 9: // Declaration
         if (!formData.declarationAuthorized) {
-          newErrors.declarationAuthorized = "You must accept this declaration";
+          newErrors.declarationAuthorized = "You must confirm that you are the authorized representative";
           isValid = false;
         }
         if (!formData.declarationAccurate) {
-          newErrors.declarationAccurate = "You must accept this declaration";
+          newErrors.declarationAccurate = "You must certify that all information is accurate";
           isValid = false;
         }
         if (!formData.declarationAuthorization) {
-          newErrors.declarationAuthorization = "You must accept this declaration";
+          newErrors.declarationAuthorization = "You must confirm authorization from property owners";
           isValid = false;
         }
         if (!formData.declarationTerms) {
-          newErrors.declarationTerms = "You must accept this declaration";
+          newErrors.declarationTerms = "You must agree to the Terms & Conditions";
           isValid = false;
         }
         if (!formData.signature) {
@@ -556,7 +614,6 @@ export default function SellPMApartForm({ isOpen, onClose }) {
       updateForm("pmCompanyLogo", file);
       if (companyLogoPreview) URL.revokeObjectURL(companyLogoPreview);
       setCompanyLogoPreview(URL.createObjectURL(file));
-      // Clear the error when logo is uploaded
       if (errors.pmCompanyLogo) {
         setErrors(prev => ({ ...prev, pmCompanyLogo: null }));
       }
@@ -756,6 +813,14 @@ export default function SellPMApartForm({ isOpen, onClose }) {
               setAllSignaturePoints={setAllSignaturePoints}
               bankOptions={bankOptions}
               nearbyPlaceOptions={nearbyPlaceOptions}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphaNumericFieldChange={handleAlphaNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
+              handleMobileChange={handleMobileChange}
+              handleAadhaarChange={handleAadhaarChange}
+              handlePANChange={handlePANChange}
+              handleIFSCChange={handleIFSCChange}
             />
           </div>
 
@@ -871,6 +936,14 @@ export default function SellPMApartForm({ isOpen, onClose }) {
               setAllSignaturePoints={setAllSignaturePoints}
               bankOptions={bankOptions}
               nearbyPlaceOptions={nearbyPlaceOptions}
+              handleAlphaFieldChange={handleAlphaFieldChange}
+              handleNumericFieldChange={handleNumericFieldChange}
+              handleAlphaNumericFieldChange={handleAlphaNumericFieldChange}
+              handlePinCodeChange={handlePinCodeChange}
+              handleMobileChange={handleMobileChange}
+              handleAadhaarChange={handleAadhaarChange}
+              handlePANChange={handlePANChange}
+              handleIFSCChange={handleIFSCChange}
             />
           </div>
 
@@ -925,7 +998,10 @@ function MobContentSellPMApart({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  bankOptions, nearbyPlaceOptions
+  bankOptions, nearbyPlaceOptions,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
+  handlePinCodeChange, handleMobileChange, handleAadhaarChange,
+  handlePANChange, handleIFSCChange
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -976,19 +1052,19 @@ function MobContentSellPMApart({
   if (step === 0) return (
     <>
       <Field label="Property Management Company Name" required error={errors.pmCompanyName}>
-        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
-        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="RERA Registration Number (If Applicable)">
-        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="GST Number (Optional)">
-        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Years of Experience" required error={errors.pmYearsOfExperience}>
-        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="text" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -1023,19 +1099,19 @@ function MobContentSellPMApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <Field label="Full Name" required error={errors.authFullName}>
-        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Designation" required error={errors.authDesignation}>
-        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Mobile Number" required error={errors.authMobile}>
-        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", handleMobileChange(e.target.value))} />
       </Field>
       <Field label="Email Address" required error={errors.authEmail}>
         <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </Field>
       <Field label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", handleMobileChange(e.target.value))} />
       </Field>
       <Field label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
         <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-2.5 text-center hover:bg-green-50`}>
@@ -1067,16 +1143,16 @@ function MobContentSellPMApart({
         <textarea className={`${ta} min-h-[55px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </Field>
       <Field label="City" required error={errors.officeCity}>
-        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="District" required error={errors.officeDistrict}>
-        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="State" required error={errors.officeState}>
-        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="PIN Code" required error={errors.officePinCode}>
-        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", handlePinCodeChange(e.target.value))} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1092,10 +1168,10 @@ function MobContentSellPMApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <Field label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", handleAadhaarChange(e.target.value))} />
       </Field>
       <Field label="PAN Number" required error={errors.panNumber}>
-        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", handlePANChange(e.target.value))} />
       </Field>
 
       <Field label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -1180,7 +1256,7 @@ function MobContentSellPMApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
       <Field label="Area / Locality" required error={errors.area}>
-        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", handleAlphaNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
@@ -1204,36 +1280,22 @@ function MobContentSellPMApart({
         </div>
       </Field>
       <Field label="Built-up Area (sq.ft)" required hint="Enter total built-up area" error={errors.builtUpArea}>
-        <input className={`${inp} ${errors.builtUpArea ? errorBorder : ''}`} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={`${inp} ${errors.builtUpArea ? errorBorder : ''}`} type="text" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Carpet Area (sq.ft)" hint="Enter carpet area">
-        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Number of Bedrooms" required error={errors.bedrooms}>
-        <div className="flex flex-wrap gap-2">
-          {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
-            <label key={bhk} className="flex items-center gap-2 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-bhk-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
-              {bhk}
-            </label>
-          ))}
-        </div>
+        <input className={`${inp} ${errors.bedrooms ? errorBorder : ''}`} type="text" placeholder="Enter number of bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Number of Bathrooms" required error={errors.bathrooms}>
-        <div className="flex flex-wrap gap-2">
-          {["1", "2", "3", "4+"].map(b => (
-            <label key={b} className="flex items-center gap-2 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-bath-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
-              {b}
-            </label>
-          ))}
-        </div>
+        <input className={`${inp} ${errors.bathrooms ? errorBorder : ''}`} type="text" placeholder="Enter number of bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Floor Number">
-        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Total Floors">
-        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Facing Direction">
         <div className="grid grid-cols-2 gap-1">
@@ -1256,7 +1318,7 @@ function MobContentSellPMApart({
         </div>
       </Field>
       <Field label="Property Age (years)">
-        <input className={inp} type="number" min="0" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Corner Unit">
         <div className="flex gap-4">
@@ -1327,13 +1389,13 @@ function MobContentSellPMApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
       <Field label="Selling Price (₹)" required error={errors.sellPrice}>
-        <input className={`${inp} ${errors.sellPrice ? errorBorder : ''}`} type="number" min="0" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", e.target.value)} />
+        <input className={`${inp} ${errors.sellPrice ? errorBorder : ''}`} type="text" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", handleNumericFieldChange(e.target.value))} />
       </Field>
       
       <Field label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-1">
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: handleNumericFieldChange(e.target.value) })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: handleNumericFieldChange(e.target.value) })} />
         </div>
       </Field>
 
@@ -1350,10 +1412,10 @@ function MobContentSellPMApart({
         </div>
       </Field>
       <Field label="Maintenance Charges (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="Property Tax (₹/year)">
-        <input className={inp} type="number" min="0" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", handleNumericFieldChange(e.target.value))} />
       </Field>
 
       <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1465,7 +1527,7 @@ function MobContentSellPMApart({
         <h3 className="text-[11px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <Field label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </Field>
       <Field label="Bank Name" required error={errors.bankName}>
         <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -1476,10 +1538,10 @@ function MobContentSellPMApart({
         </select>
       </Field>
       <Field label="Account Number" required error={errors.accountNumber}>
-        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value))} />
       </Field>
       <Field label="IFSC Code" required error={errors.ifscCode}>
-        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", handleIFSCChange(e.target.value))} />
       </Field>
       <Field label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -1754,7 +1816,7 @@ function MobContentSellPMApart({
         <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </Field>
       <Field label="Place" required error={errors.signaturePlace}>
-        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </Field>
 
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
@@ -1767,22 +1829,22 @@ function MobContentSellPMApart({
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationAuthorization} onChange={() => updateForm("declarationAuthorization", !formData.declarationAuthorization)} />
           <span>I have the necessary authorization from property owners to list and sell their properties on this platform.</span>
         </label>
-        {errors.declarationAuthorization && <p className="text-[10px] text-red-500">{errors.declarationAuthorization}</p>}
+        {errors.declarationAuthorization && <p className="text-[10px] text-red-500 ml-5">{errors.declarationAuthorization}</p>}
         <label className="flex items-start gap-1.5 text-[10px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 ml-5">{errors.declarationTerms}</p>}
       </div>
     </>
   );
@@ -1805,7 +1867,10 @@ function DtContentSellPMApart({
   handleCompanyLogoUpload, companyLogoPreview, removeCompanyLogo,
   startDrawing, draw, stopDrawing, clearSignature, 
   signaturePoints, allSignaturePoints, setAllSignaturePoints,
-  bankOptions, nearbyPlaceOptions
+  bankOptions, nearbyPlaceOptions,
+  handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
+  handlePinCodeChange, handleMobileChange, handleAadhaarChange,
+  handlePANChange, handleIFSCChange
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1856,19 +1921,19 @@ function DtContentSellPMApart({
   if (step === 0) return (
     <>
       <FieldDt label="Property Management Company Name" required error={errors.pmCompanyName}>
-        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", e.target.value)} />
+        <input className={`${inp} ${errors.pmCompanyName ? errorBorder : ''}`} placeholder="Enter company name" value={formData.pmCompanyName} onChange={(e) => updateForm("pmCompanyName", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Business Registration Number" required error={errors.pmBusinessRegNumber}>
-        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", e.target.value)} />
+        <input className={`${inp} ${errors.pmBusinessRegNumber ? errorBorder : ''}`} placeholder="Enter registration number" value={formData.pmBusinessRegNumber} onChange={(e) => updateForm("pmBusinessRegNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="RERA Registration Number (If Applicable)">
-        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter RERA number" value={formData.pmReraNumber} onChange={(e) => updateForm("pmReraNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="GST Number (Optional)">
-        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", e.target.value)} />
+        <input className={inp} placeholder="Enter GST number" value={formData.pmGstNumber} onChange={(e) => updateForm("pmGstNumber", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Years of Experience" required error={errors.pmYearsOfExperience}>
-        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="number" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", e.target.value)} />
+        <input className={`${inp} ${errors.pmYearsOfExperience ? errorBorder : ''}`} type="text" min="0" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -1903,19 +1968,19 @@ function DtContentSellPMApart({
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <FieldDt label="Full Name" required error={errors.authFullName}>
-        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", e.target.value)} />
+        <input className={`${inp} ${errors.authFullName ? errorBorder : ''}`} placeholder="Enter authorized representative's full name" value={formData.authFullName} onChange={(e) => updateForm("authFullName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Designation" required error={errors.authDesignation}>
-        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", e.target.value)} />
+        <input className={`${inp} ${errors.authDesignation ? errorBorder : ''}`} placeholder="e.g. Director, Manager" value={formData.authDesignation} onChange={(e) => updateForm("authDesignation", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Mobile Number" required error={errors.authMobile}>
-        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${errors.authMobile ? errorBorder : ''}`} type="tel" placeholder="Enter 10-digit mobile number" value={formData.authMobile} onChange={(e) => updateForm("authMobile", handleMobileChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Email Address" required error={errors.authEmail}>
         <input className={`${inp} ${errors.authEmail ? errorBorder : ''}`} type="email" placeholder="Enter email address" value={formData.authEmail} onChange={(e) => updateForm("authEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="WhatsApp Number">
-        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", e.target.value.replace(/\D/g, ''))} />
+        <input className={inp} type="tel" placeholder="Enter WhatsApp number" value={formData.authWhatsapp} onChange={(e) => updateForm("authWhatsapp", handleMobileChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Profile Photo" required hint="JPG, PNG max 2MB" error={errors.authPhoto}>
         <div className={`border-2 border-dashed ${errors.authPhoto ? 'border-red-500' : 'border-teal-300'} rounded-xl p-3 text-center hover:bg-green-50`}>
@@ -1947,16 +2012,16 @@ function DtContentSellPMApart({
         <textarea className={`${ta} min-h-[70px] ${errors.officeAddress ? errorBorder : ''}`} placeholder="Enter complete office address" value={formData.officeAddress} onChange={(e) => updateForm("officeAddress", e.target.value)} />
       </FieldDt>
       <FieldDt label="City" required error={errors.officeCity}>
-        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", e.target.value)} />
+        <input className={`${inp} ${errors.officeCity ? errorBorder : ''}`} placeholder="Enter city" value={formData.officeCity} onChange={(e) => updateForm("officeCity", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="District" required error={errors.officeDistrict}>
-        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", e.target.value)} />
+        <input className={`${inp} ${errors.officeDistrict ? errorBorder : ''}`} placeholder="Enter district" value={formData.officeDistrict} onChange={(e) => updateForm("officeDistrict", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="State" required error={errors.officeState}>
-        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", e.target.value)} />
+        <input className={`${inp} ${errors.officeState ? errorBorder : ''}`} placeholder="Enter state" value={formData.officeState} onChange={(e) => updateForm("officeState", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="PIN Code" required error={errors.officePinCode}>
-        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="number" min="0" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", e.target.value)} />
+        <input className={`${inp} ${errors.officePinCode ? errorBorder : ''}`} type="text" placeholder="Enter 6-digit PIN code" value={formData.officePinCode} onChange={(e) => updateForm("officePinCode", handlePinCodeChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Enter nearby landmark" value={formData.officeLandmark} onChange={(e) => updateForm("officeLandmark", e.target.value)} />
@@ -1972,10 +2037,10 @@ function DtContentSellPMApart({
         <h3 className="text-[14px] font-bold text-[#00695C]">Identity & Business Verification</h3>
       </div>
       <FieldDt label="Aadhaar Number" required error={errors.aadhaarNumber}>
-        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", e.target.value.replace(/\D/g, ''))} />
+        <input className={`${inp} ${errors.aadhaarNumber ? errorBorder : ''}`} placeholder="Enter 12-digit Aadhaar number" value={formData.aadhaarNumber} onChange={(e) => updateForm("aadhaarNumber", handleAadhaarChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="PAN Number" required error={errors.panNumber}>
-        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${errors.panNumber ? errorBorder : ''}`} placeholder="Enter 10-character PAN number" value={formData.panNumber} onChange={(e) => updateForm("panNumber", handlePANChange(e.target.value))} />
       </FieldDt>
 
       <FieldDt label="Upload Aadhaar Card" required error={errors.aadhaarCard}>
@@ -2060,7 +2125,7 @@ function DtContentSellPMApart({
         <h3 className="text-[14px] font-bold text-[#00695C]">📍 Location Details</h3>
       </div>
       <FieldDt label="Area / Locality" required error={errors.area}>
-        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", e.target.value)} />
+        <input className={`${inp} ${errors.area ? errorBorder : ''}`} placeholder="Enter area or locality" value={formData.area} onChange={(e) => updateForm("area", handleAlphaNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Landmark">
         <input className={inp} placeholder="Nearby landmark" value={formData.landmark} onChange={(e) => updateForm("landmark", e.target.value)} />
@@ -2084,36 +2149,22 @@ function DtContentSellPMApart({
         </div>
       </FieldDt>
       <FieldDt label="Built-up Area (sq.ft)" required hint="Enter total built-up area" error={errors.builtUpArea}>
-        <input className={`${inp} ${errors.builtUpArea ? errorBorder : ''}`} type="number" min="0" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", e.target.value)} />
+        <input className={`${inp} ${errors.builtUpArea ? errorBorder : ''}`} type="text" placeholder="Enter built-up area" value={formData.builtUpArea} onChange={(e) => updateForm("builtUpArea", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Carpet Area (sq.ft)" hint="Enter carpet area">
-        <input className={inp} type="number" min="0" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter carpet area" value={formData.carpetArea} onChange={(e) => updateForm("carpetArea", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Number of Bedrooms" required error={errors.bedrooms}>
-        <div className="flex flex-wrap gap-3">
-          {["Studio", "1 BHK", "2 BHK", "3 BHK", "4 BHK+"].map(bhk => (
-            <label key={bhk} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bhk-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bedrooms === bhk} onChange={() => updateForm("bedrooms", bhk)} />
-              {bhk}
-            </label>
-          ))}
-        </div>
+        <input className={`${inp} ${errors.bedrooms ? errorBorder : ''}`} type="text" placeholder="Enter number of bedrooms" value={formData.bedrooms} onChange={(e) => updateForm("bedrooms", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Number of Bathrooms" required error={errors.bathrooms}>
-        <div className="flex flex-wrap gap-3">
-          {["1", "2", "3", "4+"].map(b => (
-            <label key={b} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-bath-sell" className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer" checked={formData.bathrooms === b} onChange={() => updateForm("bathrooms", b)} />
-              {b}
-            </label>
-          ))}
-        </div>
+        <input className={`${inp} ${errors.bathrooms ? errorBorder : ''}`} type="text" placeholder="Enter number of bathrooms" value={formData.bathrooms} onChange={(e) => updateForm("bathrooms", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Floor Number">
-        <input className={inp} type="number" min="0" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter floor number" value={formData.floorNumber} onChange={(e) => updateForm("floorNumber", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Total Floors">
-        <input className={inp} type="number" min="0" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter total floors" value={formData.totalFloors} onChange={(e) => updateForm("totalFloors", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Facing Direction">
         <div className="grid grid-cols-4 gap-2">
@@ -2136,7 +2187,7 @@ function DtContentSellPMApart({
         </div>
       </FieldDt>
       <FieldDt label="Property Age (years)">
-        <input className={inp} type="number" min="0" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter property age" value={formData.propertyAge} onChange={(e) => updateForm("propertyAge", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Corner Unit">
         <div className="flex gap-5">
@@ -2207,13 +2258,13 @@ function DtContentSellPMApart({
         <h3 className="text-[14px] font-bold text-[#00695C]">💰 Price Details</h3>
       </div>
       <FieldDt label="Selling Price (₹)" required error={errors.sellPrice}>
-        <input className={`${inp} ${errors.sellPrice ? errorBorder : ''}`} type="number" min="0" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", e.target.value)} />
+        <input className={`${inp} ${errors.sellPrice ? errorBorder : ''}`} type="text" placeholder="Enter selling price" value={formData.sellPrice} onChange={(e) => updateForm("sellPrice", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       
       <FieldDt label="Budget Range (₹)" hint="Set a range for negotiation">
         <div className="flex gap-2">
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: e.target.value })} />
-          <input className={`${inp} w-1/2`} type="number" min="0" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: e.target.value })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Min" value={formData.budgetRange.min} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, min: handleNumericFieldChange(e.target.value) })} />
+          <input className={`${inp} w-1/2`} type="text" placeholder="Max" value={formData.budgetRange.max} onChange={(e) => updateForm("budgetRange", { ...formData.budgetRange, max: handleNumericFieldChange(e.target.value) })} />
         </div>
       </FieldDt>
 
@@ -2230,10 +2281,10 @@ function DtContentSellPMApart({
         </div>
       </FieldDt>
       <FieldDt label="Maintenance Charges (₹/month)">
-        <input className={inp} type="number" min="0" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter monthly maintenance amount" value={formData.maintenanceCharges} onChange={(e) => updateForm("maintenanceCharges", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Property Tax (₹/year)">
-        <input className={inp} type="number" min="0" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", e.target.value)} />
+        <input className={inp} type="text" placeholder="Enter annual property tax" value={formData.propertyTax} onChange={(e) => updateForm("propertyTax", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
@@ -2345,7 +2396,7 @@ function DtContentSellPMApart({
         <h3 className="text-[14px] font-bold text-[#00695C]">Bank Details</h3>
       </div>
       <FieldDt label="Account Holder Name" required error={errors.accountHolderName}>
-        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", e.target.value)} />
+        <input className={`${inp} ${errors.accountHolderName ? errorBorder : ''}`} placeholder="Enter account holder name" value={formData.accountHolderName} onChange={(e) => updateForm("accountHolderName", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="Bank Name" required error={errors.bankName}>
         <select className={`${inp} ${errors.bankName ? errorBorder : ''}`} value={formData.bankName} onChange={(e) => updateForm("bankName", e.target.value)}>
@@ -2356,10 +2407,10 @@ function DtContentSellPMApart({
         </select>
       </FieldDt>
       <FieldDt label="Account Number" required error={errors.accountNumber}>
-        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="number" min="0" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", e.target.value)} />
+        <input className={`${inp} ${errors.accountNumber ? errorBorder : ''}`} type="text" placeholder="Enter account number" value={formData.accountNumber} onChange={(e) => updateForm("accountNumber", handleNumericFieldChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="IFSC Code" required error={errors.ifscCode}>
-        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
+        <input className={`${inp} ${errors.ifscCode ? errorBorder : ''}`} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", handleIFSCChange(e.target.value))} />
       </FieldDt>
       <FieldDt label="UPI ID">
         <input className={inp} placeholder="Enter UPI ID (e.g. name@upi)" value={formData.upiId} onChange={(e) => updateForm("upiId", e.target.value)} />
@@ -2634,7 +2685,7 @@ function DtContentSellPMApart({
         <input className={`${inp} ${errors.signatureDate ? errorBorder : ''}`} type="date" value={formData.signatureDate} onChange={(e) => updateForm("signatureDate", e.target.value)} />
       </FieldDt>
       <FieldDt label="Place" required error={errors.signaturePlace}>
-        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", e.target.value)} />
+        <input className={`${inp} ${errors.signaturePlace ? errorBorder : ''}`} placeholder="Enter place" value={formData.signaturePlace} onChange={(e) => updateForm("signaturePlace", handleAlphaFieldChange(e.target.value))} />
       </FieldDt>
 
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2647,22 +2698,22 @@ function DtContentSellPMApart({
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorized} onChange={() => updateForm("declarationAuthorized", !formData.declarationAuthorized)} />
           <span>I confirm that I am the authorized representative of this property management company.</span>
         </label>
-        {errors.declarationAuthorized && <p className="text-[10px] text-red-500">{errors.declarationAuthorized}</p>}
+        {errors.declarationAuthorized && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAuthorized}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAccurate} onChange={() => updateForm("declarationAccurate", !formData.declarationAccurate)} />
           <span>I certify that all information and documents provided are true and accurate.</span>
         </label>
-        {errors.declarationAccurate && <p className="text-[10px] text-red-500">{errors.declarationAccurate}</p>}
+        {errors.declarationAccurate && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAccurate}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationAuthorization} onChange={() => updateForm("declarationAuthorization", !formData.declarationAuthorization)} />
           <span>I have the necessary authorization from property owners to list and sell their properties on this platform.</span>
         </label>
-        {errors.declarationAuthorization && <p className="text-[10px] text-red-500">{errors.declarationAuthorization}</p>}
+        {errors.declarationAuthorization && <p className="text-[10px] text-red-500 ml-6">{errors.declarationAuthorization}</p>}
         <label className="flex items-start gap-2.5 text-[13px] cursor-pointer">
           <input type="checkbox" className="accent-[#00695C] w-4 h-4 mt-0.5 cursor-pointer" checked={formData.declarationTerms} onChange={() => updateForm("declarationTerms", !formData.declarationTerms)} />
           <span>I agree to the Terms & Conditions and Privacy Policy.</span>
         </label>
-        {errors.declarationTerms && <p className="text-[10px] text-red-500">{errors.declarationTerms}</p>}
+        {errors.declarationTerms && <p className="text-[10px] text-red-500 ml-6">{errors.declarationTerms}</p>}
       </div>
     </>
   );
