@@ -1017,76 +1017,8 @@ const Header = ({ onPostPropertyClick }) => {
 
             <div className="flex items-center gap-1.5 md:gap-3">
               <div ref={searchRef} className="relative">
-                {/* <button
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center relative group transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-[#00695C]/30"
-                  style={{
-                    background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)',
-                    boxShadow: '0 3px 12px rgba(0,105,92,0.2)',
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00695C] via-[#26A69A] to-[#00695C] opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
-                  <Search className="w-5 h-5 text-[#00695C] group-hover:text-[#004D40] transition-colors duration-300" />
-                </button> */}
-
-                {/* {searchOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-72 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 border border-white/30 animate-dropdown">
-                    <form onSubmit={handleSearch} className="p-3">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#26A69A]" />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search properties..."
-                          className="w-full pl-9 pr-3 py-2 text-sm bg-[#E8F5E9]/50 rounded-lg border border-[#26A69A]/20 focus:outline-none focus:ring-2 focus:ring-[#26A69A]/40 focus:border-transparent text-gray-800 placeholder-gray-500"
-                          autoFocus
-                        />
-                      </div>
-                      <div className="mt-2 flex gap-1.5 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("Mumbai")}
-                          className="text-[10px] bg-gradient-to-r from-[#26A69A]/10 to-[#00695C]/10 hover:from-[#26A69A]/20 hover:to-[#00695C]/20 text-[#00695C] px-2 py-1 rounded-lg transition-all duration-300"
-                        >
-                          🏙️ Mumbai
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("Bangalore")}
-                          className="text-[10px] bg-gradient-to-r from-[#26A69A]/10 to-[#00695C]/10 hover:from-[#26A69A]/20 hover:to-[#00695C]/20 text-[#00695C] px-2 py-1 rounded-lg transition-all duration-300"
-                        >
-                          🏡 Bangalore
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSearchQuery("Commercial")}
-                          className="text-[10px] bg-gradient-to-r from-[#26A69A]/10 to-[#00695C]/10 hover:from-[#26A69A]/20 hover:to-[#00695C]/20 text-[#00695C] px-2 py-1 rounded-lg transition-all duration-300"
-                        >
-                          🏪 Commercial
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )} */}
+                {/* Search button and input - commented out */}
               </div>
-
-              {/* <button className="relative group">
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center relative transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-orange-500/30"
-                  style={{
-                    background: 'linear-gradient(135deg, #FFEB3B, #FF9800)',
-                    boxShadow: '0 3px 12px rgba(255,152,0,0.2)',
-                  }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-500 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
-                  <Bell className="w-5 h-5 text-[#E65100] group-hover:text-[#BF360C] transition-colors duration-300" />
-                </div>
-                {notificationCount > 0 && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse-ring">
-                    <span className="text-white text-[8px] font-bold">{notificationCount}</span>
-                  </div>
-                )}
-              </button> */}
 
               {/* ============ LOGIN & REGISTER BUTTONS ============ */}
               {!isLoggedIn ? (
@@ -1171,6 +1103,7 @@ const Header = ({ onPostPropertyClick }) => {
           </div>
           
           <div className="flex items-center h-full relative z-10">
+            {/* Home Button */}
             <button
               onClick={() => {
                 navigate("/");
@@ -1194,6 +1127,7 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </button>
 
+            {/* Customer Portal Dropdown */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("customer")}
@@ -1235,6 +1169,7 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
+            {/* Post Property Dropdown */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("post")}
@@ -1276,12 +1211,21 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
+            {/* Find Loan Dropdown - Navigates to LoanPage */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("loan")}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className="group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300">
+              <button 
+                onClick={() => {
+                  navigate("/loan");
+                  setActiveTab("loan");
+                }}
+                className={`group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300 ${
+                  activeTab === "loan" ? 'bg-gradient-to-r from-white/10 to-transparent' : ''
+                }`}
+              >
                 <Landmark className="w-4 h-4" />
                 <span>Find Loan</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === "loan" ? 'rotate-180' : ''}`} />
@@ -1293,6 +1237,10 @@ const Header = ({ onPostPropertyClick }) => {
                     <button
                       key={item}
                       className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300"
+                      onClick={() => {
+                        navigate("/loan");
+                        setActiveTab("loan");
+                      }}
                     >
                       {item}
                     </button>
@@ -1301,6 +1249,7 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
+            {/* Services Dropdown */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("services")}
@@ -2207,7 +2156,8 @@ const Header = ({ onPostPropertyClick }) => {
                 <div className="font-bold text-purple-700 group-hover:text-purple-900">Sell</div>
               </button>
 
-              <button                onClick={() => handleAgentComActionClick("Lease")}
+              <button
+                onClick={() => handleAgentComActionClick("Lease")}
                 className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 hover:border-orange-500 transition-all duration-300 group"
               >
                 <div className="text-2xl mb-1">📄</div>
@@ -2759,13 +2709,15 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
 
+              {/* Mobile Find Loan - Navigates to LoanPage */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '150ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
                   onClick={() => toggleMobileDropdown('loan')}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-medium text-sm">💰 Find Loan</span>
+                    <Landmark className="w-4 h-4 text-white" />
+                    <span className="text-white font-medium text-sm">Find Loan</span>
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.loan ? 'rotate-180' : ''}`} />
                 </div>
@@ -2776,6 +2728,8 @@ const Header = ({ onPostPropertyClick }) => {
                       <button 
                         key={item} 
                         onClick={() => {
+                          navigate("/loan");
+                          setActiveTab("loan");
                           toggleMobileMenu();
                         }}
                         className="block text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"

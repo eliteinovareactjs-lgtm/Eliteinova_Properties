@@ -139,6 +139,9 @@ import BuilderFormModal from "./components/Forms/BuilderFormModal";
 import HostelFormModal from "./components/Forms/HostelFormModal";
 import PropertyManagementFormModal from "./components/Forms/PropertyManagementFormModal";
 
+// Loan
+import LoanPage from "./pages/loan/LoanPage";
+
 function AppLayout() {
   const [openOwnerForm, setOpenOwnerForm] = useState(false);
   const [openAgentForm, setOpenAgentForm] = useState(false);
@@ -212,6 +215,9 @@ function AppLayout() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
+
+          {/* Loan */}
+          <Route path="/loan" element={<LoanPage />} />
           
           {/* Customer Portal Routes */}
           <Route path="/individual" element={<IndividualPage />} />

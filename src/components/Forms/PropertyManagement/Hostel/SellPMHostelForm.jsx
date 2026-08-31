@@ -9,7 +9,8 @@ import {
   MapPin as MapPinIcon, Building as BuildingIcon, Home as HomeIcon, 
   CheckSquare, PenTool, IndianRupee, DollarSign, BookOpen, Tv,
   Award, Building2, Construction, Hammer, HardHat, Ruler, PaintBucket,
-  BriefcaseBusiness, Building2 as BuildingIcon2, Factory, Store, ShieldCheck
+  BriefcaseBusiness, Building2 as BuildingIcon2, Factory, Store, ShieldCheck,
+  Search, ChevronDown
 } from "lucide-react";
 
 const steps = [
@@ -107,6 +108,236 @@ const handleIFSCChange = (value) => {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11);
 };
 
+// Service area options
+const serviceAreaOptions = [
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Hyderabad",
+  "Pune", "Kolkata", "Ahmedabad", "Surat", "Jaipur",
+  "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane"
+];
+
+const validateField = (value, rules) => {
+  if (rules.required && (!value || value.toString().trim() === '')) {
+    return { valid: false, message: 'This field is required' };
+  }
+  if (rules.email && value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return { valid: false, message: 'Please enter a valid email address' };
+    }
+  }
+  if (rules.mobile && value) {
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(value)) {
+      return { valid: false, message: 'Please enter a valid 10-digit mobile number' };
+    }
+  }
+  if (rules.min && value && Number(value) < rules.min) {
+    return { valid: false, message: `Value must be at least ${rules.min}` };
+  }
+  if (rules.max && value && Number(value) > rules.max) {
+    return { valid: false, message: `Value must be at most ${rules.max}` };
+  }
+  if (rules.pattern && value) {
+    const regex = new RegExp(rules.pattern);
+    if (!regex.test(value)) {
+      return { valid: false, message: rules.patternMessage || 'Invalid format' };
+    }
+  }
+  return { valid: true, message: '' };
+};
+
+// ==================== SEARCHABLE MULTI-SELECT COMPONENTS ====================
+
+// SearchableMultiSelect Component - Mobile Version
+const SearchableMultiSelect = ({ 
+  options, selected, onChange, placeholder = "Search and select...", className = "", disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inMob} cursor-pointer flex items-center justify-between min-h-[38px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-24 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5 whitespace-nowrap">
+                {item}
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={(e) => removeOption(item, e)} />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[11px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-1.5 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-7 pr-2 py-1 text-[11px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[11px] py-2">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label key={option} className="flex items-center gap-2 px-2 py-1 hover:bg-teal-50 rounded-md cursor-pointer text-[11px]">
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-3.5 h-3.5 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SearchableMultiSelect Component - Desktop Version
+const SearchableMultiSelectDt = ({ 
+  options, selected, onChange, placeholder = "Search and select...", className = "", disabled = false
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const toggleOption = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeOption = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      <div 
+        className={`${inDt} cursor-pointer flex items-center justify-between min-h-[42px] ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1 flex-1 max-h-28 overflow-y-auto py-0.5">
+          {selected.length > 0 ? (
+            selected.map((item) => (
+              <span key={item} className="bg-[#00695C]/10 text-[#00695C] text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 whitespace-nowrap">
+                {item}
+                <X className="w-3.5 h-3.5 cursor-pointer hover:text-red-500" onClick={(e) => removeOption(item, e)} />
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400 text-[12px]">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-hidden flex flex-col">
+          <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                className="w-full pl-8 pr-3 py-1.5 text-[13px] border border-gray-200 rounded-md focus:outline-none focus:border-[#00695C]"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto flex-1 p-1.5">
+            {filteredOptions.length === 0 ? (
+              <div className="text-center text-gray-400 text-[12px] py-3">No options found</div>
+            ) : (
+              filteredOptions.map((option) => (
+                <label key={option} className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-teal-50 rounded-md cursor-pointer text-[13px]">
+                  <input
+                    type="checkbox"
+                    className="accent-[#00695C] w-4 h-4 cursor-pointer"
+                    checked={selected.includes(option)}
+                    onChange={() => toggleOption(option)}
+                  />
+                  {option}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Field = ({ label, required, hint, children, error }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -180,6 +411,7 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
     // Company Details (Step 0) - Property Management focus
     pmCompanyName: "", pmBusinessRegNumber: "", pmReraNumber: "", pmGstNumber: "", pmYearsOfExperience: "", pmCompanyWebsite: "", pmCompanyLogo: null, pmCompanyDescription: "",
+    serviceArea: [],
     
     // Authorized Representative (Step 1)
     authFullName: "", authDesignation: "", authMobile: "", authEmail: "", authWhatsapp: "", authPhoto: null,
@@ -275,6 +507,11 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
         
         const descValidation = validateField(formData.pmCompanyDescription, { required: true });
         if (!descValidation.valid) { newErrors.pmCompanyDescription = descValidation.message; isValid = false; }
+        
+        if (!formData.serviceArea || formData.serviceArea.length === 0) {
+          newErrors.serviceArea = "Please select at least one service area";
+          isValid = false;
+        }
         break;
 
       case 1: // Authorized Representative
@@ -854,6 +1091,8 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
               handleAadhaarChange={handleAadhaarChange}
               handlePANChange={handlePANChange}
               handleIFSCChange={handleIFSCChange}
+              serviceAreaOptions={serviceAreaOptions}
+              SearchableMultiSelect={SearchableMultiSelect}
             />
           </div>
 
@@ -883,7 +1122,15 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
               )}
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : () => { if (validateStep(step)) setStep(step + 1); }}
+                onClick={() => {
+                  if (step === steps.length - 1) {
+                    handleSubmit();
+                  } else {
+                    if (validateStep(step)) {
+                      setStep(step + 1);
+                    }
+                  }
+                }}
               >
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue →</>}
               </button>
@@ -981,6 +1228,8 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
               handleAadhaarChange={handleAadhaarChange}
               handlePANChange={handlePANChange}
               handleIFSCChange={handleIFSCChange}
+              serviceAreaOptions={serviceAreaOptions}
+              SearchableMultiSelectDt={SearchableMultiSelectDt}
             />
           </div>
 
@@ -1009,7 +1258,15 @@ export default function SellPMHostelForm({ isOpen, onClose }) {
                 </button>
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
-                onClick={() => step === steps.length - 1 ? handleSubmit() : () => { if (validateStep(step)) setStep(step + 1); }}>
+                onClick={() => {
+                  if (step === steps.length - 1) {
+                    handleSubmit();
+                  } else {
+                    if (validateStep(step)) {
+                      setStep(step + 1);
+                    }
+                  }
+                }}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
               </button>
             </div>
@@ -1039,7 +1296,8 @@ function MobContentSellPMHostel({
   propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions,
   handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
   handlePinCodeChange, handleMobileChange, handleAadhaarChange,
-  handlePANChange, handleIFSCChange
+  handlePANChange, handleIFSCChange,
+  serviceAreaOptions, SearchableMultiSelect
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -1107,6 +1365,14 @@ function MobContentSellPMHostel({
       </Field>
       <Field label="Years of Experience" required error={errors.pmYearsOfExperience}>
         <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="text" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
+      </Field>
+      <Field label="Service Areas" required error={errors.serviceArea} hint="Select all areas where you provide services">
+        <SearchableMultiSelect
+          options={serviceAreaOptions}
+          selected={formData.serviceArea || []}
+          onChange={(value) => updateForm("serviceArea", value)}
+          placeholder="Search and select service areas..."
+        />
       </Field>
       <Field label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -2082,7 +2348,8 @@ function DtContentSellPMHostel({
   propertyAgeOptions, constructionStatusOptions, possessionOptions, ownershipTypeOptions,
   handleAlphaFieldChange, handleNumericFieldChange, handleAlphaNumericFieldChange,
   handlePinCodeChange, handleMobileChange, handleAadhaarChange,
-  handlePANChange, handleIFSCChange
+  handlePANChange, handleIFSCChange,
+  serviceAreaOptions, SearchableMultiSelectDt
 }) {
   const ta = `${inp} resize-y`;
   const signatureCanvasRef = useRef(null);
@@ -2133,7 +2400,7 @@ function DtContentSellPMHostel({
     return errors[field] ? errorBorder : "";
   };
 
-  // STEP 0: Company Details (Property Management)
+  // STEP 0: Company Details (Property Management) - Desktop
   if (step === 0) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2154,6 +2421,14 @@ function DtContentSellPMHostel({
       </FieldDt>
       <FieldDt label="Years of Experience" required error={errors.pmYearsOfExperience}>
         <input className={`${inp} ${getErrorClass('pmYearsOfExperience')}`} type="text" placeholder="Enter years of experience" value={formData.pmYearsOfExperience} onChange={(e) => updateForm("pmYearsOfExperience", handleNumericFieldChange(e.target.value))} />
+      </FieldDt>
+      <FieldDt label="Service Areas" required error={errors.serviceArea} hint="Select all areas where you provide services">
+        <SearchableMultiSelectDt
+          options={serviceAreaOptions}
+          selected={formData.serviceArea || []}
+          onChange={(value) => updateForm("serviceArea", value)}
+          placeholder="Search and select service areas..."
+        />
       </FieldDt>
       <FieldDt label="Company Website (Optional)">
         <input className={inp} placeholder="e.g. www.company.com" value={formData.pmCompanyWebsite} onChange={(e) => updateForm("pmCompanyWebsite", e.target.value)} />
@@ -2180,7 +2455,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 1: Authorized Representative
+  // STEP 1: Authorized Representative - Desktop
   if (step === 1) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2221,7 +2496,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 2: Office Address
+  // STEP 2: Office Address - Desktop
   if (step === 2) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2249,7 +2524,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 3: Identity & Business Verification
+  // STEP 3: Identity & Business Verification - Desktop
   if (step === 3) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2337,7 +2612,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 4: Property Details with Sell-specific fields (Desktop)
+  // STEP 4: Property Details - Desktop (Sell-specific)
   if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2613,7 +2888,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 5: Pricing & Amenities (Desktop - Sell)
+  // STEP 5: Pricing & Amenities - Desktop
   if (step === 5) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2704,7 +2979,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 6: Bank Details (Desktop)
+  // STEP 6: Bank Details - Desktop
   if (step === 6) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2729,7 +3004,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 7: Social Media (Desktop)
+  // STEP 7: Social Media - Desktop
   if (step === 7) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2754,7 +3029,7 @@ function DtContentSellPMHostel({
     </>
   );
 
-  // STEP 8: Documents (Desktop)
+  // STEP 8: Documents - Desktop
   if (step === 8) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
@@ -2955,23 +3230,6 @@ function DtContentSellPMHostel({
         {formData.occupancyCertificate && <p className="text-[13px] text-green-600 mt-2">✓ {formData.occupancyCertificate.name}</p>}
       </FieldDt>
 
-      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
-        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-4 text-center cursor-pointer hover:bg-green-50`}>
-          <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-sell-pm" onChange={handleFloorPlanUpload} />
-          <label htmlFor="dt-floorplan-sell-pm" className="cursor-pointer flex flex-col items-center">
-            <Home className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
-            <span className="text-[13px] font-semibold text-[#00695C]">Upload Floor Plan</span>
-            <span className="text-[11px] text-gray-400 mt-1">PDF only</span>
-          </label>
-        </div>
-        {floorPlanPreview && (
-          <div className="mt-2 relative">
-            <p className="text-[13px] text-green-600">✓ {formData.floorPlan?.name}</p>
-            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
-          </div>
-        )}
-      </FieldDt>
-
       {/* Property Media */}
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -3031,10 +3289,27 @@ function DtContentSellPMHostel({
           </div>
         )}
       </FieldDt>
+
+      <FieldDt label="Upload Floor Plan" required hint="PDF only (Max 5MB)" error={errors.floorPlan}>
+        <div className={`border-2 border-dashed ${errors.floorPlan ? 'border-red-500' : 'border-teal-300'} rounded-xl p-4 text-center cursor-pointer hover:bg-green-50`}>
+          <input type="file" accept=".pdf" className="hidden" id="dt-floorplan-sell-pm" onChange={handleFloorPlanUpload} />
+          <label htmlFor="dt-floorplan-sell-pm" className="cursor-pointer flex flex-col items-center">
+            <Home className="mx-auto mb-2 w-8 h-8 sm:w-10 sm:h-10 text-[#00695C]" />
+            <span className="text-[13px] font-semibold text-[#00695C]">Upload Floor Plan</span>
+            <span className="text-[11px] text-gray-400 mt-1">PDF only</span>
+          </label>
+        </div>
+        {floorPlanPreview && (
+          <div className="mt-2 relative">
+            <p className="text-[13px] text-green-600">✓ {formData.floorPlan?.name}</p>
+            <button onClick={removeFloorPlan} className="absolute -top-2 -right-2 w-5.5 h-5.5 bg-red-500 text-white rounded-full text-[11px] flex items-center justify-center hover:bg-red-600">✕</button>
+          </div>
+        )}
+      </FieldDt>
     </>
   );
 
-  // STEP 9: Declaration (Desktop)
+  // STEP 9: Declaration - Desktop
   if (step === 9) return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
