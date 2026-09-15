@@ -269,174 +269,298 @@ const ApartmentPage = () => {
 
                     {/* TOP DIAMOND - Individual */}
                     <div
-                      className="absolute cursor-pointer transition-all duration-300 hover:scale-105 hover:z-30"
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
                       style={{
                         width: "100px",
                         height: "100px",
                         top: "0px",
                         left: "80px",
+                        animationDelay: "0s",
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[0].path)}
                     >
+                      {/* Glow ring on hover */}
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
                       <div
-                        className="relative w-full h-full overflow-hidden shadow-xl"
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
                         style={{
                           transform: "rotate(45deg)",
                           borderRadius: "18px",
                           border: "3px solid rgba(255,255,255,0.85)",
                           boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
+                        {/* Animated rotating border */}
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
                         <img
                           src={bannerDiamonds[0].image}
                           alt="Individual"
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
                           style={{
                             transform: "rotate(-45deg) scale(1.3)",
                             transformOrigin: "center",
                           }}
                         />
+                        
+                        {/* Shine sweep effect */}
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.3)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
                         <div
-                          className="absolute inset-0"
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
                           style={{
                             background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
                           }}
                         />
                       </div>
+                      
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
                           Individual
                         </span>
                       </div>
+                      
+                      {/* Sparkle dots */}
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
                     {/* LEFT DIAMOND - Commercial */}
                     <div
-                      className="absolute cursor-pointer transition-all duration-300 hover:scale-105 hover:z-30"
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
                       style={{
                         width: "100px",
                         height: "100px",
                         top: "80px",
                         left: "0px",
+                        animationDelay: "0.5s",
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[1].path)}
                     >
+                      {/* Glow ring on hover */}
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
                       <div
-                        className="relative w-full h-full overflow-hidden shadow-xl"
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
                         style={{
                           transform: "rotate(45deg)",
                           borderRadius: "18px",
                           border: "3px solid rgba(255,255,255,0.85)",
                           boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
+                        {/* Animated rotating border */}
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
                         <img
                           src={bannerDiamonds[1].image}
                           alt="Commercial"
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
                           style={{
                             transform: "rotate(-45deg) scale(1.5)",
                             transformOrigin: "center",
                           }}
                         />
+                        
+                        {/* Shine sweep effect */}
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
                         <div
-                          className="absolute inset-0"
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
                           style={{
                             background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
                           }}
                         />
                       </div>
+                      
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
                           Commercial
                         </span>
                       </div>
+                      
+                      {/* Sparkle dots */}
+                      <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
                     {/* RIGHT DIAMOND - Land & Plots */}
                     <div
-                      className="absolute cursor-pointer transition-all duration-300 hover:scale-105 hover:z-30"
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
                       style={{
                         width: "100px",
                         height: "100px",
                         top: "80px",
                         left: "160px",
+                        animationDelay: "1s",
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[2].path)}
                     >
+                      {/* Glow ring on hover */}
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
                       <div
-                        className="relative w-full h-full overflow-hidden shadow-xl"
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
                         style={{
                           transform: "rotate(45deg)",
                           borderRadius: "18px",
                           border: "3px solid rgba(255,255,255,0.85)",
                           boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
+                        {/* Animated rotating border */}
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
                         <img
                           src={bannerDiamonds[2].image}
                           alt="Land & Plots"
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
                           style={{
                             transform: "rotate(-45deg) scale(1.5)",
                             transformOrigin: "center",
                           }}
                         />
+                        
+                        {/* Shine sweep effect */}
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
                         <div
-                          className="absolute inset-0"
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
                           style={{
                             background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
                           }}
                         />
                       </div>
+                      
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-white font-bold text-[10px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] text-center leading-tight z-10">
+                        <span className="text-white font-bold text-[10px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] text-center leading-tight z-10 transition-all duration-300 group-hover/diamond:scale-110">
                           Land & Plots
                         </span>
                       </div>
+                      
+                      {/* Sparkle dots */}
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
                     {/* BOTTOM DIAMOND - Hostels */}
                     <div
-                      className="absolute cursor-pointer transition-all duration-300 hover:scale-105 hover:z-30"
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
                       style={{
                         width: "100px",
                         height: "100px",
                         top: "160px",
                         left: "80px",
+                        animationDelay: "1.5s",
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[3].path)}
                     >
+                      {/* Glow ring on hover */}
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
                       <div
-                        className="relative w-full h-full overflow-hidden shadow-xl"
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
                         style={{
                           transform: "rotate(45deg)",
                           borderRadius: "18px",
                           border: "3px solid rgba(255,255,255,0.85)",
                           boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
+                        {/* Animated rotating border */}
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
                         <img
                           src={bannerDiamonds[3].image}
                           alt="Hostels"
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
                           style={{
                             transform: "rotate(-45deg) scale(1.5)",
                             transformOrigin: "center",
                           }}
                         />
+                        
+                        {/* Shine sweep effect */}
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
                         <div
-                          className="absolute inset-0"
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
                           style={{
                             background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
                           }}
                         />
                       </div>
+                      
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
                           Hostels
                         </span>
                       </div>
+                      
+                      {/* Sparkle dots */}
+                      <div className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
                   </div>
@@ -1040,6 +1164,17 @@ const ApartmentPage = () => {
         .animate-gradient-shift-slow {
           background-size: 200% 200%;
           animation: gradient-shift 4s linear infinite;
+        }
+        @keyframes diamond-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes diamond-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-diamond-float {
+          animation: diamond-float 4s ease-in-out infinite;
         }
         @keyframes fade-in-up {
           from { opacity: 0; transform: translateY(20px); }

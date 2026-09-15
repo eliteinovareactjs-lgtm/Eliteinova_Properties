@@ -88,25 +88,25 @@ const IndividualPage = () => {
     {
       image: apartmentImg,
       label: "Apartments",
-      icon: <Building className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
+      icon: <Building className="w-4 h-4" style={{ color: "#00695C" }} />,
       path: "/apartment"
     },
     {
       image: villaImg,
       label: "Hostel",
-      icon: <Building2 className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
+      icon: <Building2 className="w-4 h-4" style={{ color: "#00695C" }} />,
       path: "/hostel"
     },
     {
       image: commercialImg,
       label: "Commercial",
-      icon: <Landmark className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
+      icon: <Landmark className="w-4 h-4" style={{ color: "#00695C" }} />,
       path: "/commercial"
     },
     {
       image: landImg,
       label: "Land & Plots",
-      icon: <Warehouse className="w-3.5 h-3.5" style={{ color: "#00695C" }} />,
+      icon: <Warehouse className="w-4 h-4" style={{ color: "#00695C" }} />,
       path: "/land-plots"
     }
   ];
@@ -135,95 +135,167 @@ const IndividualPage = () => {
   return (
     <div className="w-full min-h-screen relative">
       <div className="relative z-10">
-        {/* ====== PREMIUM BROCHURE-STYLE BANNER (replicates reference layout) ====== */}
-        <section className="w-full min-h-[420px] lg:h-[420px] bg-[#D1E2DB] overflow-hidden relative">
-          {/* Single full-bleed image, with a wide gradient wash so it merges directly
-              into the light green background instead of sitting in its own column */}
-          <div className="absolute inset-0 overflow-hidden">
-            <img
-              src={mainPropertyImage}
-              alt="Luxury Property"
-              className="absolute inset-0 w-full h-full object-cover object-[70%_40%]"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "linear-gradient(to right, #D1E2DB 0%, #D1E2DB 35%, rgba(209,226,219,0.6) 42%, rgba(209,226,219,0.3) 52%, rgba(209,226,219,0.1) 62%, rgba(209,226,219,0) 71%)"
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent" />
-          </div>
+        {/* ====== PROPERTY BANNER ====== */}
+        <section className="w-full bg-[#EAF2EE] relative overflow-hidden">
+          <div className="relative flex flex-col lg:flex-row min-h-[480px] lg:h-[480px]">
+            {/* Slim accent spine along the left edge — a small signature touch */}
+            <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-[6px] bg-gradient-to-b from-[#00695C] via-[#26A69A] to-[#00695C]" />
 
-          {/* Content floats directly on top of the merged image - no separate panel */}
-          <div className="relative z-10 flex flex-col justify-center h-full w-full md:w-[50%] lg:w-[50%] max-w-none px-6 md:px-10 lg:px-12 py-8 lg:py-6">
-            {/* Top divider with small home glyph, matching the reference's ornamental rule */}
-            <div className="flex items-center gap-3 mb-2">
-              <span className="h-px w-8 bg-[#00695C]/40" />
-              <Home className="w-3.5 h-3.5 text-[#00695C]" />
-              <span className="h-px w-8 bg-[#00695C]/40" />
+            {/* Faint diamond motif in the corner, echoing the category thumbnails below */}
+            <div className="hidden lg:grid absolute top-10 right-[47%] grid-cols-3 gap-2 opacity-[0.15] pointer-events-none">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <span key={i} className="w-2 h-2 rotate-45 border border-[#00695C]" />
+              ))}
             </div>
 
-            {/* Heading */}
-            <h1 className="text-[#143B35] font-black leading-[0.95]">
-              <span className="block text-base md:text-lg mb-0.5 font-light tracking-[0.2em]">
-                MODERN
-              </span>
-              <span
-                className="block text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight"
+            {/* Content panel — its own column, no text floating over the photo */}
+            <div className="relative z-10 flex flex-col justify-center w-full lg:w-[46%] px-6 md:px-10 lg:pl-16 lg:pr-8 py-10 lg:py-0">
+              <h1
+                className="text-[#143B35] text-4xl md:text-5xl lg:text-[3.25rem] font-bold leading-[1.05] mb-3"
                 style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
               >
-                HOME
-              </span>
-            </h1>
+                Home <span className="text-[#00695C]">For Sale</span>
+              </h1>
 
-            {/* Divider with diamond glyph */}
-            <div className="flex items-center gap-3 my-2">
-              <span className="h-px w-6 bg-[#00695C]/40" />
-              <span className="w-1.5 h-1.5 rotate-45 bg-[#00695C]" />
-              <span className="h-px w-6 bg-[#00695C]/40" />
+              <h2 className="text-[#00695C] text-lg md:text-xl font-semibold mb-4">
+                Find your dream property with ease
+              </h2>
+
+              <p className="text-[#4B5C58] text-sm md:text-base leading-relaxed max-w-sm mb-9">
+                Discover premium villas, apartments, plots and commercial spaces near you.
+              </p>
+
+              {/* ====== ENHANCED DIAMOND CATEGORY ROW ====== */}
+              <div className="flex items-start gap-5 sm:gap-7">
+                {bannerDiamonds.map((diamond, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePropertyCategoryNavigation(diamond.path)}
+                    className="flex flex-col items-center gap-3 group relative"
+                  >
+                    {/* Glow ring on hover */}
+                    <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-[#26A69A]/0 via-[#26A69A]/20 to-[#26A69A]/0 opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                    
+                    {/* Diamond container with layered effects */}
+                    <div
+                      className="relative w-[88px] h-[88px] sm:w-[104px] sm:h-[104px] transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1"
+                      style={{ 
+                        filter: "drop-shadow(0 10px 20px rgba(0,105,92,0.25))",
+                      }}
+                    >
+                      {/* Animated rotating gradient border layer */}
+                      <div
+                        className="absolute -inset-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        style={{ 
+                          clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                          background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                          animation: "spin-slow 3s linear infinite"
+                        }}
+                      />
+                      
+                      {/* White outer frame */}
+                      <div
+                        className="absolute inset-0 bg-white shadow-lg"
+                        style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+                      />
+                      
+                      {/* Teal accent frame ring */}
+                      <div
+                        className="absolute inset-[3px] opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                        style={{ 
+                          clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                          background: "linear-gradient(135deg, #00695C, #26A69A)"
+                        }}
+                      />
+
+                      {/* Image container */}
+                      <div
+                        className="absolute inset-[5px] overflow-hidden"
+                        style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+                      >
+                        <img
+                          src={diamond.image}
+                          alt={diamond.label}
+                          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-125 group-hover:rotate-2"
+                          style={{ 
+                            filter: "brightness(0.95) saturate(1.1)",
+                          }}
+                        />
+                        {/* Image overlay gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#00695C]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+
+                      {/* Shine sweep effect */}
+                      <div
+                        className="absolute inset-[5px] overflow-hidden pointer-events-none"
+                        style={{ clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                      </div>
+
+                      {/* Icon badge with enhanced styling */}
+                      <div className="absolute -bottom-1.5 -right-1.5 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-xl border-2 border-[#D1E2DB] group-hover:border-[#26A69A] flex items-center justify-center z-10 transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,105,92,0.4)] group-hover:rotate-[360deg]">
+                        <div className="group-hover:scale-110 transition-transform duration-500">
+                          {diamond.icon}
+                        </div>
+                      </div>
+
+                      {/* Sparkle accent dots */}
+                      <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-[#C9A227] opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-300" />
+                      <div className="absolute top-1/2 -right-2 w-1.5 h-1.5 rounded-full bg-[#26A69A] opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100" />
+                      <div className="absolute bottom-2 -left-2 w-1.5 h-1.5 rounded-full bg-[#00695C] opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200" />
+                    </div>
+
+                    {/* Label with enhanced hover effect */}
+                    <span className="text-xs sm:text-[13px] font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-all duration-300 relative">
+                      {diamond.label}
+                      {/* Underline accent */}
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-[#00695C] to-[#26A69A] rounded-full group-hover:w-full transition-all duration-500" />
+                    </span>
+
+                    {/* Bottom glow reflection */}
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-3 bg-[#26A69A]/0 group-hover:bg-[#26A69A]/30 rounded-full blur-md transition-all duration-500" />
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Sub-heading */}
-            <h2
-              className="text-xl md:text-2xl lg:text-3xl font-bold tracking-wide text-[#00695C] mb-2"
-              style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-            >
-              FOR SALE
-            </h2>
-
-            {/* 2-line description - shortened for reduced height */}
-            <p className="text-[#4B5C58] max-w-sm text-xs md:text-sm leading-relaxed mb-4">
-              Discover premium villas, apartments, plots and commercial spaces.
-            </p>
-
-            {/* FOUR DIAMONDS - single horizontal row, icon badge + label under each - slightly smaller */}
-            <div className="flex items-start gap-3 sm:gap-4 md:gap-6">
-              {bannerDiamonds.map((diamond, index) => (
+            {/* Image panel — its own column, full-bleed photo with a soft seam into the panel above */}
+            <div className="relative w-full lg:w-[54%] h-64 lg:h-full">
+              <div
+                className="absolute inset-0 lg:inset-y-8 lg:right-8 lg:rounded-[36px] overflow-hidden"
+                style={{ boxShadow: "0 24px 60px rgba(20,59,53,0.35)" }}
+              >
+                <img
+                  src={mainPropertyImage}
+                  alt="Luxury Property"
+                  className="absolute inset-0 w-full h-full object-cover object-[70%_40%]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+                {/* Hairline gold frame, just inside the rounded edge */}
                 <div
-                  key={index}
-                  className="flex flex-col items-center cursor-pointer group"
-                  onClick={() => handlePropertyCategoryNavigation(diamond.path)}
-                >
-                  {/* Diamond image - slightly smaller */}
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rotate-45 rounded-xl overflow-hidden border-[3px] border-white shadow-lg ring-1 ring-[#D1E2DB] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.35)] transition-all duration-300">
-                    <img
-                      src={diamond.image}
-                      alt={diamond.label}
-                      className="w-full h-full object-cover -rotate-45 scale-[1.6]"
-                    />
-                  </div>
+                  className="hidden lg:block absolute inset-3 rounded-[28px] pointer-events-none"
+                  style={{ boxShadow: "inset 0 0 0 1.5px rgba(201,162,39,0.6)" }}
+                />
+              </div>
+              <div
+                className="absolute inset-y-0 left-0 w-24 lg:w-32 hidden lg:block"
+                style={{
+                  background: "linear-gradient(to right, #EAF2EE 0%, rgba(234,242,238,0) 100%)"
+                }}
+              />
 
-                  {/* Icon badge, overlapping the bottom tip of the diamond - slightly smaller */}
-                  <div className="w-5 h-5 md:w-6 md:h-6 -mt-2.5 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                    {diamond.icon}
-                  </div>
+              {/* Gold corner accents, opposite corners for balance */}
+              <div
+                className="hidden lg:block absolute top-14 right-14 w-10 h-10 pointer-events-none opacity-90"
+                style={{ borderTop: "2px solid #C9A227", borderRight: "2px solid #C9A227" }}
+              />
+              <div
+                className="hidden lg:block absolute bottom-14 left-9 w-10 h-10 pointer-events-none opacity-90"
+                style={{ borderBottom: "2px solid #C9A227", borderLeft: "2px solid #C9A227" }}
+              />
 
-                  {/* Label - slightly smaller */}
-                  <span className="mt-1 text-[8px] sm:text-[9px] md:text-[10px] font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
-                    {diamond.label}
-                  </span>
-                </div>
-              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent lg:hidden" />
             </div>
           </div>
         </section>

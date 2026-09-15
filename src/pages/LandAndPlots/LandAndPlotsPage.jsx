@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, Store, Factory, Hotel, Briefcase, Trees, Sprout, Heart, School, Layers, ChevronRight, Compass } from "lucide-react";
+import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, Store, Factory, Hotel, Briefcase, Trees, Sprout, Heart, School, Layers, ChevronRight, Compass, ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import backgroundImage from "../../assets/landandplots/mainbg.png";
 
-// Category images for the round subcategory circles.
-// NOTE: reusing the shared banner image as a placeholder for every category —
-// swap each of these for a dedicated photo whenever real photography is available.
 import residentialLandImg from "../../assets/landandplots/mainbg.png";
 import commercialLandImg from "../../assets/landandplots/mainbg.png";
 import agriculturalLandImg from "../../assets/landandplots/mainbg.png";
@@ -31,7 +28,6 @@ const LandAndPlotsPage = () => {
     { name: "Hostel", path: "/hostel", icon: <Building2 className="w-4 h-4" /> }
   ];
 
-  // Banner diamonds - updated with Individual, Apartment, Commercial, Hostel
   const bannerDiamonds = [
     {
       label: "Individual",
@@ -55,7 +51,6 @@ const LandAndPlotsPage = () => {
     }
   ];
 
-  // Main categories with submenus
   const landCategories = [
     {
       name: "All",
@@ -101,7 +96,7 @@ const LandAndPlotsPage = () => {
       ]
     },
     {
-      name: "Agricultural Land / Plots",  // Changed from "Agricultural Land"
+      name: "Agricultural Land / Plots",
       icon: <Sprout className="w-6 h-6" />,
       image: agriculturalLandImg,
       path: "/land-plots/agricultural-land-plots",
@@ -174,17 +169,15 @@ const LandAndPlotsPage = () => {
     }
   ];
 
-  // Flatten all land types for navigation
   const landTypes = [
     { name: "All", path: "/land-plots", parent: null },
     { name: "Residential Land / Plots", path: "/land-plots/residential-land-plots", parent: null },
     { name: "Commercial Land / Plots", path: "/land-plots/commercial-land-plots", parent: null },
-    { name: "Agricultural Land / Plots", path: "/land-plots/agricultural-land-plots", parent: null },  // Changed from "Agricultural Land"
+    { name: "Agricultural Land / Plots", path: "/land-plots/agricultural-land-plots", parent: null },
     { name: "Industrial Land", path: "/land-plots/industrial-land-plots", parent: null },
     { name: "Mixed-Use Land", path: "/land-plots/mixed-use-land-plots", parent: null },
     { name: "Institutional Land", path: "/land-plots/institutional-land-plots", parent: null },
     { name: "Investment & Special Purpose Land", path: "/land-plots/investment-land-plots", parent: null },
-    // Residential submenus
     { name: "Residential Plot", path: "/land-plots/residential-land-plots/residential-plot", parent: "Residential Land / Plots" },
     { name: "DTCP & CMDA Approved Plot", path: "/land-plots/residential-land-plots/dtcp-cmda-approved-plot", parent: "Residential Land / Plots" },
     { name: "Gated Community Plot", path: "/land-plots/residential-land-plots/gated-community-plot", parent: "Residential Land / Plots" },
@@ -194,7 +187,6 @@ const LandAndPlotsPage = () => {
     { name: "Independent House Plot", path: "/land-plots/residential-land-plots/independent-house-plot", parent: "Residential Land / Plots" },
     { name: "Duplex House Plot", path: "/land-plots/residential-land-plots/duplex-house-plot", parent: "Residential Land / Plots" },
     { name: "Row House Plot", path: "/land-plots/residential-land-plots/row-house-plot", parent: "Residential Land / Plots" },
-    // Commercial submenus
     { name: "Commercial Plot", path: "/land-plots/commercial-land-plots/commercial-plot", parent: "Commercial Land / Plots" },
     { name: "Office Space Land", path: "/land-plots/commercial-land-plots/office-space-land", parent: "Commercial Land / Plots" },
     { name: "Retail Shop Plot", path: "/land-plots/commercial-land-plots/retail-shop-plot", parent: "Commercial Land / Plots" },
@@ -205,7 +197,6 @@ const LandAndPlotsPage = () => {
     { name: "IT Park Land", path: "/land-plots/commercial-land-plots/it-park-land", parent: "Commercial Land / Plots" },
     { name: "Warehouse Land", path: "/land-plots/commercial-land-plots/warehouse-land", parent: "Commercial Land / Plots" },
     { name: "Industrial Commercial Plot", path: "/land-plots/commercial-land-plots/industrial-commercial-plot", parent: "Commercial Land / Plots" },
-    // Agricultural submenus - Updated parent references to "Agricultural Land / Plots"
     { name: "Agricultural Land", path: "/land-plots/agricultural-land-plots/agricultural-land", parent: "Agricultural Land / Plots" },
     { name: "Farm Land", path: "/land-plots/agricultural-land-plots/farm-land", parent: "Agricultural Land / Plots" },
     { name: "Organic Farming Land", path: "/land-plots/agricultural-land-plots/organic-farming-land", parent: "Agricultural Land / Plots" },
@@ -215,7 +206,6 @@ const LandAndPlotsPage = () => {
     { name: "Poultry Farm Land", path: "/land-plots/agricultural-land-plots/poultry-farm-land", parent: "Agricultural Land / Plots" },
     { name: "Dairy Farm Land", path: "/land-plots/agricultural-land-plots/dairy-farm-land", parent: "Agricultural Land / Plots" },
     { name: "Fisheries / Aquaculture Land", path: "/land-plots/agricultural-land-plots/fisheries-aquaculture-land", parent: "Agricultural Land / Plots" },
-    // Industrial submenus
     { name: "Industrial Plot", path: "/land-plots/industrial-land-plots/industrial-plot", parent: "Industrial Land" },
     { name: "Factory Land", path: "/land-plots/industrial-land-plots/factory-land", parent: "Industrial Land" },
     { name: "Manufacturing Unit Plot", path: "/land-plots/industrial-land-plots/manufacturing-unit-plot", parent: "Industrial Land" },
@@ -223,17 +213,14 @@ const LandAndPlotsPage = () => {
     { name: "Warehouse Plot", path: "/land-plots/industrial-land-plots/warehouse-plot", parent: "Industrial Land" },
     { name: "Cold Storage Land", path: "/land-plots/industrial-land-plots/cold-storage-land", parent: "Industrial Land" },
     { name: "SEZ Land", path: "/land-plots/industrial-land-plots/sez-land", parent: "Industrial Land" },
-    // Mixed-Use submenus
     { name: "Residential + Commercial Plot", path: "/land-plots/mixed-use-land-plots/residential-commercial-plot", parent: "Mixed-Use Land" },
     { name: "Commercial + Industrial Land", path: "/land-plots/mixed-use-land-plots/commercial-industrial-land", parent: "Mixed-Use Land" },
     { name: "Township Development Land", path: "/land-plots/mixed-use-land-plots/township-development-land", parent: "Mixed-Use Land" },
     { name: "Multi-purpose Development Land", path: "/land-plots/mixed-use-land-plots/multi-purpose-development-land", parent: "Mixed-Use Land" },
-    // Institutional submenus
     { name: "School / College Land", path: "/land-plots/institutional-land-plots/school-college-land", parent: "Institutional Land" },
     { name: "Hospital / Clinic Land", path: "/land-plots/institutional-land-plots/hospital-clinic-land", parent: "Institutional Land" },
     { name: "Training Institute Plot", path: "/land-plots/institutional-land-plots/training-institute-plot", parent: "Institutional Land" },
     { name: "Religious Institution Land", path: "/land-plots/institutional-land-plots/religious-institution-land", parent: "Institutional Land" },
-    // Investment submenus
     { name: "Highway Facing Plot", path: "/land-plots/investment-land-plots/highway-facing-plot", parent: "Investment & Special Purpose Land" },
     { name: "Lake View Plot", path: "/land-plots/investment-land-plots/lake-view-plot", parent: "Investment & Special Purpose Land" },
     { name: "Hill View Plot", path: "/land-plots/investment-land-plots/hill-view-plot", parent: "Investment & Special Purpose Land" },
@@ -247,11 +234,10 @@ const LandAndPlotsPage = () => {
   useEffect(() => {
     const currentPath = location.pathname;
 
-    // First check for main category pages
     const mainCategoryPaths = [
       { path: "/land-plots/residential-land-plots", name: "Residential Land / Plots" },
       { path: "/land-plots/commercial-land-plots", name: "Commercial Land / Plots" },
-      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land / Plots" },  // Changed from "Agricultural Land"
+      { path: "/land-plots/agricultural-land-plots", name: "Agricultural Land / Plots" },
       { path: "/land-plots/industrial-land-plots", name: "Industrial Land" },
       { path: "/land-plots/mixed-use-land-plots", name: "Mixed-Use Land" },
       { path: "/land-plots/institutional-land-plots", name: "Institutional Land" },
@@ -264,13 +250,11 @@ const LandAndPlotsPage = () => {
       return;
     }
 
-    // Check All button
     if (currentPath === "/land-plots" || currentPath === "/land-plots/") {
       setActiveLandType("All");
       return;
     }
 
-    // Check submenus and other paths
     const activeType = landTypes.find(type => type.path === currentPath);
     if (activeType) {
       setActiveLandType(activeType.name);
@@ -295,11 +279,10 @@ const LandAndPlotsPage = () => {
     return landType?.parent || null;
   };
 
-  // Maps a top-level category's display name to the "activeLandType" value used elsewhere
   const mainCategoryActiveMap = {
     "Residential Land / Plots": "Residential Land / Plots",
     "Commercial Land / Plots": "Commercial Land / Plots",
-    "Agricultural Land / Plots": "Agricultural Land / Plots",  // Updated from "Agricultural Land"
+    "Agricultural Land / Plots": "Agricultural Land / Plots",
     "Industrial Land": "Industrial Land / Plots",
     "Mixed-Use Land": "Mixed-Use Land / Plots",
     "Institutional Land": "Institutional Land / Plots",
@@ -357,98 +340,185 @@ const LandAndPlotsPage = () => {
       </div>
 
       <div className="relative z-10">
-        {/* ====== BROCHURE-STYLE BANNER (chevron photo + diamond categories, teal theme) ====== */}
-        <section className="w-full bg-white overflow-hidden relative">
-          <div className="flex flex-col lg:flex-row items-center min-h-[420px] lg:min-h-[440px]">
+        {/* ══════════════════════════════════════════════
+            ENHANCED BROCHURE BANNER — refined split layout
+        ══════════════════════════════════════════════ */}
+        <section className="w-full bg-gradient-to-br from-white via-teal-50/40 to-emerald-50/60 overflow-hidden relative">
 
-            {/* LEFT - diamond/chevron cut photo, no rectangle frame */}
-<div className="relative w-full lg:w-[52%] h-[280px] sm:h-[340px] lg:h-[440px] shrink-0">
-  <div
-    className="relative w-full h-full overflow-hidden group"
-    style={{
-      clipPath: "polygon(0 0, 75% 0, 100% 50%, 75% 100%, 0 100%)",
-      border: "3px solid #26A69A"
-    }}
-  >
-    <img
-      src={backgroundImage}
-      alt="Premium land and plots"
-      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-[#00332C]/50 via-transparent to-transparent" />
-  </div>
-</div>
+          {/* Soft ambient orbs */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-100/40 blur-3xl opacity-60 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-emerald-100/40 blur-3xl opacity-50 pointer-events-none" />
 
-            {/* RIGHT - copy with heading, subheading, description and four diamonds */}
-            <div className="relative z-10 flex-1 px-6 sm:px-10 lg:px-14 py-10 lg:py-0 flex flex-col justify-center">
+          <div className="flex flex-col lg:flex-row items-stretch min-h-[360px] sm:min-h-[400px] lg:min-h-[440px] relative">
+
+            {/* ── LEFT: Refined chevron-cut image panel ── */}
+            <div className="relative w-full lg:w-[50%] h-[240px] sm:h-[300px] lg:h-auto shrink-0">
+              <div
+                className="relative w-full h-full overflow-hidden group"
+                style={{
+                  clipPath: "polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%)",
+                }}
+              >
+                <img
+                  src={backgroundImage}
+                  alt="Premium land and plots"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105 animate-slow-zoom"
+                />
+                {/* Layered gradients for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#00332C]/65 via-[#00332C]/15 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#00332C]/25" />
+
+                {/* Thin gold accent line at top */}
+                <div className="absolute top-7 left-7 w-14 h-[2px] bg-gradient-to-r from-amber-400/90 to-transparent" />
+
+                {/* Vertical caption at bottom-left */}
+                <div className="absolute bottom-7 left-7 flex items-center gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <div className="leading-tight">
+                    <p className="text-[9px] font-bold tracking-[0.3em] text-amber-300">PREMIUM</p>
+                    <p className="text-[11px] font-bold tracking-[0.15em] text-white">LAND & PLOTS</p>
+                  </div>
+                </div>
+
+                {/* Small chip top-right */}
+                <div className="absolute top-6 right-[22%] lg:right-[20%] flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25">
+                  <Sparkles className="w-3 h-3 text-amber-300" />
+                  <span className="text-[9px] font-bold tracking-wider text-white">VERIFIED</span>
+                </div>
+              </div>
+
+              {/* Thin teal accent bar hugging the chevron edge */}
+              <div
+                className="hidden lg:block absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-transparent via-teal-400/60 to-transparent pointer-events-none"
+              />
+            </div>
+
+            {/* ── RIGHT: Refined text block ── */}
+            <div className="relative z-10 flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-16 py-10 lg:py-0">
+
+              {/* Eyebrow with line */}
+              <div className="flex items-center gap-3 mb-3 animate-fade-in-up">
+                <span className="w-8 h-[2px] bg-gradient-to-r from-teal-600 to-transparent rounded-full" />
+                <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.3em] text-teal-700">
+                  ELITEINOVA.COM
+                </span>
+              </div>
+
               {/* Heading */}
-              <h1 className="text-[#143B35] font-black leading-[0.95] mb-2">
+              <h1 className="text-[#143B35] font-black leading-[0.98] mb-3 animate-fade-in-up delay-100">
                 <span
-                  className="block text-3xl sm:text-4xl lg:text-5xl tracking-tight"
+                  className="block text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] tracking-tight"
                   style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
                 >
                   Discover Your
                 </span>
                 <span
-                  className="block text-3xl sm:text-4xl lg:text-5xl tracking-tight text-[#00695C]"
-                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+                  className="block text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] tracking-tight text-transparent bg-clip-text animate-gradient-text-slow"
+                  style={{
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #0d9488)"
+                  }}
                 >
                   Dream Property
                 </span>
               </h1>
 
-              {/* Subheading */}
-              <p className="text-[#00695C] font-semibold tracking-[0.15em] text-xs sm:text-sm mb-2">
-                ELITEINOVA.COM
-              </p>
-
-              {/* Description */}
-              <p className="text-[#4B5C58] max-w-md text-sm sm:text-base leading-relaxed mb-6">
+              {/* One-liner */}
+              <p className="text-[#4B5C58] max-w-md text-sm sm:text-[15px] leading-relaxed mb-5 animate-fade-in-up delay-200">
                 Find the perfect property from our curated collection of premium real estate options.
               </p>
 
-              {/* Divider */}
-              <div className="h-px w-16 bg-[#00695C]/30 mb-6" />
+              {/* Divider + trust row */}
+              <div className="flex items-center gap-4 mb-6 animate-fade-in-up delay-300">
+                <div className="h-px w-10 bg-teal-600/40" />
+                <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
+                    <span className="font-semibold tracking-wide">100% Verified</span>
+                  </div>
+                  <div className="w-px h-2.5 bg-slate-200" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-teal-500" />
+                    <span className="font-semibold tracking-wide">Trusted Agents</span>
+                  </div>
+                </div>
+              </div>
 
-              {/* FOUR DIAMONDS - Individual, Apartment, Commercial, Hostel */}
-              <div className="flex items-start gap-4 sm:gap-6 mb-6">
+              {/* Diamonds row */}
+              <div className="flex items-start gap-4 sm:gap-6 mb-7">
                 {bannerDiamonds.map((diamond, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center cursor-pointer group"
+                    className="flex flex-col items-center cursor-pointer group animate-diamond-float"
+                    style={{ animationDelay: `${index * 0.3}s` }}
                     onClick={() => handleNavigation(diamond.path)}
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rotate-45 rounded-xl overflow-hidden border-[3px] border-white shadow-lg ring-1 ring-[#D1E2DB] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.35)] transition-all duration-300">
-                      <img
-                        src={backgroundImage}
-                        alt={diamond.label}
-                        className="w-full h-full object-cover -rotate-45 scale-[1.8]"
-                      />
+                    <div className="relative">
+                      {/* Glow ring on hover */}
+                      <div className="absolute -inset-2 rounded-full bg-teal-400/0 group-hover:bg-teal-400/30 blur-lg transition-all duration-700 pointer-events-none" />
+
+                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-[68px] lg:h-[68px] rotate-45 rounded-xl overflow-hidden shadow-lg ring-1 ring-[#D1E2DB] transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_10px_28px_-6px_rgba(0,105,92,0.55)] group-hover:ring-2 group-hover:ring-teal-400"
+                        style={{ border: "2.5px solid #ffffff" }}
+                      >
+                        <img
+                          src={backgroundImage}
+                          alt={diamond.label}
+                          className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-[1.75] transition-transform duration-700 group-hover:scale-[1.95] group-hover:-rotate-[50deg]"
+                        />
+                        {/* Light tint only */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 -rotate-45 group-hover:opacity-0 transition-opacity duration-500" />
+                        {/* Shine sweep */}
+                        <div className="absolute inset-0 overflow-hidden -rotate-45">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/55 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        </div>
+                      </div>
+
+                      {/* Icon badge */}
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center z-10 group-hover:scale-110 group-hover:rotate-[360deg] group-hover:border-teal-400 transition-all duration-700">
+                        {diamond.icon}
+                      </div>
+
+                      {/* Sparkle */}
+                      <div className="absolute -top-1 -left-1 w-1.5 h-1.5 rounded-full bg-amber-400 opacity-0 group-hover:opacity-100 group-hover:animate-ping" />
                     </div>
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 -mt-3 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-300">
-                      {diamond.icon}
-                    </div>
-                    <span className="mt-1.5 text-[10px] sm:text-xs font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300">
+
+                    <span className="mt-1.5 text-[10px] sm:text-xs font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300 relative">
                       {diamond.label}
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
                     </span>
                   </div>
                 ))}
               </div>
 
-              {/* CTA button */}
-              <button
-                onClick={() => handleNavigation("/land-plots")}
-                className="group relative inline-flex w-fit items-center gap-2 px-8 py-3 rounded-none text-white font-bold text-sm tracking-[0.15em] shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 overflow-hidden border border-[#00695C]"
-                style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                <span className="relative z-10">EXPLORE NOW</span>
-              </button>
+              {/* CTA row */}
+              <div className="flex flex-wrap items-center gap-3 animate-fade-in-up delay-400">
+                <button
+                  onClick={() => handleNavigation("/land-plots")}
+                  className="group relative inline-flex items-center gap-2 px-7 py-3 rounded-full text-white font-bold text-xs tracking-[0.18em] shadow-lg hover:shadow-[0_10px_30px_-6px_rgba(0,105,92,0.6)] transition-all duration-300 overflow-hidden"
+                  style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
+                >
+                  <div className="absolute inset-0 animate-gradient-shift"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full blur opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+                  <span className="relative z-10 flex items-center gap-2">
+                    EXPLORE NOW
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                </button>
+
+                <button className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-slate-700 font-bold text-xs tracking-[0.18em] border border-slate-300 hover:border-teal-400 hover:text-teal-700 hover:bg-teal-50/60 transition-all duration-300">
+                  <Sparkles className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
+                  VIEW ALL
+                </button>
+              </div>
+
             </div>
           </div>
+
+          {/* Bottom accent line */}
+          <div className="h-[2px] bg-gradient-to-r from-transparent via-teal-400/70 to-transparent" />
         </section>
 
-        {/* Sticky Header with Round Category Icons + Hover Submenus */}
+        {/* Sticky Header */}
         <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500 animate-slide-down">
           <div className="max-w-none mx-auto px-6 py-4">
             <div className="hidden md:block space-y-4">
@@ -502,7 +572,6 @@ const LandAndPlotsPage = () => {
                 </div>
               </div>
 
-              {/* ====== LAND CATEGORIES - Round icons (hostel-page style) with hover submenu ====== */}
               <div className="flex flex-wrap items-start justify-center gap-5 md:gap-8 pt-2">
                 {landCategories.map((category) => {
                   const isActive =
@@ -568,7 +637,6 @@ const LandAndPlotsPage = () => {
                         </span>
                       </div>
 
-                      {/* Submenu Dropdown - appears on hover under the round icon */}
                       {!category.isAllButton && hoveredCategory === category.name && category.submenus.length > 0 && (
                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-50 min-w-[240px] border border-teal-200/30 animate-slide-down-fast">
                           <div className="py-2 max-h-[400px] overflow-y-auto">
@@ -606,7 +674,6 @@ const LandAndPlotsPage = () => {
               </div>
             </div>
 
-            {/* Mobile View - round icons in a horizontal scroll, tap to open submenu below */}
             <div className="md:hidden space-y-4">
               <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
                 {landCategories.map((category) => {
@@ -650,7 +717,6 @@ const LandAndPlotsPage = () => {
                 })}
               </div>
 
-              {/* Mobile Submenu */}
               {hoveredCategory && (
                 <div className="bg-teal-50 rounded-xl p-2 border border-teal-200">
                   <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
@@ -784,7 +850,6 @@ const LandAndPlotsPage = () => {
               </div>
             </div>
 
-            {/* Filters Sidebar */}
             <div className="lg:w-1/3 lg:relative">
               <div className="lg:sticky lg:top-[120px] lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
                 <div className="bg-gradient-to-b from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-teal-200/30 hover:shadow-[0_0_40px_rgba(0,105,92,0.2)] transition-all duration-500">
@@ -862,7 +927,7 @@ const LandAndPlotsPage = () => {
                       </span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {["commercial Plot", "Road Access", "Water Connection", "Electricity", "Level Ground", "Clear Title", "Approved Layout", "Gated Community", "Highway Facing", "Lake View", "Hill View", "Beach Side"].map((feature) => (
+                      {["Commercial Plot", "Road Access", "Water Connection", "Electricity", "Level Ground", "Clear Title", "Approved Layout", "Gated Community", "Highway Facing", "Lake View", "Hill View", "Beach Side"].map((feature) => (
                         <label key={feature} className="flex items-center gap-3 p-2 rounded-lg border border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-teal-50/50">
                           <input type="checkbox" className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30" />
                           <span className="text-xs text-teal-700">{feature}</span>
@@ -894,6 +959,22 @@ const LandAndPlotsPage = () => {
       </div>
 
       <style jsx>{`
+        @keyframes slow-zoom {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.08); }
+        }
+        .animate-slow-zoom {
+          animation: slow-zoom 25s ease-in-out infinite;
+        }
+
+        @keyframes diamond-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-diamond-float {
+          animation: diamond-float 4s ease-in-out infinite;
+        }
+
         @keyframes gradient-flow {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -936,33 +1017,12 @@ const LandAndPlotsPage = () => {
         .animate-geometric-float {
           animation: geometric-float 20s ease-in-out infinite;
         }
-        @keyframes bubble-float {
-          0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
-          50% { transform: translateY(-25px) scale(1.2); opacity: 0.8; }
-        }
-        .animate-bubble-float {
-          animation: bubble-float 6s ease-in-out infinite;
-        }
-        @keyframes float-glow {
-          0%, 100% { transform: translateY(0px); box-shadow: 0 0 30px rgba(0,105,92,0.3); }
-          50% { transform: translateY(-5px); box-shadow: 0 0 40px rgba(0,105,92,0.5); }
-        }
-        .animate-float-glow {
-          animation: float-glow 3s ease-in-out infinite;
-        }
         @keyframes fade-in-up {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up {
           animation: fade-in-up 0.6s ease-out forwards;
-        }
-        @keyframes slide-up {
-          from { transform: translateY(30px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.5s ease-out forwards;
         }
         @keyframes slide-down {
           from { transform: translateY(-20px); opacity: 0; }

@@ -1,310 +1,29 @@
 // src/pages/loan/LoanPage.jsx
 import React, { useState, useRef } from "react";
-import {
-  Home,
-  Landmark,
-  Building,
-  Wallet,
-  RefreshCw,
-  TrendingUp,
-  Globe,
-  Home as HomeIcon,
-  Trees,
-  Building2,
-  RefreshCcw,
-  DollarSign,
-  Users,
-  ChevronRight,
-  Shield,
-  CheckCircle,
-  ArrowRight,
-} from "lucide-react";
-
-// Import your banner image - replace with your actual image path
+import { useNavigate } from "react-router-dom";
+import { ChevronRight, Shield, CheckCircle, ArrowRight } from "lucide-react";
+import { loanCategories, loanCategoryGrid } from "../../components/data/loan/loanCategories";
+import { getIcon } from "../../components/data/loan/loanIcons";
 import bannerImage from "../../assets/loanimage.jpg";
-
-// Import loan images
-import homeLoanImg from "../../assets/loanimage.jpg";
-import constructionLoanImg from "../../assets/loanimage.jpg";
-import renovationLoanImg from "../../assets/loanimage.jpg";
-import plotLoanImg from "../../assets/loanimage.jpg";
-import landPurchaseLoanImg from "../../assets/loanimage.jpg";
-import commercialPropertyLoanImg from "../../assets/loanimage.jpg";
-import commercialConstructionLoanImg from "../../assets/loanimage.jpg";
-import loanAgainstPropertyImg from "../../assets/loanimage.jpg";
-import topUpLoanImg from "../../assets/loanimage.jpg";
-import balanceTransferImg from "../../assets/loanimage.jpg";
-import rentalDiscountingImg from "../../assets/loanimage.jpg";
-import nriLoanImg from "../../assets/loanimage.jpg";
 
 const LoanPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const loansListRef = useRef(null);
+  const navigate = useNavigate();
 
   const goToCategory = (categoryId) => {
     setActiveCategory(categoryId);
     loansListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Loan categories with their types
-  const loanCategories = [
-    {
-      id: "residential",
-      icon: <HomeIcon className="w-5 h-5" />,
-      title: "Residential",
-      emoji: "🏠",
-      description: "Loans for buying, building, or renovating your dream home",
-      accent: "#1B5E20",
-      loans: [
-        {
-          id: "home-loan",
-          title: "Home Loan",
-          description: "Buy a new house or flat, purchase a resale property, or construct a house on your own plot",
-          icon: <Home className="w-5 h-5" />,
-          image: homeLoanImg,
-          features: [
-            "Buy a new house or flat",
-            "Purchase a resale property",
-            "Construct a house on your own plot",
-          ],
-        },
-        {
-          id: "construction-loan",
-          title: "Home Construction Loan",
-          description: "For constructing a house on land you already own. The loan may be released in stages based on construction progress.",
-          icon: <Building className="w-5 h-5" />,
-          image: constructionLoanImg,
-          features: [
-            "Construct on own land",
-            "Stage-wise disbursement",
-            "Based on construction progress",
-          ],
-        },
-        {
-          id: "renovation-loan",
-          title: "Home Renovation / Improvement Loan",
-          description: "For house renovation, repairs, extension, kitchen/bathroom upgrades, and structural improvements",
-          icon: <Building2 className="w-5 h-5" />,
-          image: renovationLoanImg,
-          features: [
-            "House renovation & repairs",
-            "Kitchen/bathroom upgrades",
-            "Structural improvements",
-          ],
-        },
-      ],
-    },
-    {
-      id: "land",
-      icon: <Trees className="w-5 h-5" />,
-      title: "Land",
-      emoji: "🌳",
-      description: "Purchase residential plots or land for future development",
-      accent: "#558B2F",
-      loans: [
-        {
-          id: "plot-loan",
-          title: "Plot / Land Loan",
-          description: "Used to purchase a residential plot or land for future house construction.",
-          icon: <Trees className="w-5 h-5" />,
-          image: plotLoanImg,
-          features: [
-            "Buy residential plot",
-            "Future house construction",
-            "Investment in land",
-          ],
-        },
-        {
-          id: "land-purchase-loan",
-          title: "Land Purchase Loan",
-          description: "Financing specifically for purchasing an existing residential or commercial property.",
-          icon: <Landmark className="w-5 h-5" />,
-          image: landPurchaseLoanImg,
-          features: [
-            "Purchase residential property",
-            "Purchase commercial property",
-            "Flexible repayment terms",
-          ],
-        },
-      ],
-    },
-    {
-      id: "commercial",
-      icon: <Building2 className="w-5 h-5" />,
-      title: "Commercial",
-      emoji: "🏢",
-      description: "Finance for shops, offices, showrooms, and commercial buildings",
-      accent: "#2E7D32",
-      loans: [
-        {
-          id: "commercial-property-loan",
-          title: "Commercial Property Loan",
-          description: "Used to purchase commercial properties such as shops, offices, showrooms, and commercial buildings.",
-          icon: <Building2 className="w-5 h-5" />,
-          image: commercialPropertyLoanImg,
-          features: [
-            "Buy shops & offices",
-            "Purchase showrooms",
-            "Acquire commercial buildings",
-          ],
-        },
-        {
-          id: "commercial-construction-loan",
-          title: "Commercial Property Construction Loan",
-          description: "For constructing a commercial building, office, shop complex, warehouse, etc.",
-          icon: <Building className="w-5 h-5" />,
-          image: commercialConstructionLoanImg,
-          features: [
-            "Construct office buildings",
-            "Build shop complexes",
-            "Warehouse construction",
-          ],
-        },
-      ],
-    },
-    {
-      id: "property-finance",
-      icon: <DollarSign className="w-5 h-5" />,
-      title: "Property Finance",
-      emoji: "💰",
-      description: "Leverage your existing property for various financial needs",
-      accent: "#00897B",
-      loans: [
-        {
-          id: "loan-against-property",
-          title: "Loan Against Property (LAP or Mortgage)",
-          description: "You mortgage an existing residential or commercial property and receive funds. It can be used for business, education, medical expenses, or other needs.",
-          icon: <Wallet className="w-5 h-5" />,
-          image: loanAgainstPropertyImg,
-          features: [
-            "Business funding",
-            "Education & medical expenses",
-            "Any personal need",
-          ],
-        },
-        {
-          id: "top-up-loan",
-          title: "Top-Up Loan on Property",
-          description: "An additional loan taken on an existing home/property loan, subject to lender eligibility and property value.",
-          icon: <TrendingUp className="w-5 h-5" />,
-          image: topUpLoanImg,
-          features: [
-            "Additional funding",
-            "Based on property value",
-            "Subject to lender eligibility",
-          ],
-        },
-      ],
-    },
-    {
-      id: "loan-transfer",
-      icon: <RefreshCcw className="w-5 h-5" />,
-      title: "Loan Transfer",
-      emoji: "🔄",
-      description: "Transfer your existing loans for better rates and terms",
-      accent: "#00695C",
-      loans: [
-        {
-          id: "balance-transfer",
-          title: "Balance Transfer / Property Loan Transfer",
-          description: "Transfer an existing home or property loan from one lender to another, usually to obtain a lower interest rate or better terms.",
-          icon: <RefreshCw className="w-5 h-5" />,
-          image: balanceTransferImg,
-          features: [
-            "Lower interest rates",
-            "Better terms & conditions",
-            "Switch lenders easily",
-          ],
-        },
-      ],
-    },
-    {
-      id: "rental-income",
-      icon: <Users className="w-5 h-5" />,
-      title: "Rental Income",
-      emoji: "🏘️",
-      description: "Loans based on future rental income from your property",
-      accent: "#33691E",
-      loans: [
-        {
-          id: "rental-discounting",
-          title: "Rental Discounting Loan",
-          description: "A loan against future rental income from a commercial property. The lender considers the expected rental cash flow while determining eligibility.",
-          icon: <Users className="w-5 h-5" />,
-          image: rentalDiscountingImg,
-          features: [
-            "Against rental cash flow",
-            "Commercial property only",
-            "Based on expected income",
-          ],
-        },
-      ],
-    },
-    {
-      id: "nri",
-      icon: <Globe className="w-5 h-5" />,
-      title: "NRI",
-      emoji: "🇮🇳",
-      description: "Special property financing for Non-Resident Indians",
-      accent: "#388E3C",
-      loans: [
-        {
-          id: "nri-property-loan",
-          title: "NRI Property Loan",
-          description: "Property financing specifically designed for eligible Non-Resident Indians (NRIs) purchasing or constructing property in India.",
-          icon: <Globe className="w-5 h-5" />,
-          image: nriLoanImg,
-          features: [
-            "Purchase property in India",
-            "Construct property",
-            "Special NRI terms",
-          ],
-        },
-      ],
-    },
-  ];
+  // Apply now -> go to this loan's OWN detail page (/loans/home-loan,
+  // /loans/plot-loan, ...). We still pass loan + category as router state
+  // so the next page renders instantly; the URL alone is enough on refresh.
+  const handleApplyNow = (loan, category) => {
+    navigate(`/loans/${loan.id}`, { state: { loan, category } });
+  };
 
-  // Category → loan type groupings, for the at-a-glance grid box below.
-  const loanCategoryGrid = [
-    {
-      title: "Residential",
-      icon: <HomeIcon className="w-5 h-5" />,
-      loans: ["Home Loan", "Home Construction Loan", "Home Renovation Loan"],
-    },
-    {
-      title: "Land",
-      icon: <Trees className="w-5 h-5" />,
-      loans: ["Plot / Land Loan", "Land Purchase Loan"],
-    },
-    {
-      title: "Commercial",
-      icon: <Building2 className="w-5 h-5" />,
-      loans: ["Commercial Property Loan", "Commercial Construction Loan"],
-    },
-    {
-      title: "Property Finance",
-      icon: <DollarSign className="w-5 h-5" />,
-      loans: ["Loan Against Property", "Top-Up Loan"],
-    },
-    {
-      title: "Loan Transfer",
-      icon: <RefreshCcw className="w-5 h-5" />,
-      loans: ["Balance Transfer / Property Loan Transfer"],
-    },
-    {
-      title: "Rental Income",
-      icon: <Users className="w-5 h-5" />,
-      loans: ["Rental Discounting Loan"],
-    },
-    {
-      title: "NRI",
-      icon: <Globe className="w-5 h-5" />,
-      loans: ["NRI Property Loan"],
-    },
-  ];
-
-  // Filter loans based on search and category
   const filteredCategories = loanCategories
     .map((category) => ({
       ...category,
@@ -320,7 +39,6 @@ const LoanPage = () => {
         category.loans.length > 0
     );
 
-  // Get all loans for the "all" category view
   const allLoans = loanCategories.flatMap((category) =>
     category.loans.map((loan) => ({
       ...loan,
@@ -339,7 +57,6 @@ const LoanPage = () => {
         key={loan.id}
         className="grid grid-cols-1 md:grid-cols-[220px_1fr] rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
       >
-        {/* Image column — same position on every card for a steady scan line */}
         <div className="relative h-48 md:h-full">
           <img
             src={loan.image}
@@ -356,7 +73,6 @@ const LoanPage = () => {
           </div>
         </div>
 
-        {/* Content column */}
         <div className="flex flex-col justify-between p-5 md:p-6">
           <div>
             <div className="flex items-start gap-3 mb-3">
@@ -364,7 +80,7 @@ const LoanPage = () => {
                 className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
                 style={{ backgroundColor: `${accent}14`, color: accent }}
               >
-                {loan.icon}
+                {getIcon(loan.icon, { className: "w-5 h-5" })}
               </div>
               <p className="text-gray-600 text-sm leading-relaxed pt-1.5">{loan.description}</p>
             </div>
@@ -384,6 +100,7 @@ const LoanPage = () => {
 
           <div className="flex justify-end pt-2 border-t border-gray-100">
             <button
+              onClick={() => handleApplyNow(loan, category)}
               className="px-5 py-2 text-white font-medium rounded-full text-xs flex items-center gap-1.5 transition-transform duration-200 hover:scale-[1.03]"
               style={{ background: `linear-gradient(120deg, ${accent}, #26A69A)` }}
             >
@@ -411,7 +128,7 @@ const LoanPage = () => {
             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: `${category.accent}14`, color: category.accent }}
           >
-            {category.icon}
+            {getIcon(category.icon, { className: "w-5 h-5" })}
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900 leading-tight">
@@ -437,7 +154,6 @@ const LoanPage = () => {
       `}</style>
 
       <div className="loanpage-root">
-        {/* Hero */}
         <div
           className="relative"
           style={{
@@ -463,16 +179,13 @@ const LoanPage = () => {
           </div>
         </div>
 
-        {/* Category filter */}
         <div className="max-w-6xl mx-auto px-6">
           <div className="-mt-7 relative z-10 bg-white rounded-2xl shadow-lg shadow-black/5 border border-gray-100 p-3">
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setActiveCategory("all")}
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                  activeCategory === "all"
-                    ? "bg-[#00695C] text-white"
-                    : "text-gray-600 hover:bg-gray-50"
+                  activeCategory === "all" ? "bg-[#00695C] text-white" : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 All loans
@@ -482,17 +195,11 @@ const LoanPage = () => {
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
                   className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-2 ${
-                    activeCategory === category.id
-                      ? "text-white"
-                      : "text-gray-600 hover:bg-gray-50"
+                    activeCategory === category.id ? "text-white" : "text-gray-600 hover:bg-gray-50"
                   }`}
-                  style={
-                    activeCategory === category.id
-                      ? { backgroundColor: category.accent }
-                      : undefined
-                  }
+                  style={activeCategory === category.id ? { backgroundColor: category.accent } : undefined}
                 >
-                  {category.icon}
+                  {getIcon(category.icon, { className: "w-5 h-5" })}
                   <span>{category.title}</span>
                 </button>
               ))}
@@ -500,7 +207,6 @@ const LoanPage = () => {
           </div>
         </div>
 
-        {/* Loans list */}
         <div ref={loansListRef} className="max-w-6xl mx-auto px-6 py-12 scroll-mt-24">
           {activeCategory === "all"
             ? loanCategories.map((category) => renderCategorySection(category))
@@ -514,7 +220,6 @@ const LoanPage = () => {
           )}
         </div>
 
-        {/* Category overview */}
         <div className="bg-white border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-6 py-16">
             <div className="max-w-xl mb-10">
@@ -540,7 +245,7 @@ const LoanPage = () => {
                       className="hidden md:flex w-8 h-8 rounded-full items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: `${accent}14`, color: accent }}
                     >
-                      {category.icon}
+                      {getIcon(category.icon, { className: "w-5 h-5" })}
                     </span>
 
                     <span className="flex items-center gap-3 md:contents">
@@ -548,7 +253,7 @@ const LoanPage = () => {
                         className="md:hidden flex w-8 h-8 rounded-full items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: `${accent}14`, color: accent }}
                       >
-                        {category.icon}
+                        {getIcon(category.icon, { className: "w-5 h-5" })}
                       </span>
                       <h3 className="font-semibold text-gray-900 text-base">{category.title}</h3>
                     </span>

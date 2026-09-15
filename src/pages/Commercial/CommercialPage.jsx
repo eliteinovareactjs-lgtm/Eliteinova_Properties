@@ -90,37 +90,79 @@ const CommercialPage = () => {
     navigate(path);
   };
 
-  // Get icon for commercial type
-  const getCommercialIcon = (typeName) => {
+  const getCommercialIcon = (typeName, sizeClass = "w-3.5 h-3.5") => {
     const iconMap = {
-      "Office Space": <Briefcase className="w-3.5 h-3.5" />,
-      "Retail Shop": <Store className="w-3.5 h-3.5" />,
-      "Showroom": <Store className="w-3.5 h-3.5" />,
-      "Commercial Land / Plot": <Landmark className="w-3.5 h-3.5" />,
-      "Warehouse / Godown": <Warehouse className="w-3.5 h-3.5" />,
-      "Industrial Property / Factory": <Factory className="w-3.5 h-3.5" />,
-      "Co-working Space": <Briefcase className="w-3.5 h-3.5" />,
-      "Business Center": <Building className="w-3.5 h-3.5" />,
-      "Shopping Mall Space": <Building2 className="w-3.5 h-3.5" />,
-      "Commercial Complex": <Building2 className="w-3.5 h-3.5" />,
-      "Restaurant / Café Space": <Store className="w-3.5 h-3.5" />,
-      "Hotel / Lodge / Resort Property": <Hotel className="w-3.5 h-3.5" />,
-      "Clinic / Hospital Space": <Building className="w-3.5 h-3.5" />,
-      "Educational Institution Property": <Building className="w-3.5 h-3.5" />,
-      "IT Park / Tech Park Space": <Building className="w-3.5 h-3.5" />,
-      "Multiplex / Entertainment Space": <Building2 className="w-3.5 h-3.5" />,
-      "Petrol Bunk / Fuel Station": <Landmark className="w-3.5 h-3.5" />,
-      "Cold Storage / Logistics Hub": <Warehouse className="w-3.5 h-3.5" />,
-      "Mixed-use Commercial Property": <Building2 className="w-3.5 h-3.5" />,
-      "Agricultural Commercial Property": <Landmark className="w-3.5 h-3.5" />,
-      "All": <Building className="w-3.5 h-3.5" />
+      "Office Space": <Briefcase className={sizeClass} />,
+      "Retail Shop": <Store className={sizeClass} />,
+      "Showroom": <Store className={sizeClass} />,
+      "Commercial Land / Plot": <Landmark className={sizeClass} />,
+      "Warehouse / Godown": <Warehouse className={sizeClass} />,
+      "Industrial Property / Factory": <Factory className={sizeClass} />,
+      "Co-working Space": <Briefcase className={sizeClass} />,
+      "Business Center": <Building className={sizeClass} />,
+      "Shopping Mall Space": <Building2 className={sizeClass} />,
+      "Commercial Complex": <Building2 className={sizeClass} />,
+      "Restaurant / Café Space": <Store className={sizeClass} />,
+      "Hotel / Lodge / Resort Property": <Hotel className={sizeClass} />,
+      "Clinic / Hospital Space": <Building className={sizeClass} />,
+      "Educational Institution Property": <Building className={sizeClass} />,
+      "IT Park / Tech Park Space": <Building className={sizeClass} />,
+      "Multiplex / Entertainment Space": <Building2 className={sizeClass} />,
+      "Petrol Bunk / Fuel Station": <Landmark className={sizeClass} />,
+      "Cold Storage / Logistics Hub": <Warehouse className={sizeClass} />,
+      "Mixed-use Commercial Property": <Building2 className={sizeClass} />,
+      "Agricultural Commercial Property": <Landmark className={sizeClass} />,
+      "All": <Home className={sizeClass} />
     };
-    return iconMap[typeName] || <Building className="w-3.5 h-3.5" />;
+    return iconMap[typeName] || <Building className={sizeClass} />;
+  };
+
+  const CommercialTypeAvatar = ({ type, avatarSize = "w-20 h-20", iconSize = "w-7 h-7", labelSize = "text-xs", wrapperWidth = "6.5rem" }) => {
+    const isActive = activeCommercialType === type.name;
+    const isAll = type.name === "All";
+    return (
+      <button
+        onClick={() => handleNavigation(type.path, type.name)}
+        className="group flex flex-col items-center gap-2 flex-shrink-0"
+        style={{ width: wrapperWidth }}
+      >
+        <div
+          className={`relative ${avatarSize} rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105`}
+          style={{
+            background: isAll ? "linear-gradient(135deg, #00695C, #26A69A)" : "#ffffff",
+            boxShadow: isActive
+              ? "0 0 0 2px #ffffff, 0 0 0 4px #00897B, 0 6px 16px rgba(0,105,92,0.25)"
+              : "0 2px 8px rgba(0,105,92,0.15)",
+            border: isAll ? "none" : "1px solid rgba(0,105,92,0.15)"
+          }}
+        >
+          {isAll ? (
+            <Home className={`${iconSize} text-white`} />
+          ) : (
+            <img
+              src={backgroundImage}
+              alt={type.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          {!isAll && (
+            <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? "bg-teal-900/0" : "bg-teal-900/15 group-hover:bg-teal-900/0"}`}></div>
+          )}
+        </div>
+        <span
+          className={`${labelSize} font-semibold text-center leading-tight max-w-[6.5rem] transition-colors duration-300 ${
+            isActive ? "text-teal-700" : "text-teal-900/70 group-hover:text-teal-700"
+          }`}
+        >
+          {type.name}
+        </span>
+      </button>
+    );
   };
 
   return (
     <div className="w-full min-h-screen relative">
-      {/* Background and other content same as before */}
+      {/* Background */}
       <div 
         className="fixed inset-0 z-0"
         style={{
@@ -173,85 +215,83 @@ const CommercialPage = () => {
       <div className="relative z-10">
 
         {/* ══════════════════════════════════════════════
-            BANNER — clean mobile stack + diagonal split on desktop
-            teal / emerald theme
+            SIMPLIFIED BANNER — heading + subheading + line + 4 diamonds
         ══════════════════════════════════════════════ */}
         <section className="relative w-full overflow-hidden bg-gradient-to-br from-white via-teal-50 to-emerald-50">
 
-          {/* ---------- MOBILE / TABLET (< md): simple stacked layout, no diagonal clip ---------- */}
+          {/* ---------- MOBILE / TABLET (< md) ---------- */}
           <div className="md:hidden">
-            <div className="relative w-full h-56 sm:h-64 overflow-hidden rounded-b-[2rem] shadow-lg">
+            <div className="relative w-full h-56 sm:h-64 overflow-hidden rounded-b-[2rem] shadow-xl">
               <img
                 src={backgroundImage}
                 alt="Commercial property"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover animate-ken-burns"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-teal-950/60 via-teal-900/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-teal-950/70 via-teal-900/20 to-transparent"></div>
 
-              {/* brand tag, small, overlaid bottom-left of image */}
-              <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                <div className="w-8 h-8 rounded-md flex items-center justify-center shadow-md" style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}>
-                  <Building className="w-4 h-4 text-white" />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-[10px] font-bold tracking-[0.15em] text-white">YOUR BRAND</p>
-                  <p className="text-[8px] tracking-wide text-teal-100">COMMERCIAL REAL ESTATE</p>
-                </div>
-              </div>
+              {/* Decorative corner accents only (brand tag removed) */}
+              <div className="absolute top-3 left-3 w-9 h-9 border-t-2 border-l-2 border-white/60 rounded-tl-lg" />
+              <div className="absolute top-3 right-3 w-9 h-9 border-t-2 border-r-2 border-white/60 rounded-tr-lg" />
             </div>
 
             <div className="px-6 pt-8 pb-8 text-center">
-              <p className="text-xs font-bold tracking-[0.25em] mb-2" style={{ color: "#00897B" }}>
-                NEW LISTINGS
-              </p>
-
-              <h1 className="font-bold leading-[0.95] text-4xl sm:text-5xl">
+              {/* Main heading */}
+              <h1 className="font-bold leading-[0.95] text-4xl sm:text-5xl animate-fade-in-up">
                 <span className="block text-teal-950">COMMERCIAL</span>
                 <span
-                  className="block text-transparent bg-clip-text"
+                  className="block text-transparent bg-clip-text animate-gradient-text-slow"
                   style={{ backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)" }}
                 >
                   PROPERTIES
                 </span>
               </h1>
 
-              <p className="mt-4 text-sm text-teal-800/90 max-w-md mx-auto leading-relaxed">
-                Discover verified office spaces, retail units, and industrial properties across every major business district near you.
+              {/* Subheading */}
+              <h2 className="mt-3 text-base sm:text-lg font-semibold text-teal-800 animate-fade-in-up delay-100">
+                Find Your Perfect Business Space
+              </h2>
+
+              {/* One line */}
+              <p className="mt-2 text-sm text-teal-700/90 max-w-md mx-auto leading-relaxed animate-fade-in-up delay-200">
+                Verified offices, retail units, and industrial spaces near you.
               </p>
 
-              <div className="mt-6 flex items-center justify-center">
-                <button
-                  onClick={() => handlePropertyCategoryNavigation("/commercial")}
-                  className="group relative px-6 py-2.5 rounded-lg text-white text-sm font-semibold shadow-xl overflow-hidden transition-transform duration-300 hover:scale-105"
-                  style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
-                >
-                  <div className="absolute inset-0 animate-gradient-shift"></div>
-                  <span className="relative z-10">Explore Now</span>
-                </button>
-              </div>
-
+              {/* Diamonds */}
               <div className="mt-8 flex flex-wrap items-start justify-center gap-x-5 gap-y-4">
-                {propertyCategories.map((category) => (
+                {propertyCategories.map((category, index) => (
                   <button
                     key={category.name}
                     onClick={() => handlePropertyCategoryNavigation(category.path)}
-                    className="group flex flex-col items-center gap-3 w-20"
+                    className="group flex flex-col items-center gap-3 w-20 animate-diamond-float"
+                    style={{ animationDelay: `${index * 0.3}s` }}
                   >
-                    <div
-                      className="relative w-16 h-16 rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(0,105,92,0.45)]"
-                      style={{
-                        border: "2px solid rgba(255,255,255,0.6)"
-                      }}
-                    >
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
+                    <div className="relative w-16 h-16">
+                      <div className="absolute -inset-2 rounded-full bg-teal-400/0 group-hover:bg-teal-400/30 blur-lg transition-all duration-500" />
+                      
+                      <div
+                        className="relative w-full h-full rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.6)]"
+                        style={{ border: "2px solid rgba(255,255,255,0.6)" }}
+                      >
+                        <img
+                          src={category.image}
+                          alt={category.name}
+                          className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150 transition-transform duration-700 group-hover:scale-[1.7]"
+                        />
+                        <div className="absolute inset-0 overflow-hidden -rotate-45">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
+                      </div>
+
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md border border-teal-200 flex items-center justify-center z-10 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-500">
+                        <div className="text-teal-700 w-3 h-3">
+                          {category.icon}
+                        </div>
+                      </div>
                     </div>
-                    <span className="mt-1 text-[11px] font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors">
+                    <span className="mt-1 text-[11px] font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors relative">
                       {category.name}
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
                     </span>
                   </button>
                 ))}
@@ -259,7 +299,7 @@ const CommercialPage = () => {
             </div>
           </div>
 
-          {/* ---------- DESKTOP (md+): diagonal split-photo layout ---------- */}
+          {/* ---------- DESKTOP (md+) ---------- */}
           <div className="hidden md:block relative h-[440px] lg:h-[480px]">
 
             {/* Diagonal photo panel */}
@@ -270,84 +310,92 @@ const CommercialPage = () => {
               <img
                 src={backgroundImage}
                 alt="Commercial property"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover animate-ken-burns"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-900/10 via-transparent to-transparent"></div>
-              <div className="absolute top-5 left-5 w-14 h-14 border-t-[3px] border-l-[3px] border-white/80"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-900/20 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.15)]"></div>
+              
+              <div className="absolute top-5 left-5 w-14 h-14 border-t-[3px] border-l-[3px] border-white/80 animate-corner-pulse"></div>
+              <div className="absolute bottom-5 left-5 w-10 h-10 border-b-[3px] border-l-[3px] border-teal-300/70 animate-corner-pulse delay-500"></div>
+
               <div className="absolute inset-0 opacity-20" style={{
                 background: "linear-gradient(135deg, rgba(0,105,92,0.35) 0%, transparent 45%)"
               }}></div>
-            </div>
-
-            {/* Brand tag, top-right */}
-            <div className="absolute top-6 right-8 z-20 flex items-center gap-3">
-              <div className="text-right leading-tight">
-                <p className="text-xs font-bold tracking-[0.2em] text-teal-800">YOUR BRAND</p>
-                <p className="text-[10px] tracking-wide text-teal-600">COMMERCIAL REAL ESTATE</p>
-              </div>
-              <div className="w-9 h-9 rounded-md flex items-center justify-center shadow-md" style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}>
-                <Building className="w-5 h-5 text-white" />
-              </div>
             </div>
 
             {/* Content column */}
             <div className="relative z-10 h-full flex items-center px-10 lg:px-14">
               <div className="w-[44%] lg:w-[42%] ml-auto text-left">
 
-                <p className="text-sm font-bold tracking-[0.25em] mb-2" style={{ color: "#00897B" }}>
-                  NEW LISTINGS
-                </p>
-
-                <h1 className="font-bold leading-[0.95] text-5xl lg:text-6xl">
+                {/* Main heading */}
+                <h1 className="font-bold leading-[0.95] text-5xl lg:text-6xl animate-fade-in-up">
                   <span className="block text-teal-950">COMMERCIAL</span>
                   <span
-                    className="block text-transparent bg-clip-text"
+                    className="block text-transparent bg-clip-text animate-gradient-text-slow"
                     style={{ backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)" }}
                   >
                     PROPERTIES
                   </span>
                 </h1>
 
-                <p className="mt-4 text-base text-teal-800/90 max-w-md leading-relaxed">
-                  Discover verified office spaces, retail units, and industrial
-                  <br />
-                  properties across every major business district near you.
+                {/* Subheading */}
+                <h2 className="mt-3 text-lg lg:text-xl font-semibold text-teal-800 animate-fade-in-up delay-100">
+                  Find Your Perfect Business Space
+                </h2>
+
+                {/* One line */}
+                <p className="mt-2 text-sm lg:text-base text-teal-700/90 max-w-md leading-relaxed animate-fade-in-up delay-200">
+                  Verified offices, retail units, and industrial spaces near you.
                 </p>
 
-                <div className="mt-6 flex items-center gap-4">
-                  <button
-                    onClick={() => handlePropertyCategoryNavigation("/commercial")}
-                    className="group relative px-6 py-2.5 rounded-lg text-white text-sm font-semibold shadow-xl overflow-hidden transition-transform duration-300 hover:scale-105"
-                    style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
-                  >
-                    <div className="absolute inset-0 animate-gradient-shift"></div>
-                    <span className="relative z-10">Explore Now</span>
-                  </button>
-                </div>
-
-                {/* DESKTOP DIAMOND ROW - UPDATED WITH CHANGES */}
+                {/* Diamonds */}
                 <div className="mt-8 flex items-start gap-6 lg:gap-8 -ml-6 lg:-ml-10">
-                  {propertyCategories.map((category) => (
+                  {propertyCategories.map((category, index) => (
                     <button
                       key={category.name}
                       onClick={() => handlePropertyCategoryNavigation(category.path)}
-                      className="group flex flex-col items-center gap-3 w-24"
+                      className="group flex flex-col items-center gap-3 w-24 animate-diamond-float"
+                      style={{ animationDelay: `${index * 0.35}s` }}
                     >
-                      <div
-                        className="relative w-20 h-20 rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.5)]"
-                        style={{
-                          border: "2.5px solid rgba(255,255,255,0.7)"
-                        }}
-                      >
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150"
+                      <div className="relative w-20 h-20">
+                        <div className="absolute -inset-3 rounded-full bg-teal-400/0 group-hover:bg-teal-400/35 blur-xl transition-all duration-700" />
+                        
+                        <div 
+                          className="absolute -inset-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            filter: "blur(4px)",
+                          }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
+
+                        <div
+                          className="relative w-full h-full rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_35px_rgba(0,105,92,0.65)]"
+                          style={{ border: "2.5px solid rgba(255,255,255,0.7)" }}
+                        >
+                          <img
+                            src={category.image}
+                            alt={category.name}
+                            className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150 transition-transform duration-700 group-hover:scale-[1.75] group-hover:-rotate-[50deg]"
+                          />
+                          <div className="absolute inset-0 overflow-hidden -rotate-45">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
+                        </div>
+
+                        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white shadow-lg border-2 border-teal-100 flex items-center justify-center z-10 group-hover:scale-110 group-hover:border-teal-400 group-hover:rotate-[360deg] transition-all duration-700">
+                          <div className="text-teal-700 w-3.5 h-3.5">
+                            {category.icon}
+                          </div>
+                        </div>
+
+                        <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-400 opacity-0 group-hover:opacity-100 group-hover:animate-ping" />
+                        <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 rounded-full bg-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150" />
                       </div>
-                      <span className="mt-1 text-xs font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors">
+                      <span className="mt-1 text-xs font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors relative">
                         {category.name}
+                        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
                       </span>
                     </button>
                   ))}
@@ -360,7 +408,7 @@ const CommercialPage = () => {
 
         <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500 animate-slide-down">
           <div className="max-w-none mx-auto px-6 py-4">
-            <div className="hidden md:block space-y-4">
+            <div className="hidden md:block space-y-5">
               <div className="flex gap-4 items-center">
                 <div className="relative">
                   <button
@@ -452,63 +500,37 @@ const CommercialPage = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 max-h-auto overflow-y-auto scrollbar-thin">
-                {commercialTypes.map((type, index) => {
-                  const isActive = activeCommercialType === type.name;
-                  return (
-                    <button
-                      key={type.name}
-                      onClick={() => handleNavigation(type.path, type.name)}
-                      className={`group relative px-1.5 py-2 rounded-md font-medium text-xs shadow-md transition-all duration-300 whitespace-nowrap transform hover:-translate-y-0.5 hover:scale-102 overflow-hidden ${
-                        isActive 
-                          ? "text-teal-800 shadow-none" 
-                          : "text-white/90 hover:text-white"
-                      }`}
-                      style={{
-                        background: isActive 
-                          ? "#ebfff7" 
-                          : "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)",
-                        backgroundSize: "200% 200%",
-                        outline: isActive ? "3px solid #00695C" : "none",
-                        outlineOffset: "-3px",
-                        border: "none",
-                        boxShadow: isActive ? "0 0 18px 4px rgba(0, 105, 92, 0.45)" : "none"
-                      }}
-                    >
-                      <div className={`absolute inset-0 animate-gradient-shift-slow ${isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-100 transition-opacity duration-500'}`}></div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                      {isActive && (
-                        <div className="absolute -inset-1 rounded-xl"></div>
-                      )}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                      <span className="relative z-10 flex items-center gap-2">
-                        {getCommercialIcon(type.name)}
-                        {type.name}
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="relative">
+                <div
+                  className="flex flex-nowrap items-start gap-6 lg:gap-7 overflow-x-auto pt-3 pb-3 scrollbar-thin"
+                  style={{ WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
+                >
+                  {commercialTypes.map((type) => (
+                    <CommercialTypeAvatar key={type.name} type={type} />
+                  ))}
+                </div>
+                <div className="pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-teal-50/95 to-transparent"></div>
               </div>
             </div>
 
             <div className="md:hidden space-y-4">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
-                {commercialTypes.map((type, index) => {
-                  const isActive = activeCommercialType === type.name;
-                  return (
-                    <button
+              <div className="relative">
+                <div
+                  className="flex flex-nowrap items-start gap-5 overflow-x-auto pt-3 pb-3 scrollbar-thin"
+                  style={{ WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
+                >
+                  {commercialTypes.map((type) => (
+                    <CommercialTypeAvatar
                       key={type.name}
-                      onClick={() => handleNavigation(type.path, type.name)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 whitespace-nowrap ${
-                        isActive
-                          ? "bg-gradient-to-r from-teal-700 to-emerald-700 text-white shadow-lg"
-                          : "bg-gradient-to-r from-teal-600 to-teal-500 text-white/90 hover:text-white"
-                      }`}
-                    >
-                      {type.name}
-                    </button>
-                  );
-                })}
+                      type={type}
+                      avatarSize="w-16 h-16"
+                      iconSize="w-6 h-6"
+                      labelSize="text-[11px]"
+                      wrapperWidth="5rem"
+                    />
+                  ))}
+                </div>
+                <div className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-teal-50/95 to-transparent"></div>
               </div>
             </div>
           </div>
@@ -751,7 +773,43 @@ const CommercialPage = () => {
       </div>
 
       <style jsx>{`
-        /* Keep all existing styles */
+        @keyframes ken-burns {
+          0%, 100% { transform: scale(1) translate(0, 0); }
+          50% { transform: scale(1.08) translate(-1%, -1%); }
+        }
+        .animate-ken-burns {
+          animation: ken-burns 20s ease-in-out infinite;
+        }
+
+        @keyframes diamond-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        .animate-diamond-float {
+          animation: diamond-float 4s ease-in-out infinite;
+        }
+
+        @keyframes diamond-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(0,105,92,0.4); }
+          50% { box-shadow: 0 0 0 10px rgba(0,105,92,0); }
+        }
+        .animate-pulse-glow {
+          animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes corner-pulse {
+          0%, 100% { opacity: 0.8; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+        .animate-corner-pulse {
+          animation: corner-pulse 3s ease-in-out infinite;
+        }
+
         @keyframes gradient-flow {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -890,15 +948,25 @@ const CommercialPage = () => {
           display: none;
         }
         .scrollbar-thin::-webkit-scrollbar {
-          height: 4px;
+          height: 10px;
         }
         .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(0, 105, 92, 0.1);
+          background: rgba(0, 105, 92, 0.12);
           border-radius: 10px;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb {
           background: linear-gradient(to right, #00695C, #26A69A);
           border-radius: 10px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to right, #004D40, #00796B);
+          background-clip: padding-box;
+        }
+        .scrollbar-thin {
+          scrollbar-width: auto;
+          scrollbar-color: #00897B rgba(0, 105, 92, 0.12);
         }
         .lg\\:custom-scrollbar::-webkit-scrollbar {
           width: 6px;

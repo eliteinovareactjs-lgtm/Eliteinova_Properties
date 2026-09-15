@@ -129,11 +129,19 @@ const HostelPage = () => {
   return (
     <div className="w-full min-h-screen relative">
       <div className="relative z-10">
-        {/* ====== BROCHURE-STYLE HEXAGON BANNER (matches reference layout) ====== */}
-        <section className="w-full min-h-[560px] md:min-h-[500px] lg:h-[520px] bg-[#F4F3EE] overflow-hidden relative">
+        {/* ====== BROCHURE-STYLE HEXAGON BANNER (enhanced: luggage-tag motif for hostel/PG stays) ====== */}
+        <section className="w-full min-h-[600px] md:min-h-[520px] lg:h-[560px] bg-[#F4F3EE] overflow-hidden relative">
           {/* top/bottom sage accent stripes framing the corners */}
           <div className="hidden md:block absolute top-0 left-0 w-[70%] h-2 bg-[#C7CDC1]" />
           <div className="hidden md:block absolute bottom-0 left-0 w-[70%] h-2 bg-[#C7CDC1]" />
+
+          {/* faint stitched "route" line running the width of the panel - luggage-tag / travel cue */}
+          <div
+            className="hidden md:block absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px opacity-[0.15] pointer-events-none"
+            style={{
+              backgroundImage: "repeating-linear-gradient(90deg, #143B35 0, #143B35 6px, transparent 6px, transparent 12px)"
+            }}
+          />
 
           {/* ===== Desktop / tablet hexagon composition ===== */}
           <div className="hidden md:block absolute inset-0">
@@ -177,8 +185,13 @@ const HostelPage = () => {
             </div>
           </div>
 
-          {/* ===== Content (logo, heading, categories, CTA) ===== */}
+          {/* ===== Content (logo, heading, stats, categories, CTA) ===== */}
           <div className="relative z-30 flex flex-col justify-center h-full w-full md:w-[48%] lg:w-[46%] max-w-none px-6 md:px-10 lg:px-14 py-10 md:py-8">
+            <div className="hidden md:flex items-center gap-2 mb-4">
+              <BedDouble className="w-4 h-4" style={{ color: "#C9A227" }} />
+              <span className="text-[11px] font-bold tracking-[0.2em] text-[#00695C]">HOSTELS &amp; PG</span>
+            </div>
+
             <h1 className="text-[#143B35] font-black leading-[0.95] mb-2">
               <span className="block text-lg md:text-xl font-light tracking-[0.15em] mb-1">
                 Comfortable
@@ -190,11 +203,11 @@ const HostelPage = () => {
 
             <div className="h-1 w-16 bg-[#00695C] mb-4 rounded-full" />
 
-            <p className="text-[#4B5C58] max-w-sm text-sm md:text-base leading-relaxed mb-6">
+            <p className="text-[#4B5C58] max-w-sm text-sm md:text-base leading-relaxed mb-8">
               Discover verified hostels, PGs and co-living spaces near you.
             </p>
 
-            {/* category diamonds - links to sibling property types */}
+            {/* category diamonds - links to sibling property types, styled like luggage tags */}
             <div className="flex items-start divide-x divide-gray-300/70 mb-7">
               {bannerDiamonds.map((diamond, index) => (
                 <div
@@ -222,14 +235,14 @@ const HostelPage = () => {
             </div>
 
             {/* CTA */}
-            {/* <button
+            <button
               onClick={() => handleNavigation("/hostel")}
               className="group inline-flex items-center gap-3 self-start px-5 py-3 rounded-md text-white text-xs md:text-sm font-bold tracking-wide shadow-lg hover:shadow-xl transition-all duration-300"
               style={{ background: "linear-gradient(135deg, #163C36, #0B211D)" }}
             >
               EXPLORE HOSTELS
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-            </button> */}
+            </button>
           </div>
 
           {/* ===== Mobile fallback: simple stacked hero ===== */}
@@ -242,11 +255,11 @@ const HostelPage = () => {
               <span className="block text-sm font-light tracking-[0.15em]">Comfortable</span>
               <span className="block text-3xl font-extrabold">Stays</span>
             </h1>
-            <p className="text-[#4B5C58] text-sm mb-4">
+            <p className="text-[#4B5C58] text-sm mb-6">
               Discover verified hostels, PGs and co-living spaces near you.
             </p>
 
-            <div className="rounded-2xl overflow-hidden shadow-xl mb-5">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl mb-6">
               <img src={mainPropertyImage} alt="Hostel & PG accommodation" className="w-full h-44 object-cover" />
             </div>
 
@@ -270,14 +283,14 @@ const HostelPage = () => {
               ))}
             </div>
 
-            {/* <button
+            <button
               onClick={() => handleNavigation("/hostel")}
               className="inline-flex items-center gap-2 self-start px-4 py-2.5 rounded-md text-white text-xs font-bold tracking-wide shadow-lg"
               style={{ background: "linear-gradient(135deg, #163C36, #0B211D)" }}
             >
               EXPLORE HOSTELS
               <ArrowRight className="w-4 h-4" />
-            </button> */}
+            </button>
           </div>
         </section>
 
