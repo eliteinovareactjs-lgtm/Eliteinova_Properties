@@ -1211,40 +1211,47 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
-            {/* Find Loan Dropdown - Navigates to LoanPage */}
+            {/* Loan & Insurance Dropdown */}
             <div
               className="relative h-full"
               onMouseEnter={() => setActiveDropdown("loan")}
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <button 
-                onClick={() => {
-                  navigate("/loan");
-                  setActiveTab("loan");
-                }}
+                onClick={() => setActiveDropdown(activeDropdown === "loan" ? null : "loan")}
                 className={`group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300 ${
-                  activeTab === "loan" ? 'bg-gradient-to-r from-white/10 to-transparent' : ''
+                  activeTab === "loan" || activeTab === "insurance" ? 'bg-gradient-to-r from-white/10 to-transparent' : ''
                 }`}
               >
                 <Landmark className="w-4 h-4" />
-                <span>Find Loan</span>
+                <span>Loan & Insurance</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === "loan" ? 'rotate-180' : ''}`} />
               </button>
 
               {activeDropdown === "loan" && (
                 <div className="absolute top-full left-0 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 min-w-[180px] border border-white/30 animate-dropdown">
-                  {loanMenu.map((item) => (
-                    <button
-                      key={item}
-                      className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300"
-                      onClick={() => {
-                        navigate("/loan");
-                        setActiveTab("loan");
-                      }}
-                    >
-                      {item}
-                    </button>
-                  ))}
+                  <button
+                    className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 flex items-center gap-2"
+                    onClick={() => {
+                      navigate("/loan");
+                      setActiveTab("loan");
+                      setActiveDropdown(null);
+                    }}
+                  >
+                    <Landmark className="w-4 h-4 text-[#26A69A]" />
+                    Find Loan
+                  </button>
+                  <button
+                    className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 flex items-center gap-2"
+                    onClick={() => {
+                      navigate("/insurance");
+                      setActiveTab("insurance");
+                      setActiveDropdown(null);
+                    }}
+                  >
+                    <Shield className="w-4 h-4 text-[#26A69A]" />
+                    Insurance
+                  </button>
                 </div>
               )}
             </div>
@@ -2709,7 +2716,7 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
 
-              {/* Mobile Find Loan - Navigates to LoanPage */}
+              {/* Mobile Loan & Insurance */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '150ms' }}>
                 <div 
                   className="flex items-center justify-between py-3 cursor-pointer"
@@ -2717,26 +2724,35 @@ const Header = ({ onPostPropertyClick }) => {
                 >
                   <div className="flex items-center gap-2">
                     <Landmark className="w-4 h-4 text-white" />
-                    <span className="text-white font-medium text-sm">Find Loan</span>
+                    <span className="text-white font-medium text-sm">Loan & Insurance</span>
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.loan ? 'rotate-180' : ''}`} />
                 </div>
                 
                 {mobileDropdowns.loan && (
                   <div className="pl-4 pb-2 space-y-1">
-                    {loanMenu.map((item) => (
-                      <button 
-                        key={item} 
-                        onClick={() => {
-                          navigate("/loan");
-                          setActiveTab("loan");
-                          toggleMobileMenu();
-                        }}
-                        className="block text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
-                      >
-                        {item}
-                      </button>
-                    ))}
+                    <button 
+                      onClick={() => {
+                        navigate("/loan");
+                        setActiveTab("loan");
+                        toggleMobileMenu();
+                      }}
+                      className="flex items-center gap-2 text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
+                    >
+                      <Landmark className="w-3.5 h-3.5" />
+                      Find Loan
+                    </button>
+                    <button 
+                      onClick={() => {
+                        navigate("/insurance");
+                        setActiveTab("insurance");
+                        toggleMobileMenu();
+                      }}
+                      className="flex items-center gap-2 text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
+                    >
+                      <Shield className="w-3.5 h-3.5" />
+                      Insurance
+                    </button>
                   </div>
                 )}
               </div>
