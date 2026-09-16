@@ -11,6 +11,8 @@ import bannerImage from "../../assets/loanimage.jpg";
 import {
   BankEmployeeRegistrationForm,
   DsaAgentRegistrationForm,
+  NbfcEmployeeRegistrationForm,
+  CorporateCompanyRegistrationForm,
 } from "../../components/Forms/loans";
 
 const LoanPage = () => {
@@ -24,7 +26,7 @@ const LoanPage = () => {
   const [showBankEmployeeForm, setShowBankEmployeeForm] = useState(false);
   const [showDsaAgentForm, setShowDsaAgentForm] = useState(false);
   const [showCorporateForm, setShowCorporateForm] = useState(false);
-  const [showOthersForm, setShowOthersForm] = useState(false);
+  const [showNbfcForm, setShowNbfcForm] = useState(false);
 
   const openAgentPopup = () => setShowAgentTypePopup(true);
 
@@ -33,7 +35,7 @@ const LoanPage = () => {
     if (type === "bank") setShowBankEmployeeForm(true);
     else if (type === "dsa") setShowDsaAgentForm(true);
     else if (type === "corporate") setShowCorporateForm(true);
-    else if (type === "others") setShowOthersForm(true);
+    else if (type === "nbfc") setShowNbfcForm(true);
   };
 
   const goToCategory = (categoryId) => {
@@ -301,7 +303,7 @@ const LoanPage = () => {
                   Become a loan partner
                 </h3>
                 <p className="text-[12px] md:text-[13px] text-[#6B7B70] leading-relaxed max-w-md">
-                  Register as a bank employee, DSA agent, corporate partner, or other loan consultant to offer our loan products to your customers.
+                  Register as a bank employee, DSA agent, corporate partner, or NBFC employee to offer our loan products to your customers.
                 </p>
               </div>
             </div>
@@ -313,7 +315,7 @@ const LoanPage = () => {
                 boxShadow: "0 10px 24px -12px #00695C99",
               }}
             >
-              Agent Registration Form
+              Registration Form
             </button>
           </div>
         </div>
@@ -422,7 +424,7 @@ const LoanPage = () => {
               </button>
             </div>
 
-            {/* Options — 2×2 grid on every breakpoint */}
+            {/* Options — 2×2 grid */}
             <div className="p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
               {[
                 {
@@ -453,10 +455,10 @@ const LoanPage = () => {
                   border: "#FFCC80",
                 },
                 {
-                  key: "others",
-                  label: "Others",
-                  desc: "Freelancers, consultants, and other partners",
-                  emoji: "👥",
+                  key: "nbfc",
+                  label: "NBFC Employee",
+                  desc: "Register as an NBFC employee or agent",
+                  emoji: "🏦",
                   color: "#0277BD",
                   bg: "#E1F0FA",
                   border: "#B3E5FC",
@@ -499,54 +501,14 @@ const LoanPage = () => {
         isOpen={showDsaAgentForm}
         onClose={() => setShowDsaAgentForm(false)}
       />
-
-      {/* Corporate & Others — placeholder modals until you build them */}
-      {showCorporateForm && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={() => setShowCorporateForm(false)}
-        >
-          <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-[#10241F] mb-2">Corporate Partner Form</h3>
-            <p className="text-[13px] text-[#8A968F] mb-4">
-              Coming soon. The corporate partner registration form is being prepared.
-            </p>
-            <button
-              onClick={() => setShowCorporateForm(false)}
-              className="px-5 py-2.5 rounded-full text-white text-[13px] font-semibold"
-              style={{ background: "linear-gradient(120deg, #00695C 0%, #26A69A 100%)" }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-      {showOthersForm && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={() => setShowOthersForm(false)}
-        >
-          <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-[#10241F] mb-2">Others Registration Form</h3>
-            <p className="text-[13px] text-[#8A968F] mb-4">
-              Coming soon. The general partner registration form is being prepared.
-            </p>
-            <button
-              onClick={() => setShowOthersForm(false)}
-              className="px-5 py-2.5 rounded-full text-white text-[13px] font-semibold"
-              style={{ background: "linear-gradient(120deg, #00695C 0%, #26A69A 100%)" }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <NbfcEmployeeRegistrationForm
+        isOpen={showNbfcForm}
+        onClose={() => setShowNbfcForm(false)}
+      />
+      <CorporateCompanyRegistrationForm
+        isOpen={showCorporateForm}
+        onClose={() => setShowCorporateForm(false)}
+      />
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
