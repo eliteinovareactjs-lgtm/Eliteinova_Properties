@@ -1,5 +1,5 @@
 // src/components/Forms/loans/CorporateCompanyRegistrationForm.jsx
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 
 const steps = [
@@ -89,6 +89,10 @@ const inDt = "w-full border border-gray-200 rounded-lg px-3 py-2 text-[14px] tex
 export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
   const [step, setStep] = useState(0);
 
+  // ✅ Refs for auto-scroll-to-top on step change
+  const contentRef = useRef(null);    // mobile content scroll container
+  const contentRefDt = useRef(null);  // desktop content scroll container
+
   const [formData, setFormData] = useState({
     // Step 0: Company Details
     companyName: "", registrationNumber: "", companyType: "",
@@ -134,6 +138,16 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [repPhotoPreview, setRepPhotoPreview] = useState(null);
+
+  // ✅ Auto-scroll to top of content area on every step change
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+    if (contentRefDt.current) {
+      contentRefDt.current.scrollTop = 0;
+    }
+  }, [step]);
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -224,7 +238,8 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
             ))}
           </div>
 
-          <div className="px-3 py-2.5 overflow-y-auto flex-1">
+          {/* ✅ ref attached for scroll-to-top */}
+          <div ref={contentRef} className="px-3 py-2.5 overflow-y-auto flex-1">
             <MobContentCorporate
               step={step}
               inp={inMob}
@@ -313,7 +328,8 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
             ))}
           </div>
 
-          <div className="px-3 sm:px-4 py-3 overflow-y-auto flex-1">
+          {/* ✅ ref attached for scroll-to-top */}
+          <div ref={contentRefDt} className="px-3 sm:px-4 py-3 overflow-y-auto flex-1">
             <DtContentCorporate
               step={step}
               inp={inDt}
