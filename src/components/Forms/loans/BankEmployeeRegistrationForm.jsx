@@ -45,17 +45,6 @@ const customerProfileList = [
   "Loan Against Property Customer",
 ];
 
-// Validation helpers
-const isOnlyLettersAndSpaces = (value) => /^[A-Za-z\s]*$/.test(value);
-const isOnlyDigits = (value) => /^\d*$/.test(value);
-const isAlphanumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const isValidPincode = (code) => /^[0-9]{6}$/.test(code);
-
-const handleAlphaFieldChange = (value) => value.replace(/[^A-Za-z\s]/g, "");
-const handleNumericFieldChange = (value) => value.replace(/\D/g, "");
-const handleAlphanumericFieldChange = (value) => value.replace(/[^A-Za-z0-9\s]/g, "");
-
 const Field = ({ label, required, hint, children }) => (
   <div className="mb-2">
     <label className="block text-[12px] font-semibold text-[#00695C] mb-0.5">
@@ -107,17 +96,9 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
   });
 
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
-  const [errors, setErrors] = useState({});
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
   };
 
   const toggleArrayItem = (field, value) => {
@@ -157,46 +138,6 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
       }
       updateForm(docType, file);
     }
-  };
-
-  const validateStep = (s) => {
-    const e = {};
-    if (s === 0) {
-      if (!formData.fullName.trim()) e.fullName = "Full name is required";
-      else if (!isOnlyLettersAndSpaces(formData.fullName)) e.fullName = "Only letters and spaces allowed";
-      if (!formData.employeeId.trim()) e.employeeId = "Employee ID is required";
-      else if (!isAlphanumericWithSpaces(formData.employeeId)) e.employeeId = "Only letters, numbers and spaces";
-      if (!formData.mobileNumber || formData.mobileNumber.length !== 10) e.mobileNumber = "Enter a valid 10-digit mobile number";
-      if (!formData.emailId || !isValidEmail(formData.emailId)) e.emailId = "Enter a valid email address";
-      if (!formData.designation.trim()) e.designation = "Designation is required";
-      if (!formData.department.trim()) e.department = "Department is required";
-      if (!formData.username.trim()) e.username = "Username is required";
-      if (!formData.password) e.password = "Password is required";
-      if (formData.password !== formData.confirmPassword) e.confirmPassword = "Passwords do not match";
-      if (!formData.accepted) e.accepted = "You must accept the Terms & Conditions";
-    }
-    if (s === 1) {
-      if (!formData.bankName) e.bankName = "Bank name is required";
-      if (!formData.branchName.trim()) e.branchName = "Branch name is required";
-      if (!formData.ifscCode.trim()) e.ifscCode = "IFSC code is required";
-      if (!formData.city.trim()) e.city = "City is required";
-      else if (!isOnlyLettersAndSpaces(formData.city)) e.city = "Only letters and spaces allowed";
-      if (!formData.state.trim()) e.state = "State is required";
-      else if (!isOnlyLettersAndSpaces(formData.state)) e.state = "Only letters and spaces allowed";
-      if (formData.pinCode && !isValidPincode(formData.pinCode)) e.pinCode = "Enter a valid 6-digit PIN code";
-    }
-    if (s === 2) {
-      if (!formData.idCardDoc) e.idCardDoc = "Employee ID card is required";
-    }
-    if (s === 3) {
-      if (formData.loanProducts.length === 0) e.loanProducts = "Select at least one loan product";
-    }
-    if (s === 4) {
-      if (!formData.loanLocation.trim()) e.loanLocation = "Loan processing location is required";
-      if (!formData.serviceCity.trim()) e.serviceCity = "City is required";
-      if (!formData.serviceState.trim()) e.serviceState = "State is required";
-    }
-    return e;
   };
 
   const handleSubmit = () => {
@@ -255,15 +196,11 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
               handleProfilePhotoUpload={handleProfilePhotoUpload}
               removeProfilePhoto={removeProfilePhoto}
               handleDocumentUpload={handleDocumentUpload}
-              errors={errors}
               genderOptions={genderOptions}
               bankOptions={bankOptions}
               loanProductsList={loanProductsList}
               customerSegmentList={customerSegmentList}
               customerProfileList={customerProfileList}
-              handleAlphaFieldChange={handleAlphaFieldChange}
-              handleNumericFieldChange={handleNumericFieldChange}
-              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
               yesNoOptions={yesNoOptions}
             />
           </div>
@@ -295,9 +232,6 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
                 onClick={() => {
-                  const stepErrors = validateStep(step);
-                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
-                  setErrors({});
                   step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
                 }}
               >
@@ -349,15 +283,11 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
               handleProfilePhotoUpload={handleProfilePhotoUpload}
               removeProfilePhoto={removeProfilePhoto}
               handleDocumentUpload={handleDocumentUpload}
-              errors={errors}
               genderOptions={genderOptions}
               bankOptions={bankOptions}
               loanProductsList={loanProductsList}
               customerSegmentList={customerSegmentList}
               customerProfileList={customerProfileList}
-              handleAlphaFieldChange={handleAlphaFieldChange}
-              handleNumericFieldChange={handleNumericFieldChange}
-              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
               yesNoOptions={yesNoOptions}
             />
           </div>
@@ -388,9 +318,6 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
                 onClick={() => {
-                  const stepErrors = validateStep(step);
-                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
-                  setErrors({});
                   step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
                 }}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
@@ -407,9 +334,8 @@ export default function BankEmployeeRegistrationForm({ isOpen, onClose }) {
 function MobContentBankEmp({
   step, inp, formData, updateForm, toggleArrayItem,
   profilePhotoPreview, handleProfilePhotoUpload, removeProfilePhoto,
-  handleDocumentUpload, errors, genderOptions, bankOptions,
+  handleDocumentUpload, genderOptions, bankOptions,
   loanProductsList, customerSegmentList, customerProfileList,
-  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
 }) {
   // STEP 0: Employee Details
   if (step === 0) return (
@@ -419,12 +345,10 @@ function MobContentBankEmp({
         <h3 className="text-[11px] font-bold text-[#00695C]">Employee Details</h3>
       </div>
       <Field label="Full Name" required>
-        <input className={inp} placeholder="Enter full name" value={formData.fullName} onChange={(e) => updateForm("fullName", handleAlphaFieldChange(e.target.value))} />
-        {errors.fullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.fullName}</p>}
+        <input className={inp} placeholder="Enter full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
       </Field>
       <Field label="Employee ID" required>
-        <input className={inp} placeholder="Enter employee ID" value={formData.employeeId} onChange={(e) => updateForm("employeeId", handleAlphanumericFieldChange(e.target.value))} />
-        {errors.employeeId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.employeeId}</p>}
+        <input className={inp} placeholder="Enter employee ID" value={formData.employeeId} onChange={(e) => updateForm("employeeId", e.target.value)} />
       </Field>
       <Field label="Gender">
         <div className="flex gap-4">
@@ -440,23 +364,19 @@ function MobContentBankEmp({
         <input className={inp} type="date" value={formData.dob} onChange={(e) => updateForm("dob", e.target.value)} />
       </Field>
       <Field label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.mobileNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.mobileNumber}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} />
       </Field>
       <Field label="Official Email" required>
         <input className={inp} type="email" placeholder="name@bank.com" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </Field>
       <Field label="Alternate Mobile">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Optional" value={formData.alternateMobile} onChange={(e) => updateForm("alternateMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Optional" value={formData.alternateMobile} onChange={(e) => updateForm("alternateMobile", e.target.value)} />
       </Field>
       <Field label="Designation" required>
         <input className={inp} placeholder="e.g. Loan Officer" value={formData.designation} onChange={(e) => updateForm("designation", e.target.value)} />
-        {errors.designation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.designation}</p>}
       </Field>
       <Field label="Department" required>
         <input className={inp} placeholder="e.g. Retail Banking" value={formData.department} onChange={(e) => updateForm("department", e.target.value)} />
-        {errors.department && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.department}</p>}
       </Field>
       <Field label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -481,15 +401,12 @@ function MobContentBankEmp({
       </div>
       <Field label="Username / Email" required>
         <input className={inp} value={formData.username} onChange={(e) => updateForm("username", e.target.value)} />
-        {errors.username && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.username}</p>}
       </Field>
       <Field label="Password" required>
         <input className={inp} type="password" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} />
-        {errors.password && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.password}</p>}
       </Field>
       <Field label="Confirm Password" required>
         <input className={inp} type="password" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} />
-        {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.confirmPassword}</p>}
       </Field>
       <Field label="Security Question / Recovery">
         <input className={inp} placeholder="e.g. Mother's maiden name" value={formData.securityQuestion} onChange={(e) => updateForm("securityQuestion", e.target.value)} />
@@ -502,7 +419,6 @@ function MobContentBankEmp({
         <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.accepted} onChange={() => updateForm("accepted", !formData.accepted)} />
         I accept the Terms & Conditions <span className="text-red-500">*</span>
       </label>
-      {errors.accepted && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accepted}</p>}
     </>
   );
 
@@ -518,39 +434,33 @@ function MobContentBankEmp({
           <option value="">Select Bank</option>
           {bankOptions.map(b => <option key={b} value={b}>{b}</option>)}
         </select>
-        {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </Field>
       <Field label="Branch Name" required>
         <input className={inp} placeholder="Enter branch name" value={formData.branchName} onChange={(e) => updateForm("branchName", e.target.value)} />
-        {errors.branchName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.branchName}</p>}
       </Field>
       <Field label="Branch Code">
         <input className={inp} value={formData.branchCode} onChange={(e) => updateForm("branchCode", e.target.value)} />
       </Field>
       <Field label="IFSC Code" required hint="e.g., SBIN0001234">
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
-        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </Field>
       <Field label="Bank Address">
         <input className={inp} placeholder="Enter bank address" value={formData.bankAddress} onChange={(e) => updateForm("bankAddress", e.target.value)} />
       </Field>
       <Field label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </Field>
       <Field label="District">
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
       </Field>
       <Field label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
       </Field>
       <Field label="PIN Code" hint="6 digits">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </Field>
       <Field label="Branch Phone">
-        <input className={inp} type="tel" inputMode="numeric" value={formData.branchPhone} onChange={(e) => updateForm("branchPhone", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="tel" inputMode="numeric" value={formData.branchPhone} onChange={(e) => updateForm("branchPhone", e.target.value)} />
       </Field>
     </>
   );
@@ -572,13 +482,12 @@ function MobContentBankEmp({
           </label>
         </div>
         {formData.idCardDoc && <p className="text-[10px] text-green-600 mt-1">✓ {formData.idCardDoc.name}</p>}
-        {errors.idCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.idCardDoc}</p>}
       </Field>
       <Field label="Joining Date">
         <input className={inp} type="date" value={formData.joiningDate} onChange={(e) => updateForm("joiningDate", e.target.value)} />
       </Field>
       <Field label="Years of Experience">
-        <input className={inp} type="number" min="0" placeholder="e.g. 5" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" placeholder="e.g. 5" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </Field>
       <Field label="Reporting Manager Name">
         <input className={inp} value={formData.managerName} onChange={(e) => updateForm("managerName", e.target.value)} />
@@ -605,7 +514,6 @@ function MobContentBankEmp({
           </label>
         ))}
       </div>
-      {errors.loanProducts && <p className="text-[10px] text-red-500 font-medium mt-1">{errors.loanProducts}</p>}
     </>
   );
 
@@ -618,15 +526,12 @@ function MobContentBankEmp({
       </div>
       <Field label="Loan Processing Location" required>
         <input className={inp} value={formData.loanLocation} onChange={(e) => updateForm("loanLocation", e.target.value)} />
-        {errors.loanLocation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanLocation}</p>}
       </Field>
       <Field label="City / District" required>
         <input className={inp} value={formData.serviceCity} onChange={(e) => updateForm("serviceCity", e.target.value)} />
-        {errors.serviceCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceCity}</p>}
       </Field>
       <Field label="State" required>
         <input className={inp} value={formData.serviceState} onChange={(e) => updateForm("serviceState", e.target.value)} />
-        {errors.serviceState && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceState}</p>}
       </Field>
       <Field label="Serviceable PIN Codes">
         <input className={inp} placeholder="Comma separated" value={formData.servicePincodes} onChange={(e) => updateForm("servicePincodes", e.target.value)} />
@@ -666,9 +571,8 @@ function MobContentBankEmp({
 function DtContentBankEmp({
   step, inp, formData, updateForm, toggleArrayItem,
   profilePhotoPreview, handleProfilePhotoUpload, removeProfilePhoto,
-  handleDocumentUpload, errors, genderOptions, bankOptions,
+  handleDocumentUpload, genderOptions, bankOptions,
   loanProductsList, customerSegmentList, customerProfileList,
-  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
 }) {
   // STEP 0: Employee Details
   if (step === 0) return (
@@ -678,12 +582,10 @@ function DtContentBankEmp({
         <h3 className="text-[14px] font-bold text-[#00695C]">Employee Details</h3>
       </div>
       <FieldDt label="Full Name" required>
-        <input className={inp} placeholder="Enter full name" value={formData.fullName} onChange={(e) => updateForm("fullName", handleAlphaFieldChange(e.target.value))} />
-        {errors.fullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.fullName}</p>}
+        <input className={inp} placeholder="Enter full name" value={formData.fullName} onChange={(e) => updateForm("fullName", e.target.value)} />
       </FieldDt>
       <FieldDt label="Employee ID" required>
-        <input className={inp} placeholder="Enter employee ID" value={formData.employeeId} onChange={(e) => updateForm("employeeId", handleAlphanumericFieldChange(e.target.value))} />
-        {errors.employeeId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.employeeId}</p>}
+        <input className={inp} placeholder="Enter employee ID" value={formData.employeeId} onChange={(e) => updateForm("employeeId", e.target.value)} />
       </FieldDt>
       <FieldDt label="Gender">
         <div className="flex gap-5">
@@ -699,23 +601,19 @@ function DtContentBankEmp({
         <input className={inp} type="date" value={formData.dob} onChange={(e) => updateForm("dob", e.target.value)} />
       </FieldDt>
       <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.mobileNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.mobileNumber}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="10-digit mobile" value={formData.mobileNumber} onChange={(e) => updateForm("mobileNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Official Email" required>
         <input className={inp} type="email" placeholder="name@bank.com" value={formData.emailId} onChange={(e) => updateForm("emailId", e.target.value)} />
-        {errors.emailId && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.emailId}</p>}
       </FieldDt>
       <FieldDt label="Alternate Mobile">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Optional" value={formData.alternateMobile} onChange={(e) => updateForm("alternateMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} placeholder="Optional" value={formData.alternateMobile} onChange={(e) => updateForm("alternateMobile", e.target.value)} />
       </FieldDt>
       <FieldDt label="Designation" required>
         <input className={inp} placeholder="e.g. Loan Officer" value={formData.designation} onChange={(e) => updateForm("designation", e.target.value)} />
-        {errors.designation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.designation}</p>}
       </FieldDt>
       <FieldDt label="Department" required>
         <input className={inp} placeholder="e.g. Retail Banking" value={formData.department} onChange={(e) => updateForm("department", e.target.value)} />
-        {errors.department && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.department}</p>}
       </FieldDt>
       <FieldDt label="Profile Photo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -740,15 +638,12 @@ function DtContentBankEmp({
       </div>
       <FieldDt label="Username / Email" required>
         <input className={inp} value={formData.username} onChange={(e) => updateForm("username", e.target.value)} />
-        {errors.username && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.username}</p>}
       </FieldDt>
       <FieldDt label="Password" required>
         <input className={inp} type="password" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} />
-        {errors.password && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.password}</p>}
       </FieldDt>
       <FieldDt label="Confirm Password" required>
         <input className={inp} type="password" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} />
-        {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.confirmPassword}</p>}
       </FieldDt>
       <FieldDt label="Security Question / Recovery">
         <input className={inp} placeholder="e.g. Mother's maiden name" value={formData.securityQuestion} onChange={(e) => updateForm("securityQuestion", e.target.value)} />
@@ -761,7 +656,6 @@ function DtContentBankEmp({
         <input type="checkbox" className="accent-[#00695C] w-4 h-4" checked={formData.accepted} onChange={() => updateForm("accepted", !formData.accepted)} />
         I accept the Terms & Conditions <span className="text-red-500">*</span>
       </label>
-      {errors.accepted && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accepted}</p>}
     </>
   );
 
@@ -777,39 +671,33 @@ function DtContentBankEmp({
           <option value="">Select Bank</option>
           {bankOptions.map(b => <option key={b} value={b}>{b}</option>)}
         </select>
-        {errors.bankName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.bankName}</p>}
       </FieldDt>
       <FieldDt label="Branch Name" required>
         <input className={inp} placeholder="Enter branch name" value={formData.branchName} onChange={(e) => updateForm("branchName", e.target.value)} />
-        {errors.branchName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.branchName}</p>}
       </FieldDt>
       <FieldDt label="Branch Code">
         <input className={inp} value={formData.branchCode} onChange={(e) => updateForm("branchCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="IFSC Code" required hint="e.g., SBIN0001234">
         <input className={inp} placeholder="Enter IFSC code" value={formData.ifscCode} onChange={(e) => updateForm("ifscCode", e.target.value.toUpperCase())} />
-        {errors.ifscCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.ifscCode}</p>}
       </FieldDt>
       <FieldDt label="Bank Address">
         <input className={inp} placeholder="Enter bank address" value={formData.bankAddress} onChange={(e) => updateForm("bankAddress", e.target.value)} />
       </FieldDt>
       <FieldDt label="City" required>
-        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+        <input className={inp} placeholder="Enter city" value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </FieldDt>
       <FieldDt label="District">
-        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+        <input className={inp} placeholder="Enter district" value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
       </FieldDt>
       <FieldDt label="State" required>
-        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+        <input className={inp} placeholder="Enter state" value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
       </FieldDt>
       <FieldDt label="PIN Code" hint="6 digits">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} placeholder="Enter PIN code" value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value)} />
       </FieldDt>
       <FieldDt label="Branch Phone">
-        <input className={inp} type="tel" inputMode="numeric" value={formData.branchPhone} onChange={(e) => updateForm("branchPhone", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="tel" inputMode="numeric" value={formData.branchPhone} onChange={(e) => updateForm("branchPhone", e.target.value)} />
       </FieldDt>
     </>
   );
@@ -831,13 +719,12 @@ function DtContentBankEmp({
           </label>
         </div>
         {formData.idCardDoc && <p className="text-[13px] text-green-600 mt-2">✓ {formData.idCardDoc.name}</p>}
-        {errors.idCardDoc && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.idCardDoc}</p>}
       </FieldDt>
       <FieldDt label="Joining Date">
         <input className={inp} type="date" value={formData.joiningDate} onChange={(e) => updateForm("joiningDate", e.target.value)} />
       </FieldDt>
       <FieldDt label="Years of Experience">
-        <input className={inp} type="number" min="0" placeholder="e.g. 5" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" placeholder="e.g. 5" value={formData.yearsOfExperience} onChange={(e) => updateForm("yearsOfExperience", e.target.value)} />
       </FieldDt>
       <FieldDt label="Reporting Manager Name">
         <input className={inp} value={formData.managerName} onChange={(e) => updateForm("managerName", e.target.value)} />
@@ -864,7 +751,6 @@ function DtContentBankEmp({
           </label>
         ))}
       </div>
-      {errors.loanProducts && <p className="text-[10px] text-red-500 font-medium mt-2">{errors.loanProducts}</p>}
     </>
   );
 
@@ -877,15 +763,12 @@ function DtContentBankEmp({
       </div>
       <FieldDt label="Loan Processing Location" required>
         <input className={inp} value={formData.loanLocation} onChange={(e) => updateForm("loanLocation", e.target.value)} />
-        {errors.loanLocation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanLocation}</p>}
       </FieldDt>
       <FieldDt label="City / District" required>
         <input className={inp} value={formData.serviceCity} onChange={(e) => updateForm("serviceCity", e.target.value)} />
-        {errors.serviceCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceCity}</p>}
       </FieldDt>
       <FieldDt label="State" required>
         <input className={inp} value={formData.serviceState} onChange={(e) => updateForm("serviceState", e.target.value)} />
-        {errors.serviceState && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceState}</p>}
       </FieldDt>
       <FieldDt label="Serviceable PIN Codes">
         <input className={inp} placeholder="Comma separated" value={formData.servicePincodes} onChange={(e) => updateForm("servicePincodes", e.target.value)} />

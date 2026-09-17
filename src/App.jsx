@@ -154,6 +154,9 @@ import BalanceTransferLoanPage from "./pages/loan/BalanceTransferLoanPage";
 import RentalDiscountingLoanPage from "./pages/loan/RentalDiscountingLoanPage";
 import NRIPropertyLoanPage from "./pages/loan/NRIPropertyLoanPage";
 
+//Insurance
+import InsurancePage from "./pages/insurance/InsurancePage";
+
 function AppLayout() {
   const [openOwnerForm, setOpenOwnerForm] = useState(false);
   const [openAgentForm, setOpenAgentForm] = useState(false);
@@ -231,17 +234,20 @@ function AppLayout() {
           {/* Loan */}
           <Route path="/loan" element={<LoanPage />} />
           <Route path="/loans/home-loan" element={<HomeLoanPage />} />
-        <Route path="/loans/construction-loan" element={<HomeConstructionLoanPage />} />
-        <Route path="/loans/renovation-loan" element={<HomeRenovationLoanPage />} />
-        <Route path="/loans/plot-loan" element={<PlotLoanPage />} />
-        <Route path="/loans/land-purchase-loan" element={<LandPurchaseLoanPage />} />
-        <Route path="/loans/commercial-property-loan" element={<CommercialPropertyLoanPage />} />
-        <Route path="/loans/commercial-construction-loan" element={<CommercialConstructionLoanPage />} />
-        <Route path="/loans/loan-against-property" element={<LoanAgainstPropertyPage />} />
-        <Route path="/loans/top-up-loan" element={<TopUpLoanPage />} />
-        <Route path="/loans/balance-transfer" element={<BalanceTransferLoanPage />} />
-        <Route path="/loans/rental-discounting" element={<RentalDiscountingLoanPage />} />
-        <Route path="/loans/nri-property-loan" element={<NRIPropertyLoanPage />} />
+          <Route path="/loans/construction-loan" element={<HomeConstructionLoanPage />} />
+          <Route path="/loans/renovation-loan" element={<HomeRenovationLoanPage />} />
+          <Route path="/loans/plot-loan" element={<PlotLoanPage />} />
+          <Route path="/loans/land-purchase-loan" element={<LandPurchaseLoanPage />} />
+          <Route path="/loans/commercial-property-loan" element={<CommercialPropertyLoanPage />} />
+          <Route path="/loans/commercial-construction-loan" element={<CommercialConstructionLoanPage />} />
+          <Route path="/loans/loan-against-property" element={<LoanAgainstPropertyPage />} />
+          <Route path="/loans/top-up-loan" element={<TopUpLoanPage />} />
+          <Route path="/loans/balance-transfer" element={<BalanceTransferLoanPage />} />
+          <Route path="/loans/rental-discounting" element={<RentalDiscountingLoanPage />} />
+          <Route path="/loans/nri-property-loan" element={<NRIPropertyLoanPage />} />
+
+          {/* Insurance */}
+          <Route path="/insurance" element={<InsurancePage />} />
           
           {/* Customer Portal Routes */}
           <Route path="/individual" element={<IndividualPage />} />

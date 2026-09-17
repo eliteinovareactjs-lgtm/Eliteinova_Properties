@@ -8,11 +8,9 @@ const steps = [
   "Login & Security",
   "Company Verification",
   "Loan Requirements",
-  "Requirement Details",
   "Service Area",
   "Applicant Segment",
   "Applicant Profile",
-  "Document Management",
 ];
 
 const subtitles = [
@@ -21,11 +19,9 @@ const subtitles = [
   "Secure login credentials",
   "Upload company documents",
   "Select the loans your company needs",
-  "Details about the required loan",
   "Where you process loans",
   "Applicant categories you handle",
   "Applicant profiles you serve",
-  "Documents you can upload",
 ];
 
 const companyTypeOptions = [
@@ -38,17 +34,7 @@ const representativeDepartmentOptions = [
   "Operations", "Sales", "Other",
 ];
 
-const businessLoanRequirements = [
-  "Business Loan", "Working Capital Loan", "Term Loan", "Corporate Loan",
-  "SME Loan", "MSME Loan", "Machinery / Equipment Loan",
-  "Commercial Vehicle Loan", "Project Finance", "Business Expansion Loan",
-  "Startup Business Loan",
-];
-
-const workingCapitalRequirements = [
-  "Working Capital Limit", "Cash Credit", "Overdraft Facility",
-];
-
+// Only Property-Related Loans are listed in the spec for Loan Requirements
 const propertyLoanRequirements = [
   "Commercial Property Purchase", "Office / Corporate Building Purchase",
   "Commercial Property Construction", "Land / Plot Purchase",
@@ -58,17 +44,9 @@ const propertyLoanRequirements = [
   "Property Renovation / Expansion", "Top-Up Loan",
 ];
 
-const otherRequirements = [
-  "Loan Refinancing", "Existing Loan Balance Transfer",
-  "Debt Consolidation", "Corporate Emergency Funding",
-  "Expansion / New Branch Funding", "Project Development Finance",
-];
-
-const loanPriorityOptions = ["Urgent", "High", "Normal"];
-
 const applicantSegmentOptions = [
   "Private Limited Companies", "Public Limited Companies", "LLP Companies",
-  "Partnership Firms", "Proprietorship Businesses", "MSMEs", "Startups",
+  "Partnership Firms", "Proprietorship Businesses", "Startups",
   "MNCs", "Manufacturers", "Traders", "Service Companies",
   "IT Companies", "Export / Import Companies", "Builders / Developers",
   "Property Investors", "Commercial Property Owners", "Professionals",
@@ -83,17 +61,6 @@ const applicantProfileOptions = [
   "Machinery Purchase Customer", "Construction Customer",
   "Startup Funding Customer", "Corporate Expansion Customer",
 ];
-
-// ── Validation helpers ──
-const isOnlyLettersAndSpaces = (value) => /^[A-Za-z\s]*$/.test(value);
-const isOnlyDigits = (value) => /^\d*$/.test(value);
-const isAlphanumericWithSpaces = (value) => /^[A-Za-z0-9\s]*$/.test(value);
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const isValidPincode = (code) => /^[0-9]{6}$/.test(code);
-
-const handleAlphaFieldChange = (value) => value.replace(/[^A-Za-z\s]/g, "");
-const handleNumericFieldChange = (value) => value.replace(/\D/g, "");
-const handleAlphanumericFieldChange = (value) => value.replace(/[^A-Za-z0-9\s]/g, "");
 
 // ── Field wrappers ──
 const Field = ({ label, required, hint, children }) => (
@@ -148,62 +115,28 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
     annualTurnoverVerify: "", existingLoans: "", existingBanking: "",
     creditFacilities: "", reportingPerson: "",
 
-    // Step 4: Loan Requirements
-    businessLoans: [],
-    workingCapitalLoans: [],
+    // Step 4: Loan Requirements (only Property-Related Loans per spec)
     propertyLoans: [],
-    otherLoanRequirements: [],
 
-    // Step 5: Requirement Details
-    loanPurpose: "", requiredLoanAmount: "", preferredTenure: "",
-    expectedInterestRate: "", existingLoanAmount: "", existingEmi: "",
-    preferredEmi: "", propertyValue: "", propertyType: "",
-    propertyLocation: "", purchaseCost: "", downPayment: "",
-    requiredFundingDate: "", loanPriority: "",
-    annualTurnover: "", monthlyRevenue: "", monthlyExpenses: "",
-    netProfit: "", existingLiabilities: "", existingEmiObligations: "",
-    bankAccountDetails: "", cibilScore: "", last3YearsTurnover: "", last3YearsProfit: "",
-
-    // Step 6: Service Area
+    // Step 5: Service Area
     loanProcessingLocation: "", serviceCity: "", serviceState: "",
     servicePincodes: "", preferredBranch: "", preferredInstitution: "",
     preferredRm: "", registeredOffice: "", corporateOffice: "",
     branchLocations: "", factoryLocation: "", warehouseLocation: "",
     projectLocation: "", otherLocations: "",
 
-    // Step 7: Applicant Segment
+    // Step 6: Applicant Segment
     applicantSegments: [],
 
-    // Step 8: Applicant Profile
+    // Step 7: Applicant Profile
     applicantProfiles: [],
-
-    // Step 9: Document Management
-    docCompanyRegCert: null, docPan: null, docGst: null,
-    docMoaAoa: null, docPartnershipDeed: null, docLlpAgreement: null,
-    docCinLlpin: null, docCompanyAddressProof: null,
-    docItr: null, docBalanceSheet: null, docProfitLoss: null,
-    docBankStatements: null, docGstReturns: null, docProjections: null,
-    docExistingLoanStatements: null,
-    docSaleDeed: null, docTitleDocuments: null, docEc: null,
-    docPattaChitta: null, docPropertyTax: null, docBuildingPlan: null,
-    docConstructionEstimate: null, docValuationReport: null,
-    docRepPan: null, docRepAadhaar: null, docRepEmployeeId: null,
-    docAuthorization: null, docBoardResolution: null,
   });
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [repPhotoPreview, setRepPhotoPreview] = useState(null);
-  const [errors, setErrors] = useState({});
 
   const updateForm = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
   };
 
   const toggleArrayItem = (field, value) => {
@@ -246,70 +179,6 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
     }
   };
 
-  const validateStep = (s) => {
-    const e = {};
-    if (s === 0) {
-      if (!formData.companyName.trim()) e.companyName = "Company name is required";
-      if (!formData.registrationNumber.trim()) e.registrationNumber = "Registration number is required";
-      if (!formData.companyType) e.companyType = "Company type is required";
-      if (!formData.industry.trim()) e.industry = "Industry / sector is required";
-      if (!formData.officialEmail || !isValidEmail(formData.officialEmail)) e.officialEmail = "Enter a valid email";
-      if (!formData.officialMobile || formData.officialMobile.length !== 10) e.officialMobile = "Enter a valid 10-digit mobile number";
-      if (!formData.registeredAddress.trim()) e.registeredAddress = "Registered office address is required";
-      if (!formData.city.trim()) e.city = "City is required";
-      else if (!isOnlyLettersAndSpaces(formData.city)) e.city = "Only letters and spaces allowed";
-      if (!formData.state.trim()) e.state = "State is required";
-      else if (!isOnlyLettersAndSpaces(formData.state)) e.state = "Only letters and spaces allowed";
-      if (!formData.pinCode || !isValidPincode(formData.pinCode)) e.pinCode = "Enter a valid 6-digit PIN code";
-    }
-    if (s === 1) {
-      if (!formData.repFullName.trim()) e.repFullName = "Representative name is required";
-      else if (!isOnlyLettersAndSpaces(formData.repFullName)) e.repFullName = "Only letters and spaces allowed";
-      if (!formData.repDesignation.trim()) e.repDesignation = "Designation is required";
-      if (!formData.repDepartment) e.repDepartment = "Department is required";
-      if (!formData.repEmail || !isValidEmail(formData.repEmail)) e.repEmail = "Enter a valid email";
-      if (!formData.repMobile || formData.repMobile.length !== 10) e.repMobile = "Enter a valid 10-digit mobile number";
-    }
-    if (s === 2) {
-      if (!formData.username.trim()) e.username = "Username is required";
-      if (!formData.password) e.password = "Password is required";
-      if (formData.password !== formData.confirmPassword) e.confirmPassword = "Passwords do not match";
-      if (!formData.accepted) e.accepted = "You must accept the Terms & Conditions";
-    }
-    if (s === 3) {
-      if (!formData.companyRegCert) e.companyRegCert = "Company Registration Certificate is required";
-      if (!formData.panCard) e.panCard = "PAN Card is required";
-      if (!formData.addressProof) e.addressProof = "Company Address Proof is required";
-      if (!formData.repIdProof) e.repIdProof = "Representative ID Proof is required";
-      if (!formData.authorizationLetter) e.authorizationLetter = "Authorization Letter / Board Resolution is required";
-    }
-    if (s === 4) {
-      const total = formData.businessLoans.length + formData.workingCapitalLoans.length +
-        formData.propertyLoans.length + formData.otherLoanRequirements.length;
-      if (total === 0) e.loanRequirements = "Select at least one loan requirement";
-    }
-    if (s === 5) {
-      if (!formData.loanPurpose.trim()) e.loanPurpose = "Loan purpose is required";
-      if (!formData.requiredLoanAmount.trim()) e.requiredLoanAmount = "Required loan amount is required";
-      if (!formData.annualTurnover.trim()) e.annualTurnover = "Annual company turnover is required";
-    }
-    if (s === 6) {
-      if (!formData.loanProcessingLocation.trim()) e.loanProcessingLocation = "Loan processing location is required";
-      if (!formData.serviceCity.trim()) e.serviceCity = "City is required";
-      if (!formData.serviceState.trim()) e.serviceState = "State is required";
-    }
-    if (s === 7) {
-      if (formData.applicantSegments.length === 0) e.applicantSegments = "Select at least one applicant segment";
-    }
-    if (s === 8) {
-      if (formData.applicantProfiles.length === 0) e.applicantProfiles = "Select at least one applicant profile";
-    }
-    if (s === 9) {
-      // Documents optional at this stage
-    }
-    return e;
-  };
-
   const handleSubmit = () => {
     try {
       console.log("Corporate Company Registration submitted:", formData);
@@ -344,13 +213,13 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
             <p className="text-[9px] text-green-500 mt-0.5">Step {step + 1} of {steps.length} — {subtitles[step]}</p>
           </div>
 
-          <div className="flex items-start justify-between px-0.5 py-1.5 shrink-0 border-b border-gray-100 overflow-x-auto">
+          <div className="flex items-start justify-between px-1 py-1.5 shrink-0 border-b border-gray-100 overflow-x-auto">
             {steps.map((s, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center min-w-[32px]">
-                <div className={`w-4.5 h-4.5 rounded-full text-[8px] flex items-center justify-center font-bold ${i < step ? "bg-green-500 text-white" : i === step ? "bg-[#00695C] text-white" : "bg-gray-200 text-gray-500"}`}>
+              <div key={i} className="flex-1 flex flex-col items-center min-w-[36px]">
+                <div className={`w-5 h-5 rounded-full text-[9px] flex items-center justify-center font-bold ${i < step ? "bg-green-500 text-white" : i === step ? "bg-[#00695C] text-white" : "bg-gray-200 text-gray-500"}`}>
                   {i < step ? "✓" : i + 1}
                 </div>
-                <p className={`text-[6px] mt-0.5 text-center px-0.5 leading-tight ${i === step ? "text-[#00695C] font-bold" : "text-gray-400"}`}>{s}</p>
+                <p className={`text-[6.5px] mt-0.5 text-center px-0.5 leading-tight ${i === step ? "text-[#00695C] font-bold" : "text-gray-400"}`}>{s}</p>
               </div>
             ))}
           </div>
@@ -369,19 +238,11 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
               handleDocumentUpload={handleDocumentUpload}
               setLogoPreview={setLogoPreview}
               setRepPhotoPreview={setRepPhotoPreview}
-              errors={errors}
               companyTypeOptions={companyTypeOptions}
               representativeDepartmentOptions={representativeDepartmentOptions}
-              businessLoanRequirements={businessLoanRequirements}
-              workingCapitalRequirements={workingCapitalRequirements}
               propertyLoanRequirements={propertyLoanRequirements}
-              otherRequirements={otherRequirements}
-              loanPriorityOptions={loanPriorityOptions}
               applicantSegmentOptions={applicantSegmentOptions}
               applicantProfileOptions={applicantProfileOptions}
-              handleAlphaFieldChange={handleAlphaFieldChange}
-              handleNumericFieldChange={handleNumericFieldChange}
-              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
             />
           </div>
 
@@ -398,9 +259,9 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
                 </div>
               </div>
             )}
-            <div className="flex justify-center gap-0.5 pt-1">
+            <div className="flex justify-center gap-1 pt-1">
               {steps.map((_, i) => (
-                <div key={i} className={`rounded-full transition-all duration-300 ${i < step ? 'w-1.5 h-1 bg-green-400' : i === step ? 'w-3 h-1 bg-[#00695C]' : 'w-1 h-1 bg-gray-200'}`} />
+                <div key={i} className={`rounded-full transition-all duration-300 ${i < step ? 'w-2 h-1 bg-green-400' : i === step ? 'w-3.5 h-1 bg-[#00695C]' : 'w-1 h-1 bg-gray-200'}`} />
               ))}
             </div>
             <div className="flex gap-2 px-3 py-2">
@@ -412,9 +273,6 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
               <button
                 className={`flex-1 py-2 text-[12px] font-semibold text-white rounded-xl flex items-center justify-center gap-1 shadow ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
                 onClick={() => {
-                  const stepErrors = validateStep(step);
-                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
-                  setErrors({});
                   step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
                 }}
               >
@@ -444,13 +302,13 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
             <p className="text-[9px] text-green-500 mt-0.5">Step {step + 1} of {steps.length} — {subtitles[step]}</p>
           </div>
 
-          <div className="flex items-start justify-between px-0.5 py-1.5 shrink-0 border-b border-gray-100 overflow-x-auto">
+          <div className="flex items-start justify-between px-1 py-1.5 shrink-0 border-b border-gray-100 overflow-x-auto">
             {steps.map((s, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center min-w-[36px]">
-                <div className={`w-5 h-5 rounded-full text-[9px] flex items-center justify-center font-bold ${i < step ? "bg-green-500 text-white" : i === step ? "bg-[#00695C] text-white" : "bg-gray-200 text-gray-500"}`}>
+              <div key={i} className="flex-1 flex flex-col items-center min-w-[40px]">
+                <div className={`w-5.5 h-5.5 rounded-full text-[10px] flex items-center justify-center font-bold ${i < step ? "bg-green-500 text-white" : i === step ? "bg-[#00695C] text-white" : "bg-gray-200 text-gray-500"}`}>
                   {i < step ? "✓" : i + 1}
                 </div>
-                <p className={`text-[6px] mt-0.5 text-center px-0.5 leading-tight ${i === step ? "text-[#00695C] font-bold" : "text-gray-400"}`}>{s}</p>
+                <p className={`text-[7px] mt-0.5 text-center px-0.5 leading-tight ${i === step ? "text-[#00695C] font-bold" : "text-gray-400"}`}>{s}</p>
               </div>
             ))}
           </div>
@@ -469,19 +327,11 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
               handleDocumentUpload={handleDocumentUpload}
               setLogoPreview={setLogoPreview}
               setRepPhotoPreview={setRepPhotoPreview}
-              errors={errors}
               companyTypeOptions={companyTypeOptions}
               representativeDepartmentOptions={representativeDepartmentOptions}
-              businessLoanRequirements={businessLoanRequirements}
-              workingCapitalRequirements={workingCapitalRequirements}
               propertyLoanRequirements={propertyLoanRequirements}
-              otherRequirements={otherRequirements}
-              loanPriorityOptions={loanPriorityOptions}
               applicantSegmentOptions={applicantSegmentOptions}
               applicantProfileOptions={applicantProfileOptions}
-              handleAlphaFieldChange={handleAlphaFieldChange}
-              handleNumericFieldChange={handleNumericFieldChange}
-              handleAlphanumericFieldChange={handleAlphanumericFieldChange}
             />
           </div>
 
@@ -498,9 +348,9 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
                 </div>
               </div>
             )}
-            <div className="flex justify-center gap-1 pt-1">
+            <div className="flex justify-center gap-1.5 pt-1">
               {steps.map((_, i) => (
-                <div key={i} className={`rounded-full transition-all duration-300 ${i < step ? 'w-2 h-1.5 bg-green-400' : i === step ? 'w-3.5 h-1.5 bg-[#00695C]' : 'w-1.5 h-1.5 bg-gray-200'}`} />
+                <div key={i} className={`rounded-full transition-all duration-300 ${i < step ? 'w-2.5 h-1.5 bg-green-400' : i === step ? 'w-4 h-1.5 bg-[#00695C]' : 'w-1.5 h-1.5 bg-gray-200'}`} />
               ))}
             </div>
             <div className="flex gap-2 px-4 py-2">
@@ -511,9 +361,6 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
               )}
               <button className={`px-5 py-1.5 text-[12px] font-semibold text-white rounded-lg flex items-center gap-1.5 ml-auto shadow-md hover:-translate-y-0.5 ${step === steps.length - 1 ? 'bg-gradient-to-r from-green-600 to-teal-600' : 'bg-gradient-to-r from-[#00695C] to-[#00897B]'}`}
                 onClick={() => {
-                  const stepErrors = validateStep(step);
-                  if (Object.keys(stepErrors).length > 0) { setErrors(stepErrors); return; }
-                  setErrors({});
                   step === steps.length - 1 ? handleSubmit() : setStep(step + 1);
                 }}>
                 {step === steps.length - 1 ? <><span>✓</span> Submit Form</> : <>Continue <span className="text-sm">→</span></>}
@@ -532,12 +379,9 @@ export default function CorporateCompanyRegistrationForm({ isOpen, onClose }) {
 function MobContentCorporate({
   step, inp, formData, updateForm, toggleArrayItem,
   logoPreview, repPhotoPreview, handleImageUpload, removeImage,
-  handleDocumentUpload, setLogoPreview, setRepPhotoPreview, errors,
+  handleDocumentUpload, setLogoPreview, setRepPhotoPreview,
   companyTypeOptions, representativeDepartmentOptions,
-  businessLoanRequirements, workingCapitalRequirements,
-  propertyLoanRequirements, otherRequirements, loanPriorityOptions,
-  applicantSegmentOptions, applicantProfileOptions,
-  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
+  propertyLoanRequirements, applicantSegmentOptions, applicantProfileOptions,
 }) {
   // STEP 0: Company Details
   if (step === 0) return (
@@ -548,25 +392,21 @@ function MobContentCorporate({
       </div>
       <Field label="Company Name" required>
         <input className={inp} value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
-        {errors.companyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.companyName}</p>}
       </Field>
       <Field label="Company Registration Number" required>
-        <input className={inp} value={formData.registrationNumber} onChange={(e) => updateForm("registrationNumber", handleAlphanumericFieldChange(e.target.value))} />
-        {errors.registrationNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.registrationNumber}</p>}
+        <input className={inp} value={formData.registrationNumber} onChange={(e) => updateForm("registrationNumber", e.target.value)} />
       </Field>
       <Field label="Company Type" required>
         <select className={inp} value={formData.companyType} onChange={(e) => updateForm("companyType", e.target.value)}>
           <option value="">Select Company Type</option>
           {companyTypeOptions.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        {errors.companyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.companyType}</p>}
       </Field>
       <Field label="Industry / Business Sector" required>
         <input className={inp} value={formData.industry} onChange={(e) => updateForm("industry", e.target.value)} />
-        {errors.industry && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.industry}</p>}
       </Field>
       <Field label="Year of Establishment">
-        <input className={inp} type="number" min="1900" max="2099" value={formData.yearOfEstablishment} onChange={(e) => updateForm("yearOfEstablishment", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="1900" max="2099" value={formData.yearOfEstablishment} onChange={(e) => updateForm("yearOfEstablishment", e.target.value)} />
       </Field>
       <Field label="Company Logo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -588,36 +428,30 @@ function MobContentCorporate({
       </Field>
       <Field label="Official Email" required>
         <input className={inp} type="email" value={formData.officialEmail} onChange={(e) => updateForm("officialEmail", e.target.value)} />
-        {errors.officialEmail && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officialEmail}</p>}
       </Field>
       <Field label="Official Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.officialMobile} onChange={(e) => updateForm("officialMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.officialMobile && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officialMobile}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.officialMobile} onChange={(e) => updateForm("officialMobile", e.target.value.slice(0, 10))} />
       </Field>
       <Field label="Alternate Contact Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.alternateContact} onChange={(e) => updateForm("alternateContact", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.alternateContact} onChange={(e) => updateForm("alternateContact", e.target.value.slice(0, 10))} />
       </Field>
       <Field label="Registered Office Address" required>
         <input className={inp} value={formData.registeredAddress} onChange={(e) => updateForm("registeredAddress", e.target.value)} />
-        {errors.registeredAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.registeredAddress}</p>}
       </Field>
       <Field label="City" required>
-        <input className={inp} value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+        <input className={inp} value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </Field>
       <Field label="District">
-        <input className={inp} value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+        <input className={inp} value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
       </Field>
       <Field label="State" required>
-        <input className={inp} value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+        <input className={inp} value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
       </Field>
       <Field label="PIN Code" required hint="6 digits">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
       </Field>
       <Field label="Number of Employees">
-        <input className={inp} type="number" min="0" value={formData.numberOfEmployees} onChange={(e) => updateForm("numberOfEmployees", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" value={formData.numberOfEmployees} onChange={(e) => updateForm("numberOfEmployees", e.target.value)} />
       </Field>
       <Field label="Annual Turnover">
         <input className={inp} value={formData.annualTurnover} onChange={(e) => updateForm("annualTurnover", e.target.value)} placeholder="e.g. ₹5 Cr" />
@@ -642,33 +476,28 @@ function MobContentCorporate({
         <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <Field label="Representative Full Name" required>
-        <input className={inp} value={formData.repFullName} onChange={(e) => updateForm("repFullName", handleAlphaFieldChange(e.target.value))} />
-        {errors.repFullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repFullName}</p>}
+        <input className={inp} value={formData.repFullName} onChange={(e) => updateForm("repFullName", e.target.value)} />
       </Field>
       <Field label="Employee ID">
-        <input className={inp} value={formData.repEmployeeId} onChange={(e) => updateForm("repEmployeeId", handleAlphanumericFieldChange(e.target.value))} />
+        <input className={inp} value={formData.repEmployeeId} onChange={(e) => updateForm("repEmployeeId", e.target.value)} />
       </Field>
       <Field label="Designation" required>
         <input className={inp} value={formData.repDesignation} onChange={(e) => updateForm("repDesignation", e.target.value)} />
-        {errors.repDesignation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repDesignation}</p>}
       </Field>
       <Field label="Department" required>
         <select className={inp} value={formData.repDepartment} onChange={(e) => updateForm("repDepartment", e.target.value)}>
           <option value="">Select Department</option>
           {representativeDepartmentOptions.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        {errors.repDepartment && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repDepartment}</p>}
       </Field>
       <Field label="Official Email" required>
         <input className={inp} type="email" value={formData.repEmail} onChange={(e) => updateForm("repEmail", e.target.value)} />
-        {errors.repEmail && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repEmail}</p>}
       </Field>
       <Field label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repMobile} onChange={(e) => updateForm("repMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.repMobile && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repMobile}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repMobile} onChange={(e) => updateForm("repMobile", e.target.value.slice(0, 10))} />
       </Field>
       <Field label="Alternate Mobile Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repAlternateMobile} onChange={(e) => updateForm("repAlternateMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repAlternateMobile} onChange={(e) => updateForm("repAlternateMobile", e.target.value.slice(0, 10))} />
       </Field>
       <Field label="Date of Birth">
         <input className={inp} type="date" value={formData.repDob} onChange={(e) => updateForm("repDob", e.target.value)} />
@@ -695,7 +524,7 @@ function MobContentCorporate({
         <input className={inp} type="email" value={formData.repManagerEmail} onChange={(e) => updateForm("repManagerEmail", e.target.value)} />
       </Field>
       <Field label="Reporting Manager Mobile">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repManagerMobile} onChange={(e) => updateForm("repManagerMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repManagerMobile} onChange={(e) => updateForm("repManagerMobile", e.target.value.slice(0, 10))} />
       </Field>
     </>
   );
@@ -709,15 +538,12 @@ function MobContentCorporate({
       </div>
       <Field label="Username / Official Email" required>
         <input className={inp} value={formData.username} onChange={(e) => updateForm("username", e.target.value)} />
-        {errors.username && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.username}</p>}
       </Field>
       <Field label="Password" required>
         <input className={inp} type="password" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} />
-        {errors.password && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.password}</p>}
       </Field>
       <Field label="Confirm Password" required>
         <input className={inp} type="password" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} />
-        {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.confirmPassword}</p>}
       </Field>
       <label className="flex items-center gap-2 text-[11px] cursor-pointer mb-2">
         <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.twoFA} onChange={() => updateForm("twoFA", !formData.twoFA)} />
@@ -730,7 +556,6 @@ function MobContentCorporate({
         <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.accepted} onChange={() => updateForm("accepted", !formData.accepted)} />
         I accept the Terms & Conditions <span className="text-red-500">*</span>
       </label>
-      {errors.accepted && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accepted}</p>}
     </>
   );
 
@@ -765,7 +590,6 @@ function MobContentCorporate({
             </label>
           </div>
           {formData[key] && <p className="text-[10px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-          {errors[key] && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors[key]}</p>}
         </Field>
       ))}
 
@@ -776,11 +600,11 @@ function MobContentCorporate({
       <Field label="Registration Date">
         <input className={inp} type="date" value={formData.registrationDate} onChange={(e) => updateForm("registrationDate", e.target.value)} />
       </Field>
-      <Field label="Business Vintage (Years)">
-        <input className={inp} type="number" min="0" value={formData.businessVintage} onChange={(e) => updateForm("businessVintage", handleNumericFieldChange(e.target.value))} />
+      <Field label="Business Vintage">
+        <input className={inp} value={formData.businessVintage} onChange={(e) => updateForm("businessVintage", e.target.value)} />
       </Field>
       <Field label="Number of Employees">
-        <input className={inp} type="number" min="0" value={formData.employeesCount} onChange={(e) => updateForm("employeesCount", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" value={formData.employeesCount} onChange={(e) => updateForm("employeesCount", e.target.value)} />
       </Field>
       <Field label="Annual Turnover">
         <input className={inp} value={formData.annualTurnoverVerify} onChange={(e) => updateForm("annualTurnoverVerify", e.target.value)} />
@@ -800,40 +624,15 @@ function MobContentCorporate({
     </>
   );
 
-  // STEP 4: Loan Requirements
+  // STEP 4: Loan Requirements — only Property-Related Loans per spec
   if (step === 4) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Business & Corporate Loans</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-1 mb-3">
-        {businessLoanRequirements.map(p => (
-          <label key={p} className="flex items-center gap-1 text-[10px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.businessLoans.includes(p)} onChange={() => toggleArrayItem("businessLoans", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Working Capital</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-1 mb-3">
-        {workingCapitalRequirements.map(p => (
-          <label key={p} className="flex items-center gap-1 text-[10px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.workingCapitalLoans.includes(p)} onChange={() => toggleArrayItem("workingCapitalLoans", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
         <h3 className="text-[11px] font-bold text-[#00695C]">Property-Related Loans</h3>
       </div>
-      <div className="grid grid-cols-2 gap-1 mb-3">
+      <p className="text-[10px] text-gray-400 mb-2">Select the loans your company needs</p>
+      <div className="grid grid-cols-2 gap-1">
         {propertyLoanRequirements.map(p => (
           <label key={p} className="flex items-center gap-1 text-[10px] cursor-pointer">
             <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.propertyLoans.includes(p)} onChange={() => toggleArrayItem("propertyLoans", p)} />
@@ -841,122 +640,11 @@ function MobContentCorporate({
           </label>
         ))}
       </div>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Other Requirements</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-1">
-        {otherRequirements.map(p => (
-          <label key={p} className="flex items-center gap-1 text-[10px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.otherLoanRequirements.includes(p)} onChange={() => toggleArrayItem("otherLoanRequirements", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-      {errors.loanRequirements && <p className="text-[10px] text-red-500 font-medium mt-2">{errors.loanRequirements}</p>}
     </>
   );
 
-  // STEP 5: Requirement Details
+  // STEP 5: Service Area
   if (step === 5) return (
-    <>
-      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Loan Requirement Details</h3>
-      </div>
-      <Field label="Loan Purpose" required>
-        <input className={inp} value={formData.loanPurpose} onChange={(e) => updateForm("loanPurpose", e.target.value)} />
-        {errors.loanPurpose && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanPurpose}</p>}
-      </Field>
-      <Field label="Required Loan Amount" required>
-        <input className={inp} value={formData.requiredLoanAmount} onChange={(e) => updateForm("requiredLoanAmount", e.target.value)} />
-        {errors.requiredLoanAmount && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.requiredLoanAmount}</p>}
-      </Field>
-      <Field label="Preferred Loan Tenure">
-        <input className={inp} value={formData.preferredTenure} onChange={(e) => updateForm("preferredTenure", e.target.value)} />
-      </Field>
-      <Field label="Expected Interest Rate">
-        <input className={inp} value={formData.expectedInterestRate} onChange={(e) => updateForm("expectedInterestRate", e.target.value)} />
-      </Field>
-      <Field label="Existing Loan Amount">
-        <input className={inp} value={formData.existingLoanAmount} onChange={(e) => updateForm("existingLoanAmount", e.target.value)} />
-      </Field>
-      <Field label="Existing EMI">
-        <input className={inp} value={formData.existingEmi} onChange={(e) => updateForm("existingEmi", e.target.value)} />
-      </Field>
-      <Field label="Preferred EMI">
-        <input className={inp} value={formData.preferredEmi} onChange={(e) => updateForm("preferredEmi", e.target.value)} />
-      </Field>
-      <Field label="Property Value">
-        <input className={inp} value={formData.propertyValue} onChange={(e) => updateForm("propertyValue", e.target.value)} />
-      </Field>
-      <Field label="Property Type">
-        <input className={inp} value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
-      </Field>
-      <Field label="Property Location">
-        <input className={inp} value={formData.propertyLocation} onChange={(e) => updateForm("propertyLocation", e.target.value)} />
-      </Field>
-      <Field label="Purchase / Construction Cost">
-        <input className={inp} value={formData.purchaseCost} onChange={(e) => updateForm("purchaseCost", e.target.value)} />
-      </Field>
-      <Field label="Down Payment Amount">
-        <input className={inp} value={formData.downPayment} onChange={(e) => updateForm("downPayment", e.target.value)} />
-      </Field>
-      <Field label="Required Funding Date">
-        <input className={inp} type="date" value={formData.requiredFundingDate} onChange={(e) => updateForm("requiredFundingDate", e.target.value)} />
-      </Field>
-      <Field label="Loan Priority">
-        <div className="flex gap-3 flex-wrap">
-          {loanPriorityOptions.map(p => (
-            <label key={p} className="flex items-center gap-1.5 text-[11px] cursor-pointer">
-              <input type="radio" name="mob-corp-priority" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.loanPriority === p} onChange={() => updateForm("loanPriority", p)} />
-              {p}
-            </label>
-          ))}
-        </div>
-      </Field>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Financial Details</h3>
-      </div>
-      <Field label="Annual Company Turnover" required>
-        <input className={inp} value={formData.annualTurnover} onChange={(e) => updateForm("annualTurnover", e.target.value)} />
-        {errors.annualTurnover && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.annualTurnover}</p>}
-      </Field>
-      <Field label="Monthly Revenue">
-        <input className={inp} value={formData.monthlyRevenue} onChange={(e) => updateForm("monthlyRevenue", e.target.value)} />
-      </Field>
-      <Field label="Monthly Expenses">
-        <input className={inp} value={formData.monthlyExpenses} onChange={(e) => updateForm("monthlyExpenses", e.target.value)} />
-      </Field>
-      <Field label="Net Profit">
-        <input className={inp} value={formData.netProfit} onChange={(e) => updateForm("netProfit", e.target.value)} />
-      </Field>
-      <Field label="Existing Liabilities">
-        <input className={inp} value={formData.existingLiabilities} onChange={(e) => updateForm("existingLiabilities", e.target.value)} />
-      </Field>
-      <Field label="Existing EMI Obligations">
-        <input className={inp} value={formData.existingEmiObligations} onChange={(e) => updateForm("existingEmiObligations", e.target.value)} />
-      </Field>
-      <Field label="Bank Account Details">
-        <input className={inp} value={formData.bankAccountDetails} onChange={(e) => updateForm("bankAccountDetails", e.target.value)} />
-      </Field>
-      <Field label="Credit Score / CIBIL Score">
-        <input className={inp} value={formData.cibilScore} onChange={(e) => updateForm("cibilScore", e.target.value)} />
-      </Field>
-      <Field label="Last 3 Years Turnover">
-        <input className={inp} value={formData.last3YearsTurnover} onChange={(e) => updateForm("last3YearsTurnover", e.target.value)} />
-      </Field>
-      <Field label="Last 3 Years Profit">
-        <input className={inp} value={formData.last3YearsProfit} onChange={(e) => updateForm("last3YearsProfit", e.target.value)} />
-      </Field>
-    </>
-  );
-
-  // STEP 6: Service Area
-  if (step === 6) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -964,15 +652,12 @@ function MobContentCorporate({
       </div>
       <Field label="Loan Processing Location" required>
         <input className={inp} value={formData.loanProcessingLocation} onChange={(e) => updateForm("loanProcessingLocation", e.target.value)} />
-        {errors.loanProcessingLocation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanProcessingLocation}</p>}
       </Field>
       <Field label="City / District" required>
         <input className={inp} value={formData.serviceCity} onChange={(e) => updateForm("serviceCity", e.target.value)} />
-        {errors.serviceCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceCity}</p>}
       </Field>
       <Field label="State" required>
         <input className={inp} value={formData.serviceState} onChange={(e) => updateForm("serviceState", e.target.value)} />
-        {errors.serviceState && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceState}</p>}
       </Field>
       <Field label="Serviceable PIN Codes">
         <input className={inp} value={formData.servicePincodes} onChange={(e) => updateForm("servicePincodes", e.target.value)} placeholder="Comma separated" />
@@ -1015,8 +700,8 @@ function MobContentCorporate({
     </>
   );
 
-  // STEP 7: Applicant Segment
-  if (step === 7) return (
+  // STEP 6: Applicant Segment
+  if (step === 6) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -1031,12 +716,11 @@ function MobContentCorporate({
           </label>
         ))}
       </div>
-      {errors.applicantSegments && <p className="text-[10px] text-red-500 font-medium mt-2">{errors.applicantSegments}</p>}
     </>
   );
 
-  // STEP 8: Applicant Profile
-  if (step === 8) return (
+  // STEP 7: Applicant Profile
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
         <div className="w-1 h-3 bg-[#00695C] rounded" />
@@ -1050,88 +734,6 @@ function MobContentCorporate({
           </label>
         ))}
       </div>
-      {errors.applicantProfiles && <p className="text-[10px] text-red-500 font-medium mt-2">{errors.applicantProfiles}</p>}
-    </>
-  );
-
-  // STEP 9: Document Management
-  if (step === 9) return (
-    <>
-      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Company Documents</h3>
-      </div>
-      {[
-        { key: "docCompanyRegCert", label: "Company Registration Certificate" },
-        { key: "docPan", label: "PAN" },
-        { key: "docGst", label: "GST Certificate" },
-        { key: "docMoaAoa", label: "MOA / AOA" },
-        { key: "docPartnershipDeed", label: "Partnership Deed" },
-        { key: "docLlpAgreement", label: "LLP Agreement" },
-        { key: "docCinLlpin", label: "CIN / LLPIN" },
-        { key: "docCompanyAddressProof", label: "Company Address Proof" },
-      ].map(({ key, label }) => (
-        <Field key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[10px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </Field>
-      ))}
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Financial Documents</h3>
-      </div>
-      {[
-        { key: "docItr", label: "ITR – 2/3 Years" },
-        { key: "docBalanceSheet", label: "Balance Sheet" },
-        { key: "docProfitLoss", label: "Profit & Loss Statement" },
-        { key: "docBankStatements", label: "Bank Statements" },
-        { key: "docGstReturns", label: "GST Returns" },
-        { key: "docProjections", label: "Financial Projections" },
-        { key: "docExistingLoanStatements", label: "Existing Loan Statements" },
-      ].map(({ key, label }) => (
-        <Field key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[10px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </Field>
-      ))}
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Property Documents</h3>
-      </div>
-      {[
-        { key: "docSaleDeed", label: "Sale Deed" },
-        { key: "docTitleDocuments", label: "Title Documents" },
-        { key: "docEc", label: "EC – Encumbrance Certificate" },
-        { key: "docPattaChitta", label: "Patta / Chitta" },
-        { key: "docPropertyTax", label: "Property Tax Receipt" },
-        { key: "docBuildingPlan", label: "Approved Building Plan" },
-        { key: "docConstructionEstimate", label: "Construction Estimate" },
-        { key: "docValuationReport", label: "Property Valuation Report" },
-      ].map(({ key, label }) => (
-        <Field key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[10px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </Field>
-      ))}
-
-      <div className="flex items-center gap-1.5 mt-3 mb-2 pb-1.5 border-b-2 border-green-50">
-        <div className="w-1 h-3 bg-[#00695C] rounded" />
-        <h3 className="text-[11px] font-bold text-[#00695C]">Authorized Person Documents</h3>
-      </div>
-      {[
-        { key: "docRepPan", label: "PAN Card" },
-        { key: "docRepAadhaar", label: "Aadhaar / ID Proof" },
-        { key: "docRepEmployeeId", label: "Employee ID" },
-        { key: "docAuthorization", label: "Authorization Letter" },
-        { key: "docBoardResolution", label: "Board Resolution" },
-      ].map(({ key, label }) => (
-        <Field key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[10px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </Field>
-      ))}
     </>
   );
 
@@ -1144,12 +746,9 @@ function MobContentCorporate({
 function DtContentCorporate({
   step, inp, formData, updateForm, toggleArrayItem,
   logoPreview, repPhotoPreview, handleImageUpload, removeImage,
-  handleDocumentUpload, setLogoPreview, setRepPhotoPreview, errors,
+  handleDocumentUpload, setLogoPreview, setRepPhotoPreview,
   companyTypeOptions, representativeDepartmentOptions,
-  businessLoanRequirements, workingCapitalRequirements,
-  propertyLoanRequirements, otherRequirements, loanPriorityOptions,
-  applicantSegmentOptions, applicantProfileOptions,
-  handleAlphaFieldChange, handleNumericFieldChange, handleAlphanumericFieldChange,
+  propertyLoanRequirements, applicantSegmentOptions, applicantProfileOptions,
 }) {
   // STEP 0: Company Details
   if (step === 0) return (
@@ -1160,25 +759,21 @@ function DtContentCorporate({
       </div>
       <FieldDt label="Company Name" required>
         <input className={inp} value={formData.companyName} onChange={(e) => updateForm("companyName", e.target.value)} />
-        {errors.companyName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.companyName}</p>}
       </FieldDt>
       <FieldDt label="Company Registration Number" required>
-        <input className={inp} value={formData.registrationNumber} onChange={(e) => updateForm("registrationNumber", handleAlphanumericFieldChange(e.target.value))} />
-        {errors.registrationNumber && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.registrationNumber}</p>}
+        <input className={inp} value={formData.registrationNumber} onChange={(e) => updateForm("registrationNumber", e.target.value)} />
       </FieldDt>
       <FieldDt label="Company Type" required>
         <select className={inp} value={formData.companyType} onChange={(e) => updateForm("companyType", e.target.value)}>
           <option value="">Select Company Type</option>
           {companyTypeOptions.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        {errors.companyType && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.companyType}</p>}
       </FieldDt>
       <FieldDt label="Industry / Business Sector" required>
         <input className={inp} value={formData.industry} onChange={(e) => updateForm("industry", e.target.value)} />
-        {errors.industry && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.industry}</p>}
       </FieldDt>
       <FieldDt label="Year of Establishment">
-        <input className={inp} type="number" min="1900" max="2099" value={formData.yearOfEstablishment} onChange={(e) => updateForm("yearOfEstablishment", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="1900" max="2099" value={formData.yearOfEstablishment} onChange={(e) => updateForm("yearOfEstablishment", e.target.value)} />
       </FieldDt>
       <FieldDt label="Company Logo" hint="Max 2MB">
         <div className="border-2 border-dashed border-teal-300 rounded-xl p-3 text-center hover:bg-green-50">
@@ -1200,36 +795,30 @@ function DtContentCorporate({
       </FieldDt>
       <FieldDt label="Official Email" required>
         <input className={inp} type="email" value={formData.officialEmail} onChange={(e) => updateForm("officialEmail", e.target.value)} />
-        {errors.officialEmail && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officialEmail}</p>}
       </FieldDt>
       <FieldDt label="Official Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.officialMobile} onChange={(e) => updateForm("officialMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.officialMobile && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.officialMobile}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.officialMobile} onChange={(e) => updateForm("officialMobile", e.target.value.slice(0, 10))} />
       </FieldDt>
       <FieldDt label="Alternate Contact Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.alternateContact} onChange={(e) => updateForm("alternateContact", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.alternateContact} onChange={(e) => updateForm("alternateContact", e.target.value.slice(0, 10))} />
       </FieldDt>
       <FieldDt label="Registered Office Address" required>
         <input className={inp} value={formData.registeredAddress} onChange={(e) => updateForm("registeredAddress", e.target.value)} />
-        {errors.registeredAddress && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.registeredAddress}</p>}
       </FieldDt>
       <FieldDt label="City" required>
-        <input className={inp} value={formData.city} onChange={(e) => updateForm("city", handleAlphaFieldChange(e.target.value))} />
-        {errors.city && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.city}</p>}
+        <input className={inp} value={formData.city} onChange={(e) => updateForm("city", e.target.value)} />
       </FieldDt>
       <FieldDt label="District">
-        <input className={inp} value={formData.district} onChange={(e) => updateForm("district", handleAlphaFieldChange(e.target.value))} />
+        <input className={inp} value={formData.district} onChange={(e) => updateForm("district", e.target.value)} />
       </FieldDt>
       <FieldDt label="State" required>
-        <input className={inp} value={formData.state} onChange={(e) => updateForm("state", handleAlphaFieldChange(e.target.value))} />
-        {errors.state && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.state}</p>}
+        <input className={inp} value={formData.state} onChange={(e) => updateForm("state", e.target.value)} />
       </FieldDt>
       <FieldDt label="PIN Code" required hint="6 digits">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={6} value={formData.pinCode} onChange={(e) => updateForm("pinCode", handleNumericFieldChange(e.target.value).slice(0, 6))} />
-        {errors.pinCode && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.pinCode}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={6} value={formData.pinCode} onChange={(e) => updateForm("pinCode", e.target.value.slice(0, 6))} />
       </FieldDt>
       <FieldDt label="Number of Employees">
-        <input className={inp} type="number" min="0" value={formData.numberOfEmployees} onChange={(e) => updateForm("numberOfEmployees", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" value={formData.numberOfEmployees} onChange={(e) => updateForm("numberOfEmployees", e.target.value)} />
       </FieldDt>
       <FieldDt label="Annual Turnover">
         <input className={inp} value={formData.annualTurnover} onChange={(e) => updateForm("annualTurnover", e.target.value)} placeholder="e.g. ₹5 Cr" />
@@ -1254,33 +843,28 @@ function DtContentCorporate({
         <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Representative</h3>
       </div>
       <FieldDt label="Representative Full Name" required>
-        <input className={inp} value={formData.repFullName} onChange={(e) => updateForm("repFullName", handleAlphaFieldChange(e.target.value))} />
-        {errors.repFullName && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repFullName}</p>}
+        <input className={inp} value={formData.repFullName} onChange={(e) => updateForm("repFullName", e.target.value)} />
       </FieldDt>
       <FieldDt label="Employee ID">
-        <input className={inp} value={formData.repEmployeeId} onChange={(e) => updateForm("repEmployeeId", handleAlphanumericFieldChange(e.target.value))} />
+        <input className={inp} value={formData.repEmployeeId} onChange={(e) => updateForm("repEmployeeId", e.target.value)} />
       </FieldDt>
       <FieldDt label="Designation" required>
         <input className={inp} value={formData.repDesignation} onChange={(e) => updateForm("repDesignation", e.target.value)} />
-        {errors.repDesignation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repDesignation}</p>}
       </FieldDt>
       <FieldDt label="Department" required>
         <select className={inp} value={formData.repDepartment} onChange={(e) => updateForm("repDepartment", e.target.value)}>
           <option value="">Select Department</option>
           {representativeDepartmentOptions.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
-        {errors.repDepartment && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repDepartment}</p>}
       </FieldDt>
       <FieldDt label="Official Email" required>
         <input className={inp} type="email" value={formData.repEmail} onChange={(e) => updateForm("repEmail", e.target.value)} />
-        {errors.repEmail && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repEmail}</p>}
       </FieldDt>
       <FieldDt label="Mobile Number" required>
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repMobile} onChange={(e) => updateForm("repMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
-        {errors.repMobile && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.repMobile}</p>}
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repMobile} onChange={(e) => updateForm("repMobile", e.target.value.slice(0, 10))} />
       </FieldDt>
       <FieldDt label="Alternate Mobile Number">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repAlternateMobile} onChange={(e) => updateForm("repAlternateMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repAlternateMobile} onChange={(e) => updateForm("repAlternateMobile", e.target.value.slice(0, 10))} />
       </FieldDt>
       <FieldDt label="Date of Birth">
         <input className={inp} type="date" value={formData.repDob} onChange={(e) => updateForm("repDob", e.target.value)} />
@@ -1307,7 +891,7 @@ function DtContentCorporate({
         <input className={inp} type="email" value={formData.repManagerEmail} onChange={(e) => updateForm("repManagerEmail", e.target.value)} />
       </FieldDt>
       <FieldDt label="Reporting Manager Mobile">
-        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repManagerMobile} onChange={(e) => updateForm("repManagerMobile", handleNumericFieldChange(e.target.value).slice(0, 10))} />
+        <input className={inp} type="tel" inputMode="numeric" maxLength={10} value={formData.repManagerMobile} onChange={(e) => updateForm("repManagerMobile", e.target.value.slice(0, 10))} />
       </FieldDt>
     </>
   );
@@ -1321,15 +905,12 @@ function DtContentCorporate({
       </div>
       <FieldDt label="Username / Official Email" required>
         <input className={inp} value={formData.username} onChange={(e) => updateForm("username", e.target.value)} />
-        {errors.username && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.username}</p>}
       </FieldDt>
       <FieldDt label="Password" required>
         <input className={inp} type="password" value={formData.password} onChange={(e) => updateForm("password", e.target.value)} />
-        {errors.password && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.password}</p>}
       </FieldDt>
       <FieldDt label="Confirm Password" required>
         <input className={inp} type="password" value={formData.confirmPassword} onChange={(e) => updateForm("confirmPassword", e.target.value)} />
-        {errors.confirmPassword && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.confirmPassword}</p>}
       </FieldDt>
       <label className="flex items-center gap-2 text-[13px] cursor-pointer mb-2">
         <input type="checkbox" className="accent-[#00695C] w-4 h-4" checked={formData.twoFA} onChange={() => updateForm("twoFA", !formData.twoFA)} />
@@ -1342,7 +923,6 @@ function DtContentCorporate({
         <input type="checkbox" className="accent-[#00695C] w-4 h-4" checked={formData.accepted} onChange={() => updateForm("accepted", !formData.accepted)} />
         I accept the Terms & Conditions <span className="text-red-500">*</span>
       </label>
-      {errors.accepted && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.accepted}</p>}
     </>
   );
 
@@ -1377,7 +957,6 @@ function DtContentCorporate({
             </label>
           </div>
           {formData[key] && <p className="text-[13px] text-green-600 mt-2">✓ {formData[key].name}</p>}
-          {errors[key] && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors[key]}</p>}
         </FieldDt>
       ))}
 
@@ -1388,11 +967,11 @@ function DtContentCorporate({
       <FieldDt label="Registration Date">
         <input className={inp} type="date" value={formData.registrationDate} onChange={(e) => updateForm("registrationDate", e.target.value)} />
       </FieldDt>
-      <FieldDt label="Business Vintage (Years)">
-        <input className={inp} type="number" min="0" value={formData.businessVintage} onChange={(e) => updateForm("businessVintage", handleNumericFieldChange(e.target.value))} />
+      <FieldDt label="Business Vintage">
+        <input className={inp} value={formData.businessVintage} onChange={(e) => updateForm("businessVintage", e.target.value)} />
       </FieldDt>
       <FieldDt label="Number of Employees">
-        <input className={inp} type="number" min="0" value={formData.employeesCount} onChange={(e) => updateForm("employeesCount", handleNumericFieldChange(e.target.value))} />
+        <input className={inp} type="number" min="0" value={formData.employeesCount} onChange={(e) => updateForm("employeesCount", e.target.value)} />
       </FieldDt>
       <FieldDt label="Annual Turnover">
         <input className={inp} value={formData.annualTurnoverVerify} onChange={(e) => updateForm("annualTurnoverVerify", e.target.value)} />
@@ -1412,40 +991,15 @@ function DtContentCorporate({
     </>
   );
 
-  // STEP 4: Loan Requirements
+  // STEP 4: Loan Requirements — only Property-Related Loans per spec
   if (step === 4) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Business & Corporate Loans</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {businessLoanRequirements.map(p => (
-          <label key={p} className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.businessLoans.includes(p)} onChange={() => toggleArrayItem("businessLoans", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Working Capital</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {workingCapitalRequirements.map(p => (
-          <label key={p} className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.workingCapitalLoans.includes(p)} onChange={() => toggleArrayItem("workingCapitalLoans", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
         <h3 className="text-[14px] font-bold text-[#00695C]">Property-Related Loans</h3>
       </div>
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <p className="text-[12px] text-gray-400 mb-3">Select the loans your company needs</p>
+      <div className="grid grid-cols-2 gap-2">
         {propertyLoanRequirements.map(p => (
           <label key={p} className="flex items-center gap-2 text-[13px] cursor-pointer">
             <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.propertyLoans.includes(p)} onChange={() => toggleArrayItem("propertyLoans", p)} />
@@ -1453,122 +1007,11 @@ function DtContentCorporate({
           </label>
         ))}
       </div>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Other Requirements</h3>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {otherRequirements.map(p => (
-          <label key={p} className="flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="checkbox" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.otherLoanRequirements.includes(p)} onChange={() => toggleArrayItem("otherLoanRequirements", p)} />
-            {p}
-          </label>
-        ))}
-      </div>
-      {errors.loanRequirements && <p className="text-[10px] text-red-500 font-medium mt-3">{errors.loanRequirements}</p>}
     </>
   );
 
-  // STEP 5: Requirement Details
+  // STEP 5: Service Area
   if (step === 5) return (
-    <>
-      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Loan Requirement Details</h3>
-      </div>
-      <FieldDt label="Loan Purpose" required>
-        <input className={inp} value={formData.loanPurpose} onChange={(e) => updateForm("loanPurpose", e.target.value)} />
-        {errors.loanPurpose && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanPurpose}</p>}
-      </FieldDt>
-      <FieldDt label="Required Loan Amount" required>
-        <input className={inp} value={formData.requiredLoanAmount} onChange={(e) => updateForm("requiredLoanAmount", e.target.value)} />
-        {errors.requiredLoanAmount && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.requiredLoanAmount}</p>}
-      </FieldDt>
-      <FieldDt label="Preferred Loan Tenure">
-        <input className={inp} value={formData.preferredTenure} onChange={(e) => updateForm("preferredTenure", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Expected Interest Rate">
-        <input className={inp} value={formData.expectedInterestRate} onChange={(e) => updateForm("expectedInterestRate", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Existing Loan Amount">
-        <input className={inp} value={formData.existingLoanAmount} onChange={(e) => updateForm("existingLoanAmount", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Existing EMI">
-        <input className={inp} value={formData.existingEmi} onChange={(e) => updateForm("existingEmi", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Preferred EMI">
-        <input className={inp} value={formData.preferredEmi} onChange={(e) => updateForm("preferredEmi", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Property Value">
-        <input className={inp} value={formData.propertyValue} onChange={(e) => updateForm("propertyValue", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Property Type">
-        <input className={inp} value={formData.propertyType} onChange={(e) => updateForm("propertyType", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Property Location">
-        <input className={inp} value={formData.propertyLocation} onChange={(e) => updateForm("propertyLocation", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Purchase / Construction Cost">
-        <input className={inp} value={formData.purchaseCost} onChange={(e) => updateForm("purchaseCost", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Down Payment Amount">
-        <input className={inp} value={formData.downPayment} onChange={(e) => updateForm("downPayment", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Required Funding Date">
-        <input className={inp} type="date" value={formData.requiredFundingDate} onChange={(e) => updateForm("requiredFundingDate", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Loan Priority">
-        <div className="flex gap-5">
-          {loanPriorityOptions.map(p => (
-            <label key={p} className="flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="dt-corp-priority" className="accent-[#00695C] w-3.5 h-3.5" checked={formData.loanPriority === p} onChange={() => updateForm("loanPriority", p)} />
-              {p}
-            </label>
-          ))}
-        </div>
-      </FieldDt>
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Financial Details</h3>
-      </div>
-      <FieldDt label="Annual Company Turnover" required>
-        <input className={inp} value={formData.annualTurnover} onChange={(e) => updateForm("annualTurnover", e.target.value)} />
-        {errors.annualTurnover && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.annualTurnover}</p>}
-      </FieldDt>
-      <FieldDt label="Monthly Revenue">
-        <input className={inp} value={formData.monthlyRevenue} onChange={(e) => updateForm("monthlyRevenue", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Monthly Expenses">
-        <input className={inp} value={formData.monthlyExpenses} onChange={(e) => updateForm("monthlyExpenses", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Net Profit">
-        <input className={inp} value={formData.netProfit} onChange={(e) => updateForm("netProfit", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Existing Liabilities">
-        <input className={inp} value={formData.existingLiabilities} onChange={(e) => updateForm("existingLiabilities", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Existing EMI Obligations">
-        <input className={inp} value={formData.existingEmiObligations} onChange={(e) => updateForm("existingEmiObligations", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Bank Account Details">
-        <input className={inp} value={formData.bankAccountDetails} onChange={(e) => updateForm("bankAccountDetails", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Credit Score / CIBIL Score">
-        <input className={inp} value={formData.cibilScore} onChange={(e) => updateForm("cibilScore", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Last 3 Years Turnover">
-        <input className={inp} value={formData.last3YearsTurnover} onChange={(e) => updateForm("last3YearsTurnover", e.target.value)} />
-      </FieldDt>
-      <FieldDt label="Last 3 Years Profit">
-        <input className={inp} value={formData.last3YearsProfit} onChange={(e) => updateForm("last3YearsProfit", e.target.value)} />
-      </FieldDt>
-    </>
-  );
-
-  // STEP 6: Service Area
-  if (step === 6) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1576,15 +1019,12 @@ function DtContentCorporate({
       </div>
       <FieldDt label="Loan Processing Location" required>
         <input className={inp} value={formData.loanProcessingLocation} onChange={(e) => updateForm("loanProcessingLocation", e.target.value)} />
-        {errors.loanProcessingLocation && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.loanProcessingLocation}</p>}
       </FieldDt>
       <FieldDt label="City / District" required>
         <input className={inp} value={formData.serviceCity} onChange={(e) => updateForm("serviceCity", e.target.value)} />
-        {errors.serviceCity && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceCity}</p>}
       </FieldDt>
       <FieldDt label="State" required>
         <input className={inp} value={formData.serviceState} onChange={(e) => updateForm("serviceState", e.target.value)} />
-        {errors.serviceState && <p className="text-[10px] text-red-500 font-medium mt-0.5">{errors.serviceState}</p>}
       </FieldDt>
       <FieldDt label="Serviceable PIN Codes">
         <input className={inp} value={formData.servicePincodes} onChange={(e) => updateForm("servicePincodes", e.target.value)} placeholder="Comma separated" />
@@ -1627,8 +1067,8 @@ function DtContentCorporate({
     </>
   );
 
-  // STEP 7: Applicant Segment
-  if (step === 7) return (
+  // STEP 6: Applicant Segment
+  if (step === 6) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1643,12 +1083,11 @@ function DtContentCorporate({
           </label>
         ))}
       </div>
-      {errors.applicantSegments && <p className="text-[10px] text-red-500 font-medium mt-3">{errors.applicantSegments}</p>}
     </>
   );
 
-  // STEP 8: Applicant Profile
-  if (step === 8) return (
+  // STEP 7: Applicant Profile
+  if (step === 7) return (
     <>
       <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
         <div className="w-1 h-4 bg-[#00695C] rounded" />
@@ -1662,88 +1101,6 @@ function DtContentCorporate({
           </label>
         ))}
       </div>
-      {errors.applicantProfiles && <p className="text-[10px] text-red-500 font-medium mt-3">{errors.applicantProfiles}</p>}
-    </>
-  );
-
-  // STEP 9: Document Management
-  if (step === 9) return (
-    <>
-      <div className="flex items-center gap-2 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Company Documents</h3>
-      </div>
-      {[
-        { key: "docCompanyRegCert", label: "Company Registration Certificate" },
-        { key: "docPan", label: "PAN" },
-        { key: "docGst", label: "GST Certificate" },
-        { key: "docMoaAoa", label: "MOA / AOA" },
-        { key: "docPartnershipDeed", label: "Partnership Deed" },
-        { key: "docLlpAgreement", label: "LLP Agreement" },
-        { key: "docCinLlpin", label: "CIN / LLPIN" },
-        { key: "docCompanyAddressProof", label: "Company Address Proof" },
-      ].map(({ key, label }) => (
-        <FieldDt key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[13px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </FieldDt>
-      ))}
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Financial Documents</h3>
-      </div>
-      {[
-        { key: "docItr", label: "ITR – 2/3 Years" },
-        { key: "docBalanceSheet", label: "Balance Sheet" },
-        { key: "docProfitLoss", label: "Profit & Loss Statement" },
-        { key: "docBankStatements", label: "Bank Statements" },
-        { key: "docGstReturns", label: "GST Returns" },
-        { key: "docProjections", label: "Financial Projections" },
-        { key: "docExistingLoanStatements", label: "Existing Loan Statements" },
-      ].map(({ key, label }) => (
-        <FieldDt key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[13px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </FieldDt>
-      ))}
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Property Documents</h3>
-      </div>
-      {[
-        { key: "docSaleDeed", label: "Sale Deed" },
-        { key: "docTitleDocuments", label: "Title Documents" },
-        { key: "docEc", label: "EC – Encumbrance Certificate" },
-        { key: "docPattaChitta", label: "Patta / Chitta" },
-        { key: "docPropertyTax", label: "Property Tax Receipt" },
-        { key: "docBuildingPlan", label: "Approved Building Plan" },
-        { key: "docConstructionEstimate", label: "Construction Estimate" },
-        { key: "docValuationReport", label: "Property Valuation Report" },
-      ].map(({ key, label }) => (
-        <FieldDt key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[13px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </FieldDt>
-      ))}
-
-      <div className="flex items-center gap-2 mt-4 mb-3 pb-2 border-b-2 border-green-50">
-        <div className="w-1 h-4 bg-[#00695C] rounded" />
-        <h3 className="text-[14px] font-bold text-[#00695C]">Authorized Person Documents</h3>
-      </div>
-      {[
-        { key: "docRepPan", label: "PAN Card" },
-        { key: "docRepAadhaar", label: "Aadhaar / ID Proof" },
-        { key: "docRepEmployeeId", label: "Employee ID" },
-        { key: "docAuthorization", label: "Authorization Letter" },
-        { key: "docBoardResolution", label: "Board Resolution" },
-      ].map(({ key, label }) => (
-        <FieldDt key={key} label={label}>
-          <input type="file" accept=".pdf" className={`${inp} p-1.5`} onChange={(e) => handleDocumentUpload(key, e)} />
-          {formData[key] && <p className="text-[13px] text-green-600 mt-1">✓ {formData[key].name}</p>}
-        </FieldDt>
-      ))}
     </>
   );
 

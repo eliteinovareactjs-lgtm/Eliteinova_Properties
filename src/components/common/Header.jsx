@@ -79,7 +79,7 @@ const Header = ({ onPostPropertyClick }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
-  
+
   // ============ LOGIN & REGISTER STATES ============
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showRegisterPopup, setShowRegisterPopup] = useState(false);
@@ -90,10 +90,10 @@ const Header = ({ onPostPropertyClick }) => {
   const [showCustomerRegister, setShowCustomerRegister] = useState(false);
   const [showVendorLogin, setShowVendorLogin] = useState(false);
   const [showVendorRegister, setShowVendorRegister] = useState(false);
-  
+
   // State for Role Selection
   const [showRoleSelectionPopup, setShowRoleSelectionPopup] = useState(false);
-  
+
   // State for Owner forms
   const [showOwnerActionPopup, setShowOwnerActionPopup] = useState(false);
   const [showOwnerRentForm, setShowOwnerRentForm] = useState(false);
@@ -225,7 +225,7 @@ const Header = ({ onPostPropertyClick }) => {
     customerSub: {},
     postSub: {}
   });
-  
+
   const navigate = useNavigate();
   const searchRef = useRef(null);
 
@@ -551,7 +551,7 @@ const Header = ({ onPostPropertyClick }) => {
   const handleRoleSelect = (role) => {
     setShowRoleSelectionPopup(false);
     setSelectedRole(role);
-    
+
     // ============ LAND & PLOTS HANDLING ============
     if (selectedPropertyType === "Land & Plots") {
       if (role === "Owner") {
@@ -833,9 +833,9 @@ const Header = ({ onPostPropertyClick }) => {
   const handleCustomerPortalClick = (type) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
-    
+
     const typeKey = type.toLowerCase().replace(/\s+/g, '-');
-    
+
     if (typeKey === "individual") {
       navigate("/individual");
     } else if (typeKey === "rent") {
@@ -855,6 +855,20 @@ const Header = ({ onPostPropertyClick }) => {
     } else if (typeKey === "hostel") {
       navigate("/hostel");
     }
+  };
+
+  // ============ LOAN NAVIGATION ============
+  const handleLoanClick = () => {
+    navigate("/loan");
+    setActiveTab("loan");
+    setActiveDropdown(null);
+  };
+
+  // ============ INSURANCE NAVIGATION ============
+  const handleInsuranceClick = () => {
+    navigate("/insurance");
+    setActiveTab("insurance");
+    setActiveDropdown(null);
   };
 
   const handleSearch = (e) => {
@@ -914,8 +928,8 @@ const Header = ({ onPostPropertyClick }) => {
   return (
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled 
-          ? 'bg-gradient-to-r from-[#00695C]/95 via-[#26A69A]/95 to-[#00695C]/95 backdrop-blur-xl shadow-2xl shadow-[#00695C]/20' 
+        scrolled
+          ? 'bg-gradient-to-r from-[#00695C]/95 via-[#26A69A]/95 to-[#00695C]/95 backdrop-blur-xl shadow-2xl shadow-[#00695C]/20'
           : 'bg-gradient-to-r from-[#00695C] via-[#26A69A] to-[#00695C]'
       }`}>
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -934,7 +948,7 @@ const Header = ({ onPostPropertyClick }) => {
               }}
             />
           ))}
-          
+
           <div className="absolute bottom-0 left-0 right-0 h-8">
             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/5 to-transparent animate-wave-slow" />
           </div>
@@ -944,7 +958,7 @@ const Header = ({ onPostPropertyClick }) => {
 
         <div className="h-[72px] md:h-[84px] w-full px-3 md:px-6 flex items-center relative">
           <div className="absolute inset-0 bg-gradient-to-r from-white/[0.03] via-transparent to-white/[0.03] animate-sweep" />
-          
+
           <div className="flex items-center justify-between w-full relative z-10">
             <div className="flex items-center gap-2 md:gap-4">
               <button
@@ -960,12 +974,12 @@ const Header = ({ onPostPropertyClick }) => {
                 className="cursor-pointer group relative"
               >
                 <div className="absolute -inset-2 bg-gradient-to-r from-white/10 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                
+
                 <div className="relative w-13 h-13 md:w-[76px] md:h-[76px] rounded-full overflow-hidden flex items-center justify-center">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#004D40] to-[#00695C] opacity-80" />
                   <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-[#26A69A]/20 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#00E5FF]/20 via-transparent to-[#00FF88]/20 animate-spin-slow rounded-full" />
-                  
+
                   <img
                     src={logo}
                     alt="Eliteinova Properties Logo"
@@ -975,12 +989,12 @@ const Header = ({ onPostPropertyClick }) => {
                 </div>
               </div>
 
-              <div 
-                onClick={() => navigate("/")} 
+              <div
+                onClick={() => navigate("/")}
                 className="cursor-pointer group relative"
               >
                 <div className="absolute -inset-2 bg-gradient-to-r from-[#00E5FF]/10 via-transparent to-[#00FF88]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                
+
                 <h1
                   className="text-lg md:text-2xl lg:text-3xl font-light leading-tight relative tracking-wide"
                   style={{
@@ -995,8 +1009,8 @@ const Header = ({ onPostPropertyClick }) => {
                     <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#00E5FF]/20 via-[#00FF88]/20 to-[#00E5FF]/20 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-700" />
                   </span>
                 </h1>
-                
-                <p 
+
+                <p
                   className="text-[11px] md:text-sm lg:text-base font-light leading-tight mt-0 flex items-center gap-2"
                   style={{
                     fontFamily: "Pacifico, cursive",
@@ -1040,7 +1054,7 @@ const Header = ({ onPostPropertyClick }) => {
                 </div>
               ) : (
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center relative group transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-[#00695C]/30"
                     style={{
@@ -1050,9 +1064,9 @@ const Header = ({ onPostPropertyClick }) => {
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-[#00695C] via-[#26A69A] to-[#00695C] opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full" />
                     <div className="absolute -inset-0.5 rounded-full border border-white/20 animate-spin-slow" />
-                    
+
                     <User className="w-5 h-5 md:w-6 md:h-6 text-[#00695C] group-hover:text-[#004D40] transition-colors duration-300 relative z-10" />
-                    
+
                     <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 animate-pulse border-2 border-white" />
                   </button>
 
@@ -1101,7 +1115,7 @@ const Header = ({ onPostPropertyClick }) => {
           <div className="absolute inset-0 opacity-[0.03]">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer-slow" />
           </div>
-          
+
           <div className="flex items-center h-full relative z-10">
             {/* Home Button */}
             <button
@@ -1110,18 +1124,18 @@ const Header = ({ onPostPropertyClick }) => {
                 setActiveTab("home");
               }}
               className={`group relative px-5 h-full text-white font-medium text-sm tracking-wide transition-all duration-300 overflow-hidden ${
-                activeTab === "home" 
-                  ? 'bg-gradient-to-r from-white/10 to-transparent' 
+                activeTab === "home"
+                  ? 'bg-gradient-to-r from-white/10 to-transparent'
                   : 'hover:bg-white/5'
               }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              
+
               <span className="flex items-center gap-2 relative z-10">
                 <Home className="w-4 h-4" />
                 Home
               </span>
-              
+
               {activeTab === "home" && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-300 to-amber-400 animate-pulse-glow" />
               )}
@@ -1133,7 +1147,7 @@ const Header = ({ onPostPropertyClick }) => {
               onMouseEnter={() => setActiveDropdown("customer")}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button 
+              <button
                 onClick={() => navigate("/customer-portal")}
                 className="group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300"
               >
@@ -1146,7 +1160,7 @@ const Header = ({ onPostPropertyClick }) => {
                 <div className="absolute top-full left-0 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 min-w-[180px] border border-white/30 animate-dropdown">
                   {Object.entries(customerPortalMenu).map(([key, submenu]) => (
                     <div key={key} className="relative group/item">
-                      <button 
+                      <button
                         onClick={() => handleCustomerPortalClick(key)}
                         className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 capitalize"
                       >
@@ -1217,7 +1231,7 @@ const Header = ({ onPostPropertyClick }) => {
               onMouseEnter={() => setActiveDropdown("loan")}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button 
+              <button
                 onClick={() => setActiveDropdown(activeDropdown === "loan" ? null : "loan")}
                 className={`group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300 ${
                   activeTab === "loan" || activeTab === "insurance" ? 'bg-gradient-to-r from-white/10 to-transparent' : ''
@@ -1232,22 +1246,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <div className="absolute top-full left-0 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 min-w-[180px] border border-white/30 animate-dropdown">
                   <button
                     className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 flex items-center gap-2"
-                    onClick={() => {
-                      navigate("/loan");
-                      setActiveTab("loan");
-                      setActiveDropdown(null);
-                    }}
+                    onClick={handleLoanClick}
                   >
                     <Landmark className="w-4 h-4 text-[#26A69A]" />
                     Find Loan
                   </button>
                   <button
                     className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300 flex items-center gap-2"
-                    onClick={() => {
-                      navigate("/insurance");
-                      setActiveTab("insurance");
-                      setActiveDropdown(null);
-                    }}
+                    onClick={handleInsuranceClick}
                   >
                     <Shield className="w-4 h-4 text-[#26A69A]" />
                     Insurance
@@ -1281,7 +1287,7 @@ const Header = ({ onPostPropertyClick }) => {
                 </div>
               )}
             </div>
-          </div> 
+          </div>
         </nav>
       </header>
 
@@ -1294,14 +1300,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <LogIn className="w-5 h-5" />
                 Login as
               </h2>
-              <button 
+              <button
                 onClick={() => setShowLoginPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Choose your role to continue
             </p>
@@ -1338,14 +1344,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <UserPlus className="w-5 h-5" />
                 Register as
               </h2>
-              <button 
+              <button
                 onClick={() => setShowRegisterPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Choose your role to get started
             </p>
@@ -1374,8 +1380,8 @@ const Header = ({ onPostPropertyClick }) => {
       )}
 
       {/* ============ CUSTOMER LOGIN MODAL ============ */}
-      <CustomerLogin 
-        isOpen={showCustomerLogin} 
+      <CustomerLogin
+        isOpen={showCustomerLogin}
         onClose={() => setShowCustomerLogin(false)}
         onSwitchToRegister={() => {
           setShowCustomerLogin(false);
@@ -1384,8 +1390,8 @@ const Header = ({ onPostPropertyClick }) => {
       />
 
       {/* ============ CUSTOMER REGISTER MODAL ============ */}
-      <CustomerRegister 
-        isOpen={showCustomerRegister} 
+      <CustomerRegister
+        isOpen={showCustomerRegister}
         onClose={() => setShowCustomerRegister(false)}
         onSwitchToLogin={() => {
           setShowCustomerRegister(false);
@@ -1394,8 +1400,8 @@ const Header = ({ onPostPropertyClick }) => {
       />
 
       {/* ============ VENDOR LOGIN MODAL ============ */}
-      <VendorLogin 
-        isOpen={showVendorLogin} 
+      <VendorLogin
+        isOpen={showVendorLogin}
         onClose={() => setShowVendorLogin(false)}
         onSwitchToRegister={() => {
           setShowVendorLogin(false);
@@ -1404,8 +1410,8 @@ const Header = ({ onPostPropertyClick }) => {
       />
 
       {/* ============ VENDOR REGISTER MODAL ============ */}
-      <VendorRegister 
-        isOpen={showVendorRegister} 
+      <VendorRegister
+        isOpen={showVendorRegister}
         onClose={() => setShowVendorRegister(false)}
         onSwitchToLogin={() => {
           setShowVendorRegister(false);
@@ -1422,14 +1428,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Select Role
               </h2>
-              <button 
+              <button
                 onClick={() => setShowRoleSelectionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               {selectedPropertyType} Property: Who is listing this property?
             </p>
@@ -1484,14 +1490,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <User className="w-5 h-5" />
                 Owner - Choose Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowOwnerActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Individual Property: How would you like to proceed?
             </p>
@@ -1534,14 +1540,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Owner - Apartment Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowApartActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Apartment: How would you like to proceed?
             </p>
@@ -1584,14 +1590,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Owner - Commercial Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowComActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Commercial Property: How would you like to proceed?
             </p>
@@ -1634,14 +1640,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Owner - Land & Plots Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowLPActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Land & Plots Property: How would you like to proceed?
             </p>
@@ -1684,14 +1690,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Agent - Land & Plots Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowAgentLPActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Land & Plots Property: How would you like to proceed?
             </p>
@@ -1734,14 +1740,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Builder - Land & Plots Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowBuilderLPActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Land & Plots Property: How would you like to proceed?
             </p>
@@ -1784,14 +1790,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Property Management - Land & Plots Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowPMLPActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Land & Plots Property: How would you like to proceed?
             </p>
@@ -1834,14 +1840,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Owner - Hostel Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowHostelActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Hostel Property: How would you like to proceed?
             </p>
@@ -1884,14 +1890,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Agent - Hostel Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowAgentHostelActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Hostel Property: How would you like to proceed?
             </p>
@@ -1934,14 +1940,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Builder - Hostel Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowBuilderHostelActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Hostel Property: How would you like to proceed?
             </p>
@@ -1984,14 +1990,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Property Management - Hostel Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowPMHostelActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Hostel Property: How would you like to proceed?
             </p>
@@ -2034,14 +2040,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Agent - Choose Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowAgentActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Individual Property: How would you like to proceed?
             </p>
@@ -2084,14 +2090,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Agent - Apartment Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowAgentApartActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Apartment: How would you like to proceed?
             </p>
@@ -2134,14 +2140,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Agent - Commercial Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowAgentComActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Commercial Property: How would you like to proceed?
             </p>
@@ -2184,14 +2190,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Builder - Choose Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowBuilderActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Individual Property: How would you like to proceed?
             </p>
@@ -2234,14 +2240,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Builder - Apartment Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowBuilderApartActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Apartment: How would you like to proceed?
             </p>
@@ -2284,14 +2290,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Builder - Commercial Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowBuilderComActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Commercial Property: How would you like to proceed?
             </p>
@@ -2334,14 +2340,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Property Management - Choose Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowPMActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Individual Property: How would you like to proceed?
             </p>
@@ -2384,14 +2390,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Property Management - Apartment Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowPMApartActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Apartment: How would you like to proceed?
             </p>
@@ -2434,14 +2440,14 @@ const Header = ({ onPostPropertyClick }) => {
                 <Building className="w-5 h-5" />
                 Property Management - Commercial Action
               </h2>
-              <button 
+              <button
                 onClick={() => setShowPMComActionPopup(false)}
                 className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <p className="text-sm text-gray-600 mb-6">
               Commercial Property: How would you like to proceed?
             </p>
@@ -2476,7 +2482,7 @@ const Header = ({ onPostPropertyClick }) => {
       )}
 
       {/* ============ RENDER ALL FORMS ============ */}
-      
+
       {/* Owner Forms */}
       <IndRentForm isOpen={showOwnerRentForm} onClose={() => setShowOwnerRentForm(false)} />
       <IndSellForm isOpen={showOwnerSellForm} onClose={() => setShowOwnerSellForm(false)} />
@@ -2571,13 +2577,13 @@ const Header = ({ onPostPropertyClick }) => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 z-50 animate-fade"
           onClick={toggleMobileMenu}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-[#00695C]/95 via-[#26A69A]/95 to-[#00695C]/95 backdrop-blur-xl animate-backdrop" />
-          
-          <div 
+
+          <div
             className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-gradient-to-b from-[#00695C] to-[#26A69A] shadow-2xl shadow-[#00695C]/50 overflow-y-auto animate-slide"
             onClick={(e) => e.stopPropagation()}
           >
@@ -2591,14 +2597,14 @@ const Header = ({ onPostPropertyClick }) => {
                   <p className="text-white/50 text-[10px]">Welcome back!</p>
                 </div>
               </div>
-              <button 
-                onClick={toggleMobileMenu} 
+              <button
+                onClick={toggleMobileMenu}
                 className="p-1.5 rounded-lg hover:bg-white/10 transition-all duration-300 group"
               >
                 <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform duration-500" />
               </button>
             </div>
-            
+
             <div className="p-4">
               <form onSubmit={handleSearch} className="mb-3">
                 <div className="relative">
@@ -2613,9 +2619,9 @@ const Header = ({ onPostPropertyClick }) => {
                 </div>
               </form>
             </div>
-            
+
             <div className="px-4 pb-32">
-              <button 
+              <button
                 onClick={() => {
                   navigate('/');
                   toggleMobileMenu();
@@ -2625,9 +2631,9 @@ const Header = ({ onPostPropertyClick }) => {
               >
                 🏠 Home
               </button>
-              
+
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '50ms' }}>
-                <div 
+                <div
                   className="flex items-center justify-between py-3 cursor-pointer"
                   onClick={() => toggleMobileDropdown('customer')}
                 >
@@ -2636,24 +2642,24 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.customer ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 {mobileDropdowns.customer && (
                   <div className="pl-4 pb-2 space-y-1">
                     {Object.entries(customerPortalMenu).map(([key, submenu]) => (
                       <div key={key} className="border-l border-white/10 pl-3">
-                        <div 
+                        <div
                           className="flex items-center justify-between py-2 cursor-pointer"
                           onClick={() => toggleCustomerSub(key)}
                         >
                           <span className="text-white/90 text-sm capitalize">{key}</span>
                           <ChevronDown className={`w-3 h-3 text-white/70 transition-transform duration-300 ${mobileDropdowns.customerSub[key] ? 'rotate-180' : ''}`} />
                         </div>
-                        
+
                         {mobileDropdowns.customerSub[key] && (
                           <div className="pl-3 pb-1 space-y-1">
                             {submenu.map((item) => (
-                              <button 
-                                key={item} 
+                              <button
+                                key={item}
                                 onClick={() => {
                                   handleCustomerPortalClick(item.toLowerCase());
                                   toggleMobileMenu();
@@ -2670,9 +2676,9 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                 )}
               </div>
-              
+
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '100ms' }}>
-                <div 
+                <div
                   className="flex items-center justify-between py-3 cursor-pointer"
                   onClick={() => toggleMobileDropdown('post')}
                 >
@@ -2681,7 +2687,7 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.post ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 {mobileDropdowns.post && (
                   <div className="pl-4 pb-2 space-y-1">
                     {Object.entries(postPropertyMenu).map(([role, submenu]) => (
@@ -2718,7 +2724,7 @@ const Header = ({ onPostPropertyClick }) => {
 
               {/* Mobile Loan & Insurance */}
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '150ms' }}>
-                <div 
+                <div
                   className="flex items-center justify-between py-3 cursor-pointer"
                   onClick={() => toggleMobileDropdown('loan')}
                 >
@@ -2728,13 +2734,12 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.loan ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 {mobileDropdowns.loan && (
                   <div className="pl-4 pb-2 space-y-1">
-                    <button 
+                    <button
                       onClick={() => {
-                        navigate("/loan");
-                        setActiveTab("loan");
+                        handleLoanClick();
                         toggleMobileMenu();
                       }}
                       className="flex items-center gap-2 text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
@@ -2742,10 +2747,9 @@ const Header = ({ onPostPropertyClick }) => {
                       <Landmark className="w-3.5 h-3.5" />
                       Find Loan
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
-                        navigate("/insurance");
-                        setActiveTab("insurance");
+                        handleInsuranceClick();
                         toggleMobileMenu();
                       }}
                       className="flex items-center gap-2 text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
@@ -2756,9 +2760,9 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                 )}
               </div>
-              
+
               <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '200ms' }}>
-                <div 
+                <div
                   className="flex items-center justify-between py-3 cursor-pointer"
                   onClick={() => toggleMobileDropdown('services')}
                 >
@@ -2767,12 +2771,12 @@ const Header = ({ onPostPropertyClick }) => {
                   </div>
                   <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.services ? 'rotate-180' : ''}`} />
                 </div>
-                
+
                 {mobileDropdowns.services && (
                   <div className="pl-4 pb-2 space-y-1">
                     {servicesMenu.map((item) => (
-                      <button 
-                        key={item} 
+                      <button
+                        key={item}
                         onClick={() => {
                           toggleMobileMenu();
                         }}
@@ -2864,20 +2868,20 @@ const Header = ({ onPostPropertyClick }) => {
 
       <style>{`
         @keyframes float-particle {
-          0%, 100% { 
-            transform: translateY(0) translateX(0) rotate(0deg); 
+          0%, 100% {
+            transform: translateY(0) translateX(0) rotate(0deg);
             opacity: 0.2;
           }
-          25% { 
-            transform: translateY(-20px) translateX(15px) rotate(90deg); 
+          25% {
+            transform: translateY(-20px) translateX(15px) rotate(90deg);
             opacity: 0.5;
           }
-          50% { 
-            transform: translateY(-12px) translateX(-12px) rotate(180deg); 
+          50% {
+            transform: translateY(-12px) translateX(-12px) rotate(180deg);
             opacity: 0.7;
           }
-          75% { 
-            transform: translateY(12px) translateX(18px) rotate(270deg); 
+          75% {
+            transform: translateY(12px) translateX(18px) rotate(270deg);
             opacity: 0.3;
           }
         }
@@ -2911,12 +2915,12 @@ const Header = ({ onPostPropertyClick }) => {
         }
 
         @keyframes sweep {
-          0%, 100% { 
-            background-position: 0% 50%; 
+          0%, 100% {
+            background-position: 0% 50%;
             opacity: 0.3;
           }
-          50% { 
-            background-position: 100% 50%; 
+          50% {
+            background-position: 100% 50%;
             opacity: 0.6;
           }
         }
@@ -2934,11 +2938,11 @@ const Header = ({ onPostPropertyClick }) => {
         }
 
         @keyframes sparkle-glow {
-          0%, 100% { 
+          0%, 100% {
             opacity: 0.3;
             transform: scale(0.8) rotate(0deg);
           }
-          50% { 
+          50% {
             opacity: 1;
             transform: scale(1.2) rotate(180deg);
           }
