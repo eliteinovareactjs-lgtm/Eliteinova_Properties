@@ -1,13 +1,37 @@
+// CommercialPage.jsx
 import React, { useState, useEffect } from "react";
-import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, Store, Factory, Hotel, Briefcase } from "lucide-react";
+import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, Briefcase, Hotel, Store, Factory, LayoutGrid, Grid3X3, Crown, Castle, Building as BuildingIcon } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import backgroundImage from "../../assets/house1.png";
 
-// Import images for each property category
-import individualImage from "../../assets/individualcat.jpg";
-import apartmentImage from "../../assets/Apartmentcat.jpg";
-import landPlotsImage from "../../assets/landcat.jpg";
-import hostelImage from "../../assets/hostelcat.jpg";
+// Import banner images (same as AgriculturalPage)
+import bannerImg from "../../assets/Apartmentban.jpg";
+import individualImg from "../../assets/individualcat.jpg";
+import commercialImg from "../../assets/commercialcat.jpg";
+import landPlotsImg from "../../assets/landcat.jpg";
+import apartmentImg from "../../assets/Apartmentban.jpg";
+import allImg from "../../assets/banner1.jpg";
+
+// Import category images for round display
+import officeSpaceImg from "../../assets/banner1.jpg";
+import retailShopImg from "../../assets/banner1.jpg";
+import showroomImg from "../../assets/banner1.jpg";
+import commercialLandImg from "../../assets/banner1.jpg";
+import warehouseImg from "../../assets/banner1.jpg";
+import industrialImg from "../../assets/banner1.jpg";
+import coworkingImg from "../../assets/banner1.jpg";
+import businessCenterImg from "../../assets/banner1.jpg";
+import shoppingMallImg from "../../assets/banner1.jpg";
+import commercialComplexImg from "../../assets/banner1.jpg";
+import restaurantImg from "../../assets/banner1.jpg";
+import hotelImg from "../../assets/banner1.jpg";
+import clinicImg from "../../assets/banner1.jpg";
+import educationalImg from "../../assets/banner1.jpg";
+import itParkImg from "../../assets/banner1.jpg";
+import multiplexImg from "../../assets/banner1.jpg";
+import petrolBunkImg from "../../assets/banner1.jpg";
+import coldStorageImg from "../../assets/banner1.jpg";
+import mixedUseImg from "../../assets/banner1.jpg";
+import agriculturalCommercialImg from "../../assets/banner1.jpg";
 
 const CommercialPage = () => {
   const navigate = useNavigate();
@@ -15,58 +39,242 @@ const CommercialPage = () => {
   const [activeButton, setActiveButton] = useState("Rent");
   const [activeCommercialType, setActiveCommercialType] = useState("All");
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [hoveredFilter, setHoveredFilter] = useState(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState(null);
 
   const propertyCategories = [
-    { 
-      name: "Individual", 
-      path: "/individual", 
-      icon: <Building className="w-full h-full" />,
-      image: individualImage 
+    { name: "Individual", path: "/individual", icon: <Landmark className="w-4 h-4" /> },
+    { name: "Apartment", path: "/apartment", icon: <Building className="w-4 h-4" /> },
+    { name: "Land & Plots", path: "/land-plots", icon: <Warehouse className="w-4 h-4" /> },
+    { name: "Hostel", path: "/hostel", icon: <Building2 className="w-4 h-4" /> }
+  ];
+
+  // The pinned "All" category (stays fixed on the left) — now with an image
+  const allCategory = {
+    name: "All",
+    path: "/commercial",
+    image: allImg,
+    icon: <Home className="w-6 h-6" />,
+    isAll: true,
+    displayName: "All",
+    subText: ""
+  };
+
+  // Property type categories with images for round display
+  // NOTE: "All" is removed from here because it's pinned separately on the left.
+  const propertyTypeCategories = [
+    {
+      name: "Office Space",
+      path: "/commercial/office-space",
+      image: officeSpaceImg,
+      icon: <Briefcase className="w-5 h-5" />,
+      displayName: "Office",
+      subText: "Space"
     },
-    { 
-      name: "Apartment", 
-      path: "/apartment", 
-      icon: <Landmark className="w-full h-full" />,
-      image: apartmentImage 
+    {
+      name: "Retail Shop",
+      path: "/commercial/retail-shop",
+      image: retailShopImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "Retail",
+      subText: "Shop"
     },
-    { 
-      name: "Land & Plots", 
-      path: "/land-plots", 
-      icon: <Warehouse className="w-full h-full" />,
-      image: landPlotsImage 
+    {
+      name: "Showroom",
+      path: "/commercial/showroom",
+      image: showroomImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Showroom",
+      subText: ""
     },
-    { 
-      name: "Hostel", 
-      path: "/hostel", 
-      icon: <Building2 className="w-full h-full" />,
-      image: hostelImage 
+    {
+      name: "Commercial Land / Plot",
+      path: "/commercial/commercial-land-plot",
+      image: commercialLandImg,
+      icon: <Landmark className="w-5 h-5" />,
+      displayName: "Commercial",
+      subText: "Land"
+    },
+    {
+      name: "Warehouse / Godown",
+      path: "/commercial/warehouse-godown",
+      image: warehouseImg,
+      icon: <Warehouse className="w-5 h-5" />,
+      displayName: "Warehouse",
+      subText: "Godown"
+    },
+    {
+      name: "Industrial Property / Factory",
+      path: "/commercial/industrial-property-factory",
+      image: industrialImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "Industrial",
+      subText: "Factory"
+    },
+    {
+      name: "Co-working Space",
+      path: "/commercial/coworking-space",
+      image: coworkingImg,
+      icon: <Briefcase className="w-5 h-5" />,
+      displayName: "Co-working",
+      subText: "Space"
+    },
+    {
+      name: "Business Center",
+      path: "/commercial/business-center",
+      image: businessCenterImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Business",
+      subText: "Center"
+    },
+    {
+      name: "Shopping Mall Space",
+      path: "/commercial/shopping-mall-space",
+      image: shoppingMallImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "Shopping",
+      subText: "Mall"
+    },
+    {
+      name: "Commercial Complex",
+      path: "/commercial/commercial-complex",
+      image: commercialComplexImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Commercial",
+      subText: "Complex"
+    },
+    {
+      name: "Restaurant / Café Space",
+      path: "/commercial/restaurant-cafe-space",
+      image: restaurantImg,
+      icon: <Hotel className="w-5 h-5" />,
+      displayName: "Restaurant",
+      subText: "Café"
+    },
+    {
+      name: "Hotel / Lodge / Resort Property",
+      path: "/commercial/hotel-lodge-resort-property",
+      image: hotelImg,
+      icon: <Hotel className="w-5 h-5" />,
+      displayName: "Hotel",
+      subText: "Resort"
+    },
+    {
+      name: "Clinic / Hospital Space",
+      path: "/commercial/clinic-hospital-space",
+      image: clinicImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "Clinic",
+      subText: "Hospital"
+    },
+    {
+      name: "Educational Institution Property",
+      path: "/commercial/educational-institution-property",
+      image: educationalImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Educational",
+      subText: "Institution"
+    },
+    {
+      name: "IT Park / Tech Park Space",
+      path: "/commercial/it-park-tech-park-space",
+      image: itParkImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "IT Park",
+      subText: "Tech Park"
+    },
+    {
+      name: "Multiplex / Entertainment Space",
+      path: "/commercial/multiplex-entertainment-space",
+      image: multiplexImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Multiplex",
+      subText: "Entertainment"
+    },
+    {
+      name: "Petrol Bunk / Fuel Station",
+      path: "/commercial/petrol-bunk-fuel-station",
+      image: petrolBunkImg,
+      icon: <Building className="w-5 h-5" />,
+      displayName: "Petrol Bunk",
+      subText: "Fuel Station"
+    },
+    {
+      name: "Cold Storage / Logistics Hub",
+      path: "/commercial/cold-storage-logistics-hub",
+      image: coldStorageImg,
+      icon: <Warehouse className="w-5 h-5" />,
+      displayName: "Cold Storage",
+      subText: "Logistics"
+    },
+    {
+      name: "Mixed-use Commercial Property",
+      path: "/commercial/mixed-use-commercial-property",
+      image: mixedUseImg,
+      icon: <Building2 className="w-5 h-5" />,
+      displayName: "Mixed-use",
+      subText: "Commercial"
+    },
+    {
+      name: "Agricultural Commercial Property",
+      path: "/commercial/agricultural-commercial-property",
+      image: agriculturalCommercialImg,
+      icon: <Landmark className="w-5 h-5" />,
+      displayName: "Agricultural",
+      subText: "Commercial"
     }
   ];
 
   const commercialTypes = [
-    { name: "All", path: "/commercial", component: "CommercialPage" },
-    { name: "Office Space", path: "/commercial/office-space", component: "OfficeSpacePage" },
-    { name: "Retail Shop", path: "/commercial/retail-shop", component: "RetailShopPage" },
-    { name: "Showroom", path: "/commercial/showroom", component: "ShowroomPage" },
-    { name: "Commercial Land / Plot", path: "/commercial/commercial-land-plot", component: "CommercialLandPlotPage" },
-    { name: "Warehouse / Godown", path: "/commercial/warehouse-godown", component: "WarehouseGodownPage" },
-    { name: "Industrial Property / Factory", path: "/commercial/industrial-property-factory", component: "IndustrialPropertyFactoryPage" },
-    { name: "Co-working Space", path: "/commercial/coworking-space", component: "CoworkingSpacePage" },
-    { name: "Business Center", path: "/commercial/business-center", component: "BusinessCenterPage" },
-    { name: "Shopping Mall Space", path: "/commercial/shopping-mall-space", component: "ShoppingMallSpacePage" },
-    { name: "Commercial Complex", path: "/commercial/commercial-complex", component: "CommercialComplexPage" },
-    { name: "Restaurant / Café Space", path: "/commercial/restaurant-cafe-space", component: "RestaurantCafeSpacePage" },
-    { name: "Hotel / Lodge / Resort Property", path: "/commercial/hotel-lodge-resort-property", component: "HotelLodgeResortPropertyPage" },
-    { name: "Clinic / Hospital Space", path: "/commercial/clinic-hospital-space", component: "ClinicHospitalSpacePage" },
-    { name: "Educational Institution Property", path: "/commercial/educational-institution-property", component: "EducationalInstitutionPropertyPage" },
-    { name: "IT Park / Tech Park Space", path: "/commercial/it-park-tech-park-space", component: "ITParkTechParkSpacePage" },
-    { name: "Multiplex / Entertainment Space", path: "/commercial/multiplex-entertainment-space", component: "MultiplexEntertainmentSpacePage" },
-    { name: "Petrol Bunk / Fuel Station", path: "/commercial/petrol-bunk-fuel-station", component: "PetrolBunkFuelStationPage" },
-    { name: "Cold Storage / Logistics Hub", path: "/commercial/cold-storage-logistics-hub", component: "ColdStorageLogisticsHubPage" },
-    { name: "Mixed-use Commercial Property", path: "/commercial/mixed-use-commercial-property", component: "MixedUseCommercialPropertyPage" },
-    { name: "Agricultural Commercial Property", path: "/commercial/agricultural-commercial-property", component: "AgriculturalCommercialPropertyPage" }
+    { name: "All", path: "/commercial" },
+    { name: "Office Space", path: "/commercial/office-space" },
+    { name: "Retail Shop", path: "/commercial/retail-shop" },
+    { name: "Showroom", path: "/commercial/showroom" },
+    { name: "Commercial Land / Plot", path: "/commercial/commercial-land-plot" },
+    { name: "Warehouse / Godown", path: "/commercial/warehouse-godown" },
+    { name: "Industrial Property / Factory", path: "/commercial/industrial-property-factory" },
+    { name: "Co-working Space", path: "/commercial/coworking-space" },
+    { name: "Business Center", path: "/commercial/business-center" },
+    { name: "Shopping Mall Space", path: "/commercial/shopping-mall-space" },
+    { name: "Commercial Complex", path: "/commercial/commercial-complex" },
+    { name: "Restaurant / Café Space", path: "/commercial/restaurant-cafe-space" },
+    { name: "Hotel / Lodge / Resort Property", path: "/commercial/hotel-lodge-resort-property" },
+    { name: "Clinic / Hospital Space", path: "/commercial/clinic-hospital-space" },
+    { name: "Educational Institution Property", path: "/commercial/educational-institution-property" },
+    { name: "IT Park / Tech Park Space", path: "/commercial/it-park-tech-park-space" },
+    { name: "Multiplex / Entertainment Space", path: "/commercial/multiplex-entertainment-space" },
+    { name: "Petrol Bunk / Fuel Station", path: "/commercial/petrol-bunk-fuel-station" },
+    { name: "Cold Storage / Logistics Hub", path: "/commercial/cold-storage-logistics-hub" },
+    { name: "Mixed-use Commercial Property", path: "/commercial/mixed-use-commercial-property" },
+    { name: "Agricultural Commercial Property", path: "/commercial/agricultural-commercial-property" }
+  ];
+
+  // Diamond collage entries
+  const bannerDiamonds = [
+    {
+      label: "Individual",
+      path: "/individual",
+      image: individualImg,
+      position: "top"
+    },
+    {
+      label: "Apartment",
+      path: "/apartment",
+      image: apartmentImg,
+      position: "left"
+    },
+    {
+      label: "Commercial",
+      path: "/commercial",
+      image: commercialImg,
+      position: "right"
+    },
+    {
+      label: "Land & Plots",
+      path: "/land-plots",
+      image: landPlotsImg,
+      position: "bottom"
+    }
   ];
 
   useEffect(() => {
@@ -80,478 +288,604 @@ const CommercialPage = () => {
   }, [location.pathname]);
 
   const handleNavigation = (path, typeName = null) => {
-    if (typeName) {
-      setActiveCommercialType(typeName);
-    }
+    if (typeName) setActiveCommercialType(typeName);
     navigate(path);
   };
 
-  const handlePropertyCategoryNavigation = (path) => {
-    navigate(path);
+  const handlePropertyCategoryNavigation = (path) => navigate(path);
+
+  const handleFilterChange = (filters) => {
+    setAppliedFilters(filters);
+    console.log("Applied Filters:", filters);
   };
 
-  const getCommercialIcon = (typeName, sizeClass = "w-3.5 h-3.5") => {
-    const iconMap = {
-      "Office Space": <Briefcase className={sizeClass} />,
-      "Retail Shop": <Store className={sizeClass} />,
-      "Showroom": <Store className={sizeClass} />,
-      "Commercial Land / Plot": <Landmark className={sizeClass} />,
-      "Warehouse / Godown": <Warehouse className={sizeClass} />,
-      "Industrial Property / Factory": <Factory className={sizeClass} />,
-      "Co-working Space": <Briefcase className={sizeClass} />,
-      "Business Center": <Building className={sizeClass} />,
-      "Shopping Mall Space": <Building2 className={sizeClass} />,
-      "Commercial Complex": <Building2 className={sizeClass} />,
-      "Restaurant / Café Space": <Store className={sizeClass} />,
-      "Hotel / Lodge / Resort Property": <Hotel className={sizeClass} />,
-      "Clinic / Hospital Space": <Building className={sizeClass} />,
-      "Educational Institution Property": <Building className={sizeClass} />,
-      "IT Park / Tech Park Space": <Building className={sizeClass} />,
-      "Multiplex / Entertainment Space": <Building2 className={sizeClass} />,
-      "Petrol Bunk / Fuel Station": <Landmark className={sizeClass} />,
-      "Cold Storage / Logistics Hub": <Warehouse className={sizeClass} />,
-      "Mixed-use Commercial Property": <Building2 className={sizeClass} />,
-      "Agricultural Commercial Property": <Landmark className={sizeClass} />,
-      "All": <Home className={sizeClass} />
-    };
-    return iconMap[typeName] || <Building className={sizeClass} />;
-  };
+  /* ─── Shared sub-components ─────────────────────────────────────────── */
 
-  const CommercialTypeAvatar = ({ type, avatarSize = "w-20 h-20", iconSize = "w-7 h-7", labelSize = "text-xs", wrapperWidth = "6.5rem" }) => {
-    const isActive = activeCommercialType === type.name;
-    const isAll = type.name === "All";
-    return (
+  const RentBuyDropdown = ({ isMobile = false }) => (
+    <div className="relative">
       <button
-        onClick={() => handleNavigation(type.path, type.name)}
-        className="group flex flex-col items-center gap-2 flex-shrink-0"
-        style={{ width: wrapperWidth }}
+        onClick={() => setOpenDropdown(openDropdown === "toggle" ? null : "toggle")}
+        className="group relative px-3.5 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl w-full"
+        style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
       >
-        <div
-          className={`relative ${avatarSize} rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105`}
-          style={{
-            background: isAll ? "linear-gradient(135deg, #00695C, #26A69A)" : "#ffffff",
-            boxShadow: isActive
-              ? "0 0 0 2px #ffffff, 0 0 0 4px #00897B, 0 6px 16px rgba(0,105,92,0.25)"
-              : "0 2px 8px rgba(0,105,92,0.15)",
-            border: isAll ? "none" : "1px solid rgba(0,105,92,0.15)"
-          }}
-        >
-          {isAll ? (
-            <Home className={`${iconSize} text-white`} />
-          ) : (
-            <img
-              src={backgroundImage}
-              alt={type.name}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          )}
-          {!isAll && (
-            <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? "bg-teal-900/0" : "bg-teal-900/15 group-hover:bg-teal-900/0"}`}></div>
-          )}
-        </div>
-        <span
-          className={`${labelSize} font-semibold text-center leading-tight max-w-[6.5rem] transition-colors duration-300 ${
-            isActive ? "text-teal-700" : "text-teal-900/70 group-hover:text-teal-700"
-          }`}
-        >
-          {type.name}
-        </span>
+        <div className="absolute inset-0 animate-gradient-shift-slow rounded-lg"></div>
+        <Home className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+        <span className="relative z-10 text-sm">{activeButton}</span>
+        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openDropdown === "toggle" ? "rotate-180" : ""} relative z-10 ml-auto`} />
       </button>
+
+      {openDropdown === "toggle" && (
+        <div className="absolute top-full left-0 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[170px] border border-teal-200/30 animate-slide-down-fast">
+          {["Buy", "Rent", "Lease", "Sell"].map((item, idx, arr) => (
+            <React.Fragment key={item}>
+              <button
+                onClick={() => { handleNavigation(`/${item.toLowerCase()}`); setActiveButton(item); setOpenDropdown(null); }}
+                className="w-full px-5 py-3 text-left text-sm hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
+                style={activeButton === item ? { color: "#00695C", backgroundColor: "#e0f2f1", fontWeight: 600 } : {}}
+              >
+                <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
+                  {item}
+                </div>
+              </button>
+              {idx < arr.length - 1 && <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const SearchBar = () => (
+    <div className="relative flex-1 group">
+      <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+      <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-400 group-hover:text-teal-600 group-hover:scale-110 transition-all duration-300 z-10" />
+      <input
+        type="text"
+        placeholder="Search commercial properties by city, locality, or business park"
+        className="w-full pl-9 pr-5 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/90 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-xl text-teal-900 placeholder-teal-400 transition-all duration-500 relative z-10 hover:shadow-2xl"
+      />
+      <MapPin className="absolute right-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-300 group-hover:text-emerald-500 group-hover:rotate-12 transition-all duration-300 z-10" />
+    </div>
+  );
+
+  const AdvancedFilterBtn = ({ fullWidth = false }) => (
+    <button
+      onClick={() => setShowFilterModal(true)}
+      className={`group relative px-3.5 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.4)] transition-all duration-500 hover:scale-105 overflow-hidden ${fullWidth ? "w-full justify-center" : ""}`}
+      style={{ background: "linear-gradient(135deg, #00897B, #26A69A)", backgroundSize: "200% 200%" }}
+    >
+      <div className="absolute inset-0 animate-gradient-shift-slow rounded-lg"></div>
+      <Filter className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+      <span className="relative z-10 text-sm">Advanced Filters</span>
+      {appliedFilters && (
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+      )}
+    </button>
+  );
+
+  /* ─── Single category pill (reused for "All" and marquee items) ─── */
+  const CategoryPill = ({ category, mobile = false, isActive = false }) => (
+    <div
+      className={`group cursor-pointer flex flex-col items-center transition-all duration-300 hover:scale-105 flex-shrink-0 ${
+        mobile ? "active:scale-95" : ""
+      }`}
+      onClick={() => handleNavigation(category.path, category.name)}
+    >
+      {/* Round Image */}
+      <div
+        className={`relative ${
+          mobile
+            ? "w-9 h-9 xs:w-10 xs:h-10 border-2"
+            : "w-12 h-12 sm:w-14 sm:h-14 md:w-17 md:h-17 border-[3px]"
+        } rounded-full overflow-hidden transition-all duration-300 shadow-md hover:shadow-lg ${
+          isActive
+            ? 'border-[#00695C] shadow-[0_0_18px_rgba(0,105,92,0.3)]'
+            : 'border-gray-300 hover:border-[#00695C]'
+        }`}
+      >
+        <img
+          src={category.image}
+          alt={category.name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+      </div>
+
+      {/* Label - Two lines */}
+      <div className="flex flex-col items-center mt-0.5">
+        <span className={`${
+          mobile ? "text-[7px]" : "text-[8px] sm:text-[9px] md:text-[11px]"
+        } font-semibold text-center leading-tight whitespace-nowrap transition-colors duration-300 ${
+          isActive ? 'text-[#00695C]' : 'text-[#143B35] group-hover:text-[#00695C]'
+        }`}>
+          {category.displayName || category.name}
+        </span>
+        {category.subText && (
+          <span className={`${
+            mobile ? "text-[7px]" : "text-[8px] sm:text-[9px] md:text-[11px]"
+          } font-semibold text-center leading-tight whitespace-nowrap transition-colors duration-300 ${
+            isActive ? 'text-[#00695C]' : 'text-[#143B35] group-hover:text-[#00695C]'
+          }`}>
+            {category.subText}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  /* ─── Auto-scrolling marquee with pinned "All" on the left ─── */
+  const CategoryMarquee = ({ mobile = false }) => {
+    // Duplicate the categories so the loop is seamless
+    const duplicated = [...propertyTypeCategories, ...propertyTypeCategories];
+
+    const isAllActive = activeCommercialType === "All";
+
+    return (
+      <div className={`flex items-center gap-3.5 md:gap-5 pt-1.5 pb-1 w-full ${mobile ? "overflow-hidden" : ""}`}>
+        {/* ── PINNED "ALL" CATEGORY (stays fixed on the left) ── */}
+        <div className="flex-shrink-0 z-10">
+          <CategoryPill category={allCategory} mobile={mobile} isActive={isAllActive} />
+        </div>
+
+        {/* ── AUTO-SCROLLING TRACK (rest of the categories) ── */}
+        <div className="marquee-container group/marquee overflow-hidden flex-1 min-w-0">
+          <div className="marquee-track flex items-center gap-3.5 md:gap-5 w-max group-hover/marquee:[animation-play-state:paused]">
+            {duplicated.map((category, index) => {
+              const isActive = activeCommercialType === category.name;
+
+              return (
+                <CategoryPill
+                  key={`${category.name}-${index}`}
+                  category={category}
+                  mobile={mobile}
+                  isActive={isActive}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </div>
     );
   };
 
-  return (
-    <div className="w-full min-h-screen relative">
-      {/* Background */}
-      <div 
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 via-emerald-900/20 to-teal-900/40 animate-gradient-flow"></div>
-        
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(25)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-particle-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${8 + Math.random() * 8}s`,
-                width: `${2 + Math.random() * 4}px`,
-                height: `${2 + Math.random() * 4}px`,
-                background: `radial-gradient(circle, rgba(38, 166, 154, 0.4) 0%, rgba(0, 105, 92, 0.2) 70%, transparent 100%)`,
-                borderRadius: '50%',
-              }}
-            ></div>
-          ))}
-          
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={`shape-${i}`}
-              className="absolute animate-geometric-float"
-              style={{
-                width: `${20 + Math.random() * 40}px`,
-                height: `${20 + Math.random() * 40}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: `linear-gradient(135deg, rgba(0, 105, 92, 0.1), rgba(38, 166, 154, 0.05))`,
-                borderRadius: i % 3 === 0 ? '50%' : i % 3 === 1 ? '20%' : '0%',
-                border: '1px solid rgba(38, 166, 154, 0.15)',
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${15 + Math.random() * 15}s`,
-              }}
-            ></div>
-          ))}
-        </div>
-      </div>
+  /* ─── Render ─────────────────────────────────────────────────────────── */
 
+  return (
+    <div className="w-full min-h-screen relative bg-gradient-to-b from-teal-50 via-white to-teal-50">
       <div className="relative z-10">
 
-        {/* ══════════════════════════════════════════════
-            SIMPLIFIED BANNER — heading + subheading + line + 4 diamonds
-        ══════════════════════════════════════════════ */}
-        <section className="relative w-full overflow-hidden bg-gradient-to-br from-white via-teal-50 to-emerald-50">
+        {/* ===================== BANNER - SAME AS AGRICULTURAL PAGE ===================== */}
+        <section className="relative overflow-hidden bg-[#E7EFEA]">
+          {/* Decorative top shape */}
+          <div className="absolute top-0 left-0 w-[130px] h-[45px] rounded-br-[35px] sm:w-[170px] sm:h-[58px] sm:rounded-br-[50px] md:w-[210px] md:h-[72px] md:rounded-br-[60px] lg:w-[250px] lg:h-[85px] lg:rounded-br-[70px] bg-[#D6E4DE]" />
 
-          {/* ---------- MOBILE / TABLET (< md) ---------- */}
-          <div className="md:hidden">
-            <div className="relative w-full h-56 sm:h-64 overflow-hidden rounded-b-[2rem] shadow-xl">
-              <img
-                src={backgroundImage}
-                alt="Commercial property"
-                className="w-full h-full object-cover animate-ken-burns"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-teal-950/70 via-teal-900/20 to-transparent"></div>
+          <div className="max-w-[1600px] mx-auto">
+            <div className="flex flex-row min-h-[170px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[330px]">
 
-              {/* Decorative corner accents only (brand tag removed) */}
-              <div className="absolute top-3 left-3 w-9 h-9 border-t-2 border-l-2 border-white/60 rounded-tl-lg" />
-              <div className="absolute top-3 right-3 w-9 h-9 border-t-2 border-r-2 border-white/60 rounded-tr-lg" />
-            </div>
+              {/* LEFT CONTENT */}
+              <div className="flex flex-col justify-center w-[38%] sm:w-[37%] md:w-[36%] lg:w-[35%] shrink-0 px-2.5 sm:px-5 md:px-6 lg:px-10 py-2.5 sm:py-4 md:py-6 lg:py-7 z-20">
 
-            <div className="px-6 pt-8 pb-8 text-center">
-              {/* Main heading */}
-              <h1 className="font-bold leading-[0.95] text-4xl sm:text-5xl animate-fade-in-up">
-                <span className="block text-teal-950">COMMERCIAL</span>
-                <span
-                  className="block text-transparent bg-clip-text animate-gradient-text-slow"
-                  style={{ backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)" }}
-                >
-                  PROPERTIES
-                </span>
-              </h1>
+                <h1 className="leading-none">
+                  <span className="block text-[11px] sm:text-[15px] md:text-[20px] lg:text-[28px] font-light text-[#042F2A]">
+                    PREMIUM
+                  </span>
 
-              {/* Subheading */}
-              <h2 className="mt-3 text-base sm:text-lg font-semibold text-teal-800 animate-fade-in-up delay-100">
-                Find Your Perfect Business Space
-              </h2>
+                  <span className="block text-[16px] sm:text-[24px] md:text-[36px] lg:text-[50px] font-black text-[#012D29] leading-tight">
+                    COMMERCIAL
+                  </span>
 
-              {/* One line */}
-              <p className="mt-2 text-sm text-teal-700/90 max-w-md mx-auto leading-relaxed animate-fade-in-up delay-200">
-                Verified offices, retail units, and industrial spaces near you.
-              </p>
-
-              {/* Diamonds */}
-              <div className="mt-8 flex flex-wrap items-start justify-center gap-x-5 gap-y-4">
-                {propertyCategories.map((category, index) => (
-                  <button
-                    key={category.name}
-                    onClick={() => handlePropertyCategoryNavigation(category.path)}
-                    className="group flex flex-col items-center gap-3 w-20 animate-diamond-float"
-                    style={{ animationDelay: `${index * 0.3}s` }}
-                  >
-                    <div className="relative w-16 h-16">
-                      <div className="absolute -inset-2 rounded-full bg-teal-400/0 group-hover:bg-teal-400/30 blur-lg transition-all duration-500" />
-                      
-                      <div
-                        className="relative w-full h-full rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(0,105,92,0.6)]"
-                        style={{ border: "2px solid rgba(255,255,255,0.6)" }}
-                      >
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150 transition-transform duration-700 group-hover:scale-[1.7]"
-                        />
-                        <div className="absolute inset-0 overflow-hidden -rotate-45">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
-                      </div>
-
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md border border-teal-200 flex items-center justify-center z-10 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-500">
-                        <div className="text-teal-700 w-3 h-3">
-                          {category.icon}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="mt-1 text-[11px] font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors relative">
-                      {category.name}
-                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ---------- DESKTOP (md+) ---------- */}
-          <div className="hidden md:block relative h-[440px] lg:h-[480px]">
-
-            {/* Diagonal photo panel */}
-            <div
-              className="absolute inset-y-0 left-0 w-[54%] lg:w-[52%]"
-              style={{ clipPath: "polygon(0 0, 100% 0, 78% 100%, 0% 100%)" }}
-            >
-              <img
-                src={backgroundImage}
-                alt="Commercial property"
-                className="w-full h-full object-cover animate-ken-burns"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-900/20 via-transparent to-transparent"></div>
-              <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.15)]"></div>
-              
-              <div className="absolute top-5 left-5 w-14 h-14 border-t-[3px] border-l-[3px] border-white/80 animate-corner-pulse"></div>
-              <div className="absolute bottom-5 left-5 w-10 h-10 border-b-[3px] border-l-[3px] border-teal-300/70 animate-corner-pulse delay-500"></div>
-
-              <div className="absolute inset-0 opacity-20" style={{
-                background: "linear-gradient(135deg, rgba(0,105,92,0.35) 0%, transparent 45%)"
-              }}></div>
-            </div>
-
-            {/* Content column */}
-            <div className="relative z-10 h-full flex items-center px-10 lg:px-14">
-              <div className="w-[44%] lg:w-[42%] ml-auto text-left">
-
-                {/* Main heading */}
-                <h1 className="font-bold leading-[0.95] text-5xl lg:text-6xl animate-fade-in-up">
-                  <span className="block text-teal-950">COMMERCIAL</span>
-                  <span
-                    className="block text-transparent bg-clip-text animate-gradient-text-slow"
-                    style={{ backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)" }}
-                  >
+                  <span className="block text-[12px] sm:text-[17px] md:text-[23px] lg:text-[30px] font-bold text-[#012D29] leading-tight">
                     PROPERTIES
                   </span>
                 </h1>
 
-                {/* Subheading */}
-                <h2 className="mt-3 text-lg lg:text-xl font-semibold text-teal-800 animate-fade-in-up delay-100">
-                  Find Your Perfect Business Space
-                </h2>
-
-                {/* One line */}
-                <p className="mt-2 text-sm lg:text-base text-teal-700/90 max-w-md leading-relaxed animate-fade-in-up delay-200">
-                  Verified offices, retail units, and industrial spaces near you.
+                <p className="mt-1 sm:mt-2 md:mt-2.5 lg:mt-3 max-w-[120px] sm:max-w-[200px] md:max-w-[280px] lg:max-w-[340px] text-[#31544E] text-[8px] sm:text-[10px] md:text-xs lg:text-sm leading-snug lg:leading-relaxed">
+                  Discover modern commercial spaces with world-class
+                  amenities and prime business locations.
                 </p>
 
-                {/* Diamonds */}
-                <div className="mt-8 flex items-start gap-6 lg:gap-8 -ml-6 lg:-ml-10">
-                  {propertyCategories.map((category, index) => (
-                    <button
-                      key={category.name}
-                      onClick={() => handlePropertyCategoryNavigation(category.path)}
-                      className="group flex flex-col items-center gap-3 w-24 animate-diamond-float"
-                      style={{ animationDelay: `${index * 0.35}s` }}
+                <button
+                  className="mt-1.5 sm:mt-2.5 md:mt-3 lg:mt-4 w-fit px-2.5 py-1 sm:px-4 sm:py-1.5 md:px-5 md:py-1.5 lg:px-6 lg:py-2 rounded-md lg:rounded-lg text-white font-bold shadow-md lg:shadow-xl text-[7px] sm:text-[9px] md:text-[11px] lg:text-sm"
+                  style={{
+                    background: "linear-gradient(135deg,#00695C,#26A69A)"
+                  }}
+                >
+                  EXPLORE NOW
+                </button>
+              </div>
+
+              {/* RIGHT COLLAGE */}
+              <div className="relative overflow-hidden flex-1" style={{ aspectRatio: '16/8' }}>
+                {/* Main Building Background */}
+                <img
+                  src={bannerImg}
+                  alt="Commercial property"
+                  className="absolute inset-0 w-full h-full object-cover object-top brightness-75"
+                />
+
+                {/* Soft overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#E7EFEA] via-transparent to-transparent" />
+
+                {/* DIAMOND COLLAGE */}
+                <div className="absolute inset-0 flex items-center justify-start pl-2 sm:pl-4 md:pl-6 lg:pl-7 z-20">
+                  <div className="relative w-[260px] h-[260px] scale-[0.42] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 origin-left transition-transform duration-300">
+
+                    {/* TOP DIAMOND - Individual */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "0px",
+                        left: "80px",
+                        animationDelay: "0s",
+                      }}
+                      onClick={() => handlePropertyCategoryNavigation(bannerDiamonds[0].path)}
                     >
-                      <div className="relative w-20 h-20">
-                        <div className="absolute -inset-3 rounded-full bg-teal-400/0 group-hover:bg-teal-400/35 blur-xl transition-all duration-700" />
-                        
-                        <div 
-                          className="absolute -inset-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
                           style={{
                             background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
                             animation: "diamond-spin 3s linear infinite",
-                            filter: "blur(4px)",
+                            borderRadius: "18px",
+                          }}
+                        />
+
+                        <img
+                          src={bannerDiamonds[0].image}
+                          alt="Individual"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.3)",
+                            transformOrigin: "center",
                           }}
                         />
 
                         <div
-                          className="relative w-full h-full rotate-45 rounded-xl shadow-lg overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_35px_rgba(0,105,92,0.65)]"
-                          style={{ border: "2.5px solid rgba(255,255,255,0.7)" }}
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.3)",
+                            transformOrigin: "center",
+                          }}
                         >
-                          <img
-                            src={category.image}
-                            alt={category.name}
-                            className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-150 transition-transform duration-700 group-hover:scale-[1.75] group-hover:-rotate-[50deg]"
-                          />
-                          <div className="absolute inset-0 overflow-hidden -rotate-45">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                          </div>
-                          <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 to-emerald-900/20 -rotate-45 group-hover:opacity-0 transition-opacity duration-500"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
                         </div>
 
-                        <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white shadow-lg border-2 border-teal-100 flex items-center justify-center z-10 group-hover:scale-110 group-hover:border-teal-400 group-hover:rotate-[360deg] transition-all duration-700">
-                          <div className="text-teal-700 w-3.5 h-3.5">
-                            {category.icon}
-                          </div>
-                        </div>
-
-                        <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-400 opacity-0 group-hover:opacity-100 group-hover:animate-ping" />
-                        <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 rounded-full bg-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150" />
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
                       </div>
-                      <span className="mt-1 text-xs font-semibold text-teal-900 text-center leading-tight group-hover:text-teal-700 transition-colors relative">
-                        {category.name}
-                        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
-                      </span>
-                    </button>
-                  ))}
-                </div>
 
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Individual
+                        </span>
+                      </div>
+
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* LEFT DIAMOND - Apartment */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "80px",
+                        left: "0px",
+                        animationDelay: "0.5s",
+                      }}
+                      onClick={() => handlePropertyCategoryNavigation(bannerDiamonds[1].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+
+                        <img
+                          src={bannerDiamonds[1].image}
+                          alt="Apartment"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+
+                        <div
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Apartment
+                        </span>
+                      </div>
+
+                      <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* RIGHT DIAMOND - Commercial */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "80px",
+                        left: "160px",
+                        animationDelay: "1s",
+                      }}
+                      onClick={() => handlePropertyCategoryNavigation(bannerDiamonds[2].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+
+                        <img
+                          src={bannerDiamonds[2].image}
+                          alt="Commercial"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+
+                        <div
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[10px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] text-center leading-tight z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Commercial
+                        </span>
+                      </div>
+
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* BOTTOM DIAMOND - Land & Plots */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "160px",
+                        left: "80px",
+                        animationDelay: "1.5s",
+                      }}
+                      onClick={() => handlePropertyCategoryNavigation(bannerDiamonds[3].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+
+                        <img
+                          src={bannerDiamonds[3].image}
+                          alt="Land & Plots"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+
+                        <div
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Land & Plots
+                        </span>
+                      </div>
+
+                      <div className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
+        {/* =================== END BANNER =================== */}
 
-        <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500 animate-slide-down">
-          <div className="max-w-none mx-auto px-6 py-4">
-            <div className="hidden md:block space-y-5">
-              <div className="flex gap-4 items-center">
-                <div className="relative">
-                  <button
-                    onClick={() => setOpenDropdown(openDropdown === "toggle" ? null : "toggle")}
-                    className="group relative px-4 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.4)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
-                    style={{
-                      background: "linear-gradient(135deg, #00695C, #26A69A)",
-                      backgroundSize: "200% 200%"
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-gradient-shift-slow"></div>
-                    <Home className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
-                    <span className="relative z-10">{activeButton}</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openDropdown === "toggle" ? 'rotate-180' : ''} relative z-10`} />
-                    <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                  </button>
-
-                  {openDropdown === "toggle" && (
-                    <div className="absolute top-full left-0 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[180px] border border-teal-200/30 animate-slide-down-fast">
-                      <button
-                        onClick={() => {
-                          handleNavigation("/buy");
-                          setActiveButton("Buy");
-                          setOpenDropdown(null);
-                        }}
-                        className="w-full px-5 py-3.5 text-left text-base hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
-                      >
-                        <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
-                          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                          Buy
-                        </div>
-                      </button>
-                      <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>
-                      <button
-                        onClick={() => {
-                          handleNavigation("/rent");
-                          setActiveButton("Rent");
-                          setOpenDropdown(null);
-                        }}
-                        className="w-full px-5 py-3.5 text-left text-base font-semibold transition-all duration-300 group"
-                        style={{ color: "#00695C", backgroundColor: "#e0f2f1" }}
-                      >
-                        <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
-                          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                          Rent
-                        </div>
-                      </button>
-                      <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>
-                      <button
-                        onClick={() => {
-                          handleNavigation("/lease");
-                          setActiveButton("Lease");
-                          setOpenDropdown(null);
-                        }}
-                        className="w-full px-5 py-3.5 text-left text-base hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
-                      >
-                        <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
-                          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                          Lease
-                        </div>
-                      </button>
-                      <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>
-                      <button
-                        onClick={() => {
-                          handleNavigation("/sell");
-                          setActiveButton("Sell");
-                          setOpenDropdown(null);
-                        }}
-                        className="w-full px-5 py-3.5 text-left text-base hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
-                      >
-                        <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
-                          <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                          Sell
-                        </div>
-                      </button>
-                    </div>   
-                  )}
-                </div>
-
-                <div className="relative flex-1 group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                  <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-400 group-hover:text-teal-600 group-hover:scale-110 transition-all duration-300 z-10" />
-                  <input
-                    type="text"
-                    placeholder="Search by city, locality, or landmark"
-                    className="w-full pl-10 pr-5 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/90 text-base focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-xl text-teal-900 placeholder-teal-400 transition-all duration-500 relative z-10 hover:shadow-2xl"
-                  />
-                  <MapPin className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-300 group-hover:text-emerald-500 group-hover:rotate-12 transition-all duration-300 z-10" />
-                </div>
+        {/* ══════════════════════════════════════════════
+            STICKY NAVBAR  —  DESKTOP (SAME AS AGRICULTURAL PAGE)
+        ══════════════════════════════════════════════ */}
+        <div className="hidden md:block bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500">
+          <div className="max-w-none mx-auto px-6 py-3.5">
+            <div className="space-y-3.5">
+              {/* Row 1: Dropdown + Search + Filter */}
+              <div className="flex gap-3.5 items-center">
+                <RentBuyDropdown />
+                <SearchBar />
+                <AdvancedFilterBtn />
               </div>
 
-              <div className="relative">
-                <div
-                  className="flex flex-nowrap items-start gap-6 lg:gap-7 overflow-x-auto pt-3 pb-3 scrollbar-thin"
-                  style={{ WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
-                >
-                  {commercialTypes.map((type) => (
-                    <CommercialTypeAvatar key={type.name} type={type} />
-                  ))}
-                </div>
-                <div className="pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-teal-50/95 to-transparent"></div>
-              </div>
-            </div>
-
-            <div className="md:hidden space-y-4">
-              <div className="relative">
-                <div
-                  className="flex flex-nowrap items-start gap-5 overflow-x-auto pt-3 pb-3 scrollbar-thin"
-                  style={{ WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
-                >
-                  {commercialTypes.map((type) => (
-                    <CommercialTypeAvatar
-                      key={type.name}
-                      type={type}
-                      avatarSize="w-16 h-16"
-                      iconSize="w-6 h-6"
-                      labelSize="text-[11px]"
-                      wrapperWidth="5rem"
-                    />
-                  ))}
-                </div>
-                <div className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-teal-50/95 to-transparent"></div>
-              </div>
+              {/* ====== PINNED "ALL" + AUTO-SCROLLING CATEGORIES (PAUSE ON HOVER) ====== */}
+              <CategoryMarquee />
             </div>
           </div>
         </div>
 
-        <div className="max-w-none mx-auto px-6 py-8 lg:py-12">
+        {/* ══════════════════════════════════════════════
+            STICKY NAVBAR  —  MOBILE (SAME AS AGRICULTURAL PAGE)
+        ══════════════════════════════════════════════ */}
+        <div className="md:hidden bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500">
+          <div className="px-6 py-3.5 space-y-3">
+
+            <div className="flex gap-2.5 items-center">
+              <div className="w-[110px] flex-shrink-0">
+                <RentBuyDropdown isMobile />
+              </div>
+              <div className="flex-1">
+                <SearchBar />
+              </div>
+              <div className="flex-shrink-0">
+                <AdvancedFilterBtn />
+              </div>
+            </div>
+
+            {/* ====== PINNED "ALL" + AUTO-SCROLLING CATEGORIES (PAUSE ON HOVER) ====== */}
+            <CategoryMarquee mobile />
+
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════
+            FILTER MODAL  (mobile Advanced Filters tap)
+        ══════════════════════════════════════════════ */}
+        {showFilterModal && (
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[140px] px-4 pb-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+            <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              {/* CommercialFilter - replace with appropriate filter component if available */}
+              <div className="bg-white rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-teal-900">Advanced Filters</h3>
+                  <button
+                    onClick={() => setShowFilterModal(false)}
+                    className="p-2 rounded-lg hover:bg-teal-50 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-teal-600" />
+                  </button>
+                </div>
+                <p className="text-teal-700">Filter options coming soon...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════
+            MAIN CONTENT
+        ══════════════════════════════════════════════ */}
+        <div className="max-w-none mx-auto px-4 sm:px-6 py-6 lg:py-12">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            <div className="lg:w-2/3">
+
+            {/* ── Property Cards / Empty State ── */}
+            <div className="w-full lg:w-2/3">
               <section>
                 <div className="bg-gradient-to-br from-teal-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-12 text-center border border-teal-200/30 hover:shadow-[0_0_60px_rgba(0,105,92,0.3)] transition-all duration-700 group animate-fade-in-up">
                   <div className="absolute inset-0 opacity-[0.03] rounded-3xl overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/20 to-transparent animate-shimmer"></div>
                   </div>
-                  
+
                   <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-100 to-emerald-100 border border-teal-200">
                     <span className="text-sm font-medium text-teal-700">Active Filter:</span>
                     <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
                       {activeCommercialType}
                     </span>
                   </div>
-                  
+
                   <div
                     className="w-24 h-24 md:w-28 md:h-28 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-[0_0_50px_rgba(0,105,92,0.5)] transition-all duration-700 transform group-hover:scale-110 group-hover:rotate-3 relative"
                     style={{
@@ -563,27 +897,27 @@ const CommercialPage = () => {
                     <div className="absolute -inset-4 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
                     <Landmark className="w-12 h-12 text-white group-hover:rotate-12 transition-transform duration-700 relative z-10" />
                   </div>
-                  
+
                   <h2 className="text-3xl md:text-4xl font-bold text-teal-900 mb-4 group-hover:text-teal-950 transition-colors duration-300">
                     {activeCommercialType === "All" ? "Premium Commercial Properties" : `${activeCommercialType} Properties`}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 animate-gradient-text-slow"> Coming Soon</span>
                   </h2>
-                  
+
                   <p className="text-teal-800 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed group-hover:text-teal-900 transition-colors duration-300 backdrop-blur-sm bg-teal-100/30 rounded-2xl p-6 border border-teal-200/20">
-                    {activeCommercialType === "All" 
+                    {activeCommercialType === "All"
                       ? "We're currently adding exclusive commercial properties to our database."
                       : `We're currently adding exclusive ${activeCommercialType.toLowerCase()} properties to our database.`}
                     <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-semibold text-xl">
                       Check back soon for amazing deals!
                     </span>
                   </p>
-                  
+
                   <div className="mt-8 flex justify-center gap-4">
                     <button className="group relative px-6 py-3 rounded-xl border-2 border-teal-500 text-teal-600 font-semibold hover:bg-gradient-to-r from-teal-50 to-emerald-50 transition-all duration-500 transform hover:scale-105 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                       <span className="relative z-10">Get Notified</span>
                     </button>
-                    <button 
+                    <button
                       className="group relative px-6 py-3 rounded-xl text-white font-semibold shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, #00695C, #26A69A)",
@@ -604,17 +938,17 @@ const CommercialPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 rounded-3xl animate-pulse-slow"></div>
                     <Landmark className="w-10 h-10 text-teal-600 animate-bounce-slow relative z-10" />
                   </div>
-                  
+
                   <h3 className="text-2xl font-bold text-teal-900 mb-4">
                     No {activeCommercialType !== "All" ? `${activeCommercialType} ` : ""}Commercial Properties Found
                   </h3>
-                  
+
                   <p className="text-teal-800 mb-6 backdrop-blur-sm bg-teal-100/30 rounded-xl p-4 border border-teal-200/20">
                     {activeCommercialType !== "All"
                       ? `We don't have any ${activeCommercialType.toLowerCase()} properties available at the moment.`
                       : "Use the filters on the right to find commercial properties that match your criteria."}
                   </p>
-                  
+
                   <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100">
                     {[0, 150, 300].map((delay) => (
                       <div
@@ -624,8 +958,8 @@ const CommercialPage = () => {
                       ></div>
                     ))}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-medium">
-                      {activeCommercialType !== "All" 
-                        ? `Check back later for ${activeCommercialType.toLowerCase()} listings` 
+                      {activeCommercialType !== "All"
+                        ? `Check back later for ${activeCommercialType.toLowerCase()} listings`
                         : "Adjust your filters to see matching properties"}
                     </span>
                   </div>
@@ -633,8 +967,9 @@ const CommercialPage = () => {
               </div>
             </div>
 
-            <div className="lg:w-1/3 lg:relative">
-              <div className="lg:sticky lg:top-[120px] lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
+            {/* ── Sidebar Filter (desktop only — on mobile the modal is used) ── */}
+            <div className="hidden lg:block lg:w-1/3 lg:relative">
+              <div className="lg:sticky lg:top-[110px] lg:max-h-[calc(100vh-130px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
                 <div className="bg-gradient-to-b from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-teal-200/30 hover:shadow-[0_0_40px_rgba(0,105,92,0.2)] transition-all duration-500">
                   <h3 className="text-xl font-bold text-teal-900 mb-6 flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 animate-pulse-slow">
@@ -647,7 +982,7 @@ const CommercialPage = () => {
 
                   <div className="mb-6 animate-fade-in-up delay-100">
                     <label className="text-sm font-semibold text-teal-800 mb-3 block flex items-center gap-2">
-                      <span className="text-xl animate-bounce-slow">💰</span> 
+                      <span className="text-xl animate-bounce-slow">💰</span>
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
                         Price / Rent Range
                       </span>
@@ -699,18 +1034,13 @@ const CommercialPage = () => {
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {["Office", "Retail", "Industrial", "Warehouse", "Land", "Mixed-use"].map((type, index) => (
-                        <label 
-                          key={type} 
-                          onMouseEnter={() => setHoveredFilter(`type-${index}`)}
-                          onMouseLeave={() => setHoveredFilter(null)}
-                          className={`flex items-center gap-3 p-3 rounded-xl border-2 border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50 group animate-fade-in-up ${
-                            hoveredFilter === `type-${index}` ? 'scale-[1.02]' : ''
-                          }`}
-                          style={{ animationDelay: `${index * 50}ms` }}
+                        <label
+                          key={type}
+                          className="flex items-center gap-3 p-3 rounded-xl border-2 border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50 group"
                         >
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300" 
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300"
                           />
                           <span className="text-sm text-teal-800 group-hover:text-teal-900 group-hover:font-medium transition-all duration-300">
                             {type}
@@ -729,13 +1059,13 @@ const CommercialPage = () => {
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {["Parking", "24/7 Security", "Power Backup", "Elevator", "Wifi", "CCTV"].map((amenity, index) => (
-                        <label 
-                          key={amenity} 
+                        <label
+                          key={amenity}
                           className="flex items-center gap-3 p-2 rounded-lg border border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-teal-50/50"
                         >
-                          <input 
-                            type="checkbox" 
-                            className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30" 
+                          <input
+                            type="checkbox"
+                            className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30"
                           />
                           <span className="text-xs text-teal-700">{amenity}</span>
                         </label>
@@ -768,19 +1098,32 @@ const CommercialPage = () => {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
+
       </div>
 
+      {/* ══════════════════════════════════════════════
+          STYLES
+      ══════════════════════════════════════════════ */}
       <style jsx>{`
-        @keyframes ken-burns {
-          0%, 100% { transform: scale(1) translate(0, 0); }
-          50% { transform: scale(1.08) translate(-1%, -1%); }
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
-        .animate-ken-burns {
-          animation: ken-burns 20s ease-in-out infinite;
+        .animate-gradient-shift {
+          background-size: 200% 200%;
+          animation: gradient-shift 2s linear infinite;
         }
-
+        .animate-gradient-shift-slow {
+          background-size: 200% 200%;
+          animation: gradient-shift 4s linear infinite;
+        }
+        @keyframes diamond-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         @keyframes diamond-float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
@@ -788,83 +1131,12 @@ const CommercialPage = () => {
         .animate-diamond-float {
           animation: diamond-float 4s ease-in-out infinite;
         }
-
-        @keyframes diamond-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(0,105,92,0.4); }
-          50% { box-shadow: 0 0 0 10px rgba(0,105,92,0); }
-        }
-        .animate-pulse-glow {
-          animation: pulse-glow 2.5s ease-in-out infinite;
-        }
-
-        @keyframes corner-pulse {
-          0%, 100% { opacity: 0.8; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.08); }
-        }
-        .animate-corner-pulse {
-          animation: corner-pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes gradient-flow {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-flow {
-          background-size: 200% 200%;
-          animation: gradient-flow 20s ease infinite;
-        }
-        .animate-gradient-slow {
-          background-size: 300% 300%;
-          animation: gradient-flow 15s ease infinite;
-        }
-        .animate-gradient-shift {
-          background-size: 200% 200%;
-          animation: gradient-flow 2s linear infinite;
-        }
-        .animate-gradient-shift-slow {
-          background-size: 200% 200%;
-          animation: gradient-flow 4s linear infinite;
-        }
-        .animate-gradient-text {
-          background-size: 300% 300%;
-          animation: gradient-flow 3s ease infinite;
-        }
-        .animate-gradient-text-slow {
-          background-size: 300% 300%;
-          animation: gradient-flow 5s ease infinite;
-        }
-        @keyframes particle-float {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          50% { transform: translateY(-40px) translateX(20px) rotate(180deg); opacity: 0.8; }
-        }
-        .animate-particle-float {
-          animation: particle-float 12s ease-in-out infinite;
-        }
-        @keyframes geometric-float {
-          0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-          50% { transform: translateY(-30px) rotate(180deg) scale(1.1); }
-        }
-        .animate-geometric-float {
-          animation: geometric-float 20s ease-in-out infinite;
-        }
-        @keyframes bubble-float {
-          0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
-          50% { transform: translateY(-25px) scale(1.2); opacity: 0.8; }
-        }
-        .animate-bubble-float {
-          animation: bubble-float 6s ease-in-out infinite;
-        }
-        @keyframes float-glow {
-          0%, 100% { transform: translateY(0px); box-shadow: 0 0 30px rgba(0,105,92,0.3); }
-          50% { transform: translateY(-5px); box-shadow: 0 0 40px rgba(0,105,92,0.5); }
-        }
-        .animate-float-glow {
-          animation: float-glow 3s ease-in-out infinite;
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
         }
         @keyframes fade-in-up {
           from { opacity: 0; transform: translateY(20px); }
@@ -873,19 +1145,9 @@ const CommercialPage = () => {
         .animate-fade-in-up {
           animation: fade-in-up 0.6s ease-out forwards;
         }
-        @keyframes slide-up {
-          from { transform: translateY(30px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.5s ease-out forwards;
-        }
         @keyframes slide-down {
           from { transform: translateY(-20px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-slide-down {
-          animation: slide-down 0.4s ease-out forwards;
         }
         .animate-slide-down-fast {
           animation: slide-down 0.2s ease-out forwards;
@@ -900,9 +1162,6 @@ const CommercialPage = () => {
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
         }
         .animate-rotate-slow {
           animation: spin-slow 10s linear infinite;
@@ -935,11 +1194,6 @@ const CommercialPage = () => {
         .animate-pulse-slow {
           animation: pulse-slow 2s ease-in-out infinite;
         }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -947,41 +1201,40 @@ const CommercialPage = () => {
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
-        .scrollbar-thin::-webkit-scrollbar {
-          height: 10px;
+
+        /* ── Auto-scrolling marquee (pauses on hover) ── */
+        .marquee-container {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(0, 105, 92, 0.12);
-          border-radius: 10px;
+        .marquee-container::-webkit-scrollbar {
+          display: none;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: linear-gradient(to right, #00695C, #26A69A);
-          border-radius: 10px;
-          border: 2px solid transparent;
-          background-clip: padding-box;
+
+        .marquee-track {
+          animation: marquee-scroll 60s linear infinite;
+          will-change: transform;
         }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to right, #004D40, #00796B);
-          background-clip: padding-box;
+
+        @keyframes marquee-scroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        .scrollbar-thin {
-          scrollbar-width: auto;
-          scrollbar-color: #00897B rgba(0, 105, 92, 0.12);
+
+        /* Pause on hover of the whole container or the track */
+        .marquee-container:hover .marquee-track,
+        .marquee-track:hover {
+          animation-play-state: paused;
         }
-        .lg\\:custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-track {
-          background: linear-gradient(to bottom, transparent, rgba(0, 105, 92, 0.1), transparent);
-          border-radius: 10px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #00695C, #26A69A);
-          border-radius: 10px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #004D40, #00796B);
-          box-shadow: 0 0 10px rgba(0, 105, 92, 0.5);
+
+        /* Respect reduced-motion preference */
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none;
+          }
         }
       `}</style>
     </div>

@@ -1,8 +1,16 @@
+// LandAndPlotsPage.jsx
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Search, Home, MapPin, Star, Filter, X, Building, Landmark, Warehouse, Building2, Store, Factory, Hotel, Briefcase, Trees, Sprout, Heart, School, Layers, ChevronRight, Compass, ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import backgroundImage from "../../assets/landandplots/mainbg.png";
 
+// Import banner images
+import mainPropertyImage from "../../assets/Apartmentban.jpg";
+import individualImg from "../../assets/individualcat.jpg";
+import commercialImg from "../../assets/commercialcat.jpg";
+import landPlotsImg from "../../assets/landcat.jpg";
+import apartmentImg from "../../assets/Apartmentban.jpg";
+
+// Import category images
 import residentialLandImg from "../../assets/landandplots/mainbg.png";
 import commercialLandImg from "../../assets/landandplots/mainbg.png";
 import agriculturalLandImg from "../../assets/landandplots/mainbg.png";
@@ -18,8 +26,8 @@ const LandAndPlotsPage = () => {
   const [activeLandType, setActiveLandType] = useState("All");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [hoveredFilter, setHoveredFilter] = useState(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState(null);
 
   const propertyCategories = [
     { name: "Individual", path: "/individual", icon: <Building className="w-4 h-4" /> },
@@ -28,29 +36,35 @@ const LandAndPlotsPage = () => {
     { name: "Hostel", path: "/hostel", icon: <Building2 className="w-4 h-4" /> }
   ];
 
+  // Diamond collage entries - changed Hostel to Apartment
   const bannerDiamonds = [
     {
       label: "Individual",
-      icon: <Building className="w-4 h-4" style={{ color: "#00695C" }} />,
-      path: "/individual"
+      path: "/individual",
+      image: individualImg,
+      position: "top"
     },
     {
       label: "Apartment",
-      icon: <Landmark className="w-4 h-4" style={{ color: "#00695C" }} />,
-      path: "/apartment"
+      path: "/apartment",
+      image: apartmentImg,
+      position: "left"
     },
     {
       label: "Commercial",
-      icon: <Warehouse className="w-4 h-4" style={{ color: "#00695C" }} />,
-      path: "/commercial"
+      path: "/commercial",
+      image: commercialImg,
+      position: "right"
     },
     {
       label: "Hostel",
-      icon: <Building2 className="w-4 h-4" style={{ color: "#00695C" }} />,
-      path: "/hostel"
+      path: "/hostel",
+      image: landPlotsImg,
+      position: "bottom"
     }
   ];
 
+  // Land categories with submenus - preserved from original
   const landCategories = [
     {
       name: "All",
@@ -270,9 +284,9 @@ const LandAndPlotsPage = () => {
     navigate(path);
   };
 
-  const handlePropertyCategoryNavigation = (path) => {
-    navigate(path);
-  };
+  const handlePropertyCategoryNavigation = (path) => navigate(path);
+
+  const handleDiamondClick = (path) => navigate(path);
 
   const getParentCategory = (typeName) => {
     const landType = landTypes.find(t => t.name === typeName);
@@ -289,290 +303,437 @@ const LandAndPlotsPage = () => {
     "Investment & Special Purpose Land": "Investment & Special Purpose Land / Plots"
   };
 
-  return (
-    <div className="w-full min-h-screen relative">
-      {/* Background */}
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-        }}
+  const handleFilterChange = (filters) => {
+    setAppliedFilters(filters);
+    console.log("Applied Filters:", filters);
+  };
+
+  /* ─── Shared sub-components ─────────────────────────────────────────── */
+
+  const RentBuyDropdown = ({ isMobile = false }) => (
+    <div className="relative">
+      <button
+        onClick={() => setOpenDropdown(openDropdown === "toggle" ? null : "toggle")}
+        className="group relative px-3.5 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl w-full"
+        style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 via-emerald-900/20 to-teal-900/40 animate-gradient-flow"></div>
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(25)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-particle-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${8 + Math.random() * 8}s`,
-                width: `${2 + Math.random() * 4}px`,
-                height: `${2 + Math.random() * 4}px`,
-                background: `radial-gradient(circle, rgba(38, 166, 154, 0.4) 0%, rgba(0, 105, 92, 0.2) 70%, transparent 100%)`,
-                borderRadius: '50%',
-              }}
-            ></div>
-          ))}
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={`shape-${i}`}
-              className="absolute animate-geometric-float"
-              style={{
-                width: `${20 + Math.random() * 40}px`,
-                height: `${20 + Math.random() * 40}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                background: `linear-gradient(135deg, rgba(0, 105, 92, 0.1), rgba(38, 166, 154, 0.05))`,
-                borderRadius: i % 3 === 0 ? '50%' : i % 3 === 1 ? '20%' : '0%',
-                border: '1px solid rgba(38, 166, 154, 0.15)',
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${15 + Math.random() * 15}s`,
-              }}
-            ></div>
+        <div className="absolute inset-0 animate-gradient-shift-slow rounded-lg"></div>
+        <Home className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+        <span className="relative z-10 text-sm">{activeButton}</span>
+        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openDropdown === "toggle" ? "rotate-180" : ""} relative z-10 ml-auto`} />
+      </button>
+
+      {openDropdown === "toggle" && (
+        <div className="absolute top-full left-0 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[170px] border border-teal-200/30 animate-slide-down-fast">
+          {["Buy", "Rent", "Lease", "Sell"].map((item, idx, arr) => (
+            <React.Fragment key={item}>
+              <button
+                onClick={() => { handleNavigation(`/${item.toLowerCase()}`); setActiveButton(item); setOpenDropdown(null); }}
+                className="w-full px-5 py-3 text-left text-sm hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
+                style={activeButton === item ? { color: "#00695C", backgroundColor: "#e0f2f1", fontWeight: 600 } : {}}
+              >
+                <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
+                  {item}
+                </div>
+              </button>
+              {idx < arr.length - 1 && <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>}
+            </React.Fragment>
           ))}
         </div>
-      </div>
+      )}
+    </div>
+  );
 
+  const SearchBar = () => (
+    <div className="relative flex-1 group">
+      <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+      <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-400 group-hover:text-teal-600 group-hover:scale-110 transition-all duration-300 z-10" />
+      <input
+        type="text"
+        placeholder="Search by city, locality, or landmark"
+        className="w-full pl-9 pr-5 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/90 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-xl text-teal-900 placeholder-teal-400 transition-all duration-500 relative z-10 hover:shadow-2xl"
+      />
+      <MapPin className="absolute right-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-300 group-hover:text-emerald-500 group-hover:rotate-12 transition-all duration-300 z-10" />
+    </div>
+  );
+
+  const AdvancedFilterBtn = ({ fullWidth = false }) => (
+    <button
+      onClick={() => setShowFilterModal(true)}
+      className={`group relative px-3.5 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.4)] transition-all duration-500 hover:scale-105 overflow-hidden ${fullWidth ? "w-full justify-center" : ""}`}
+      style={{ background: "linear-gradient(135deg, #00897B, #26A69A)", backgroundSize: "200% 200%" }}
+    >
+      <div className="absolute inset-0 animate-gradient-shift-slow rounded-lg"></div>
+      <Filter className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+      <span className="relative z-10 text-sm">Advanced Filters</span>
+      {appliedFilters && (
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+      )}
+    </button>
+  );
+
+  /* ─── Render ─────────────────────────────────────────────────────────── */
+
+  return (
+    <div className="w-full min-h-screen relative bg-gradient-to-b from-teal-50 via-white to-teal-50">
       <div className="relative z-10">
-        {/* ══════════════════════════════════════════════
-            ENHANCED BROCHURE BANNER — refined split layout
-        ══════════════════════════════════════════════ */}
-        <section className="w-full bg-gradient-to-br from-white via-teal-50/40 to-emerald-50/60 overflow-hidden relative">
+        {/* ===================== BANNER - SAME AS HOSTEL PAGE ===================== */}
+        <section className="relative overflow-hidden bg-[#E7EFEA]">
+          {/* Decorative top shape */}
+          <div className="absolute top-0 left-0 w-[130px] h-[45px] rounded-br-[35px] sm:w-[170px] sm:h-[58px] sm:rounded-br-[50px] md:w-[210px] md:h-[72px] md:rounded-br-[60px] lg:w-[250px] lg:h-[85px] lg:rounded-br-[70px] bg-[#D6E4DE]" />
 
-          {/* Soft ambient orbs */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-100/40 blur-3xl opacity-60 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-emerald-100/40 blur-3xl opacity-50 pointer-events-none" />
+          <div className="max-w-[1600px] mx-auto">
+            <div className="flex flex-row min-h-[170px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[330px]">
 
-          <div className="flex flex-col lg:flex-row items-stretch min-h-[360px] sm:min-h-[400px] lg:min-h-[440px] relative">
+              {/* LEFT CONTENT */}
+              <div className="flex flex-col justify-center w-[38%] sm:w-[37%] md:w-[36%] lg:w-[35%] shrink-0 px-2.5 sm:px-5 md:px-6 lg:px-10 py-2.5 sm:py-4 md:py-6 lg:py-7 z-20">
 
-            {/* ── LEFT: Refined chevron-cut image panel ── */}
-            <div className="relative w-full lg:w-[50%] h-[240px] sm:h-[300px] lg:h-auto shrink-0">
-              <div
-                className="relative w-full h-full overflow-hidden group"
-                style={{
-                  clipPath: "polygon(0 0, 82% 0, 100% 50%, 82% 100%, 0 100%)",
-                }}
-              >
-                <img
-                  src={backgroundImage}
-                  alt="Premium land and plots"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105 animate-slow-zoom"
-                />
-                {/* Layered gradients for depth */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#00332C]/65 via-[#00332C]/15 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#00332C]/25" />
+                <h1 className="leading-none">
+                  <span className="block text-[11px] sm:text-[15px] md:text-[20px] lg:text-[28px] font-light text-[#042F2A]">
+                    PREMIUM
+                  </span>
 
-                {/* Thin gold accent line at top */}
-                <div className="absolute top-7 left-7 w-14 h-[2px] bg-gradient-to-r from-amber-400/90 to-transparent" />
+                  <span className="block text-[16px] sm:text-[24px] md:text-[36px] lg:text-[50px] font-black text-[#012D29] leading-tight">
+                    LAND & PLOTS
+                  </span>
 
-                {/* Vertical caption at bottom-left */}
-                <div className="absolute bottom-7 left-7 flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <div className="leading-tight">
-                    <p className="text-[9px] font-bold tracking-[0.3em] text-amber-300">PREMIUM</p>
-                    <p className="text-[11px] font-bold tracking-[0.15em] text-white">LAND & PLOTS</p>
-                  </div>
-                </div>
+                  <span className="block text-[12px] sm:text-[17px] md:text-[23px] lg:text-[30px] font-bold text-[#012D29] leading-tight">
+                    FOR SALE
+                  </span>
+                </h1>
 
-                {/* Small chip top-right */}
-                <div className="absolute top-6 right-[22%] lg:right-[20%] flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25">
-                  <Sparkles className="w-3 h-3 text-amber-300" />
-                  <span className="text-[9px] font-bold tracking-wider text-white">VERIFIED</span>
-                </div>
-              </div>
+                <p className="mt-1 sm:mt-2 md:mt-2.5 lg:mt-3 max-w-[120px] sm:max-w-[200px] md:max-w-[280px] lg:max-w-[340px] text-[#31544E] text-[8px] sm:text-[10px] md:text-xs lg:text-sm leading-snug lg:leading-relaxed">
+                  Find the perfect property from our curated
+                  collection of premium land and plot options.
+                </p>
 
-              {/* Thin teal accent bar hugging the chevron edge */}
-              <div
-                className="hidden lg:block absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-transparent via-teal-400/60 to-transparent pointer-events-none"
-              />
-            </div>
-
-            {/* ── RIGHT: Refined text block ── */}
-            <div className="relative z-10 flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-16 py-10 lg:py-0">
-
-              {/* Eyebrow with line */}
-              <div className="flex items-center gap-3 mb-3 animate-fade-in-up">
-                <span className="w-8 h-[2px] bg-gradient-to-r from-teal-600 to-transparent rounded-full" />
-                <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.3em] text-teal-700">
-                  ELITEINOVA.COM
-                </span>
-              </div>
-
-              {/* Heading */}
-              <h1 className="text-[#143B35] font-black leading-[0.98] mb-3 animate-fade-in-up delay-100">
-                <span
-                  className="block text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] tracking-tight"
-                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-                >
-                  Discover Your
-                </span>
-                <span
-                  className="block text-3xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] tracking-tight text-transparent bg-clip-text animate-gradient-text-slow"
+                <button
+                  className="mt-1.5 sm:mt-2.5 md:mt-3 lg:mt-4 w-fit px-2.5 py-1 sm:px-4 sm:py-1.5 md:px-5 md:py-1.5 lg:px-6 lg:py-2 rounded-md lg:rounded-lg text-white font-bold shadow-md lg:shadow-xl text-[7px] sm:text-[9px] md:text-[11px] lg:text-sm"
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    backgroundImage: "linear-gradient(135deg, #00695C, #26A69A, #0d9488)"
+                    background: "linear-gradient(135deg,#00695C,#26A69A)"
                   }}
                 >
-                  Dream Property
-                </span>
-              </h1>
+                  EXPLORE NOW
+                </button>
+              </div>
 
-              {/* One-liner */}
-              <p className="text-[#4B5C58] max-w-md text-sm sm:text-[15px] leading-relaxed mb-5 animate-fade-in-up delay-200">
-                Find the perfect property from our curated collection of premium real estate options.
-              </p>
+              {/* RIGHT COLLAGE */}
+              <div className="relative overflow-hidden flex-1" style={{ aspectRatio: '16/8' }}>
+                {/* Main Building Background */}
+                <img
+                  src={mainPropertyImage}
+                  alt="Land & Plots"
+                  className="absolute inset-0 w-full h-full object-cover object-top brightness-75"
+                />
 
-              {/* Divider + trust row */}
-              <div className="flex items-center gap-4 mb-6 animate-fade-in-up delay-300">
-                <div className="h-px w-10 bg-teal-600/40" />
-                <div className="flex items-center gap-3 text-[10px] text-slate-500">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                    <span className="font-semibold tracking-wide">100% Verified</span>
-                  </div>
-                  <div className="w-px h-2.5 bg-slate-200" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-teal-500" />
-                    <span className="font-semibold tracking-wide">Trusted Agents</span>
+                {/* Soft overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#E7EFEA] via-transparent to-transparent" />
+
+                {/* DIAMOND COLLAGE */}
+                <div className="absolute inset-0 flex items-center justify-start pl-2 sm:pl-4 md:pl-6 lg:pl-7 z-20">
+                  <div className="relative w-[260px] h-[260px] scale-[0.42] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 origin-left transition-transform duration-300">
+
+                    {/* TOP DIAMOND - Individual */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "0px",
+                        left: "80px",
+                        animationDelay: "0s",
+                      }}
+                      onClick={() => handleDiamondClick(bannerDiamonds[0].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
+                        <img
+                          src={bannerDiamonds[0].image}
+                          alt="Individual"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.3)",
+                            transformOrigin: "center",
+                          }}
+                        />
+                        
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.3)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Individual
+                        </span>
+                      </div>
+                      
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* LEFT DIAMOND - Apartment */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "80px",
+                        left: "0px",
+                        animationDelay: "0.5s",
+                      }}
+                      onClick={() => handleDiamondClick(bannerDiamonds[1].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
+                        <img
+                          src={bannerDiamonds[1].image}
+                          alt="Apartment"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+                        
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Apartment
+                        </span>
+                      </div>
+                      
+                      <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* RIGHT DIAMOND - Commercial */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "80px",
+                        left: "160px",
+                        animationDelay: "1s",
+                      }}
+                      onClick={() => handleDiamondClick(bannerDiamonds[2].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
+                        <img
+                          src={bannerDiamonds[2].image}
+                          alt="Commercial"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+                        
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[10px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] text-center leading-tight z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Commercial
+                        </span>
+                      </div>
+                      
+                      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
+                    {/* BOTTOM DIAMOND - Hostel */}
+                    <div
+                      className="absolute cursor-pointer transition-all duration-500 hover:scale-110 hover:z-30 animate-diamond-float"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        top: "160px",
+                        left: "80px",
+                        animationDelay: "1.5s",
+                      }}
+                      onClick={() => handleDiamondClick(bannerDiamonds[3].path)}
+                    >
+                      <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
+                      
+                      <div
+                        className="relative w-full h-full overflow-hidden shadow-xl group/diamond"
+                        style={{
+                          transform: "rotate(45deg)",
+                          borderRadius: "18px",
+                          border: "3px solid rgba(255,255,255,0.85)",
+                          boxShadow: "0 6px 30px rgba(0,0,0,0.3)",
+                          transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      >
+                        <div 
+                          className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
+                          style={{
+                            background: "conic-gradient(from 0deg, #00695C, #26A69A, #4DB6AC, #26A69A, #00695C)",
+                            animation: "diamond-spin 3s linear infinite",
+                            borderRadius: "18px",
+                          }}
+                        />
+                        
+                        <img
+                          src={bannerDiamonds[3].image}
+                          alt="Hostel"
+                          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/diamond:scale-125"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        />
+                        
+                        <div 
+                          className="absolute inset-0 overflow-hidden"
+                          style={{
+                            transform: "rotate(-45deg) scale(1.5)",
+                            transformOrigin: "center",
+                          }}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover/diamond:translate-x-full transition-transform duration-1000" />
+                        </div>
+                        
+                        <div
+                          className="absolute inset-0 transition-opacity duration-500 group-hover/diamond:opacity-80"
+                          style={{
+                            background: "linear-gradient(to top, rgba(0,0,0,0.4), rgba(0,0,0,0.05))",
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-white font-bold text-[11px] tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] z-10 transition-all duration-300 group-hover/diamond:scale-110">
+                          Hostel
+                        </span>
+                      </div>
+                      
+                      <div className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
+                    </div>
+
                   </div>
                 </div>
               </div>
-
-              {/* Diamonds row */}
-              <div className="flex items-start gap-4 sm:gap-6 mb-7">
-                {bannerDiamonds.map((diamond, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center cursor-pointer group animate-diamond-float"
-                    style={{ animationDelay: `${index * 0.3}s` }}
-                    onClick={() => handleNavigation(diamond.path)}
-                  >
-                    <div className="relative">
-                      {/* Glow ring on hover */}
-                      <div className="absolute -inset-2 rounded-full bg-teal-400/0 group-hover:bg-teal-400/30 blur-lg transition-all duration-700 pointer-events-none" />
-
-                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-[68px] lg:h-[68px] rotate-45 rounded-xl overflow-hidden shadow-lg ring-1 ring-[#D1E2DB] transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_10px_28px_-6px_rgba(0,105,92,0.55)] group-hover:ring-2 group-hover:ring-teal-400"
-                        style={{ border: "2.5px solid #ffffff" }}
-                      >
-                        <img
-                          src={backgroundImage}
-                          alt={diamond.label}
-                          className="absolute inset-0 w-full h-full object-cover -rotate-45 scale-[1.75] transition-transform duration-700 group-hover:scale-[1.95] group-hover:-rotate-[50deg]"
-                        />
-                        {/* Light tint only */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 -rotate-45 group-hover:opacity-0 transition-opacity duration-500" />
-                        {/* Shine sweep */}
-                        <div className="absolute inset-0 overflow-hidden -rotate-45">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/55 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                        </div>
-                      </div>
-
-                      {/* Icon badge */}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white shadow-md border border-[#D1E2DB] flex items-center justify-center z-10 group-hover:scale-110 group-hover:rotate-[360deg] group-hover:border-teal-400 transition-all duration-700">
-                        {diamond.icon}
-                      </div>
-
-                      {/* Sparkle */}
-                      <div className="absolute -top-1 -left-1 w-1.5 h-1.5 rounded-full bg-amber-400 opacity-0 group-hover:opacity-100 group-hover:animate-ping" />
-                    </div>
-
-                    <span className="mt-1.5 text-[10px] sm:text-xs font-semibold text-[#143B35] text-center whitespace-nowrap group-hover:text-[#00695C] transition-colors duration-300 relative">
-                      {diamond.label}
-                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-gradient-to-r from-teal-600 to-emerald-500 rounded-full group-hover:w-full transition-all duration-500" />
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTA row */}
-              <div className="flex flex-wrap items-center gap-3 animate-fade-in-up delay-400">
-                <button
-                  onClick={() => handleNavigation("/land-plots")}
-                  className="group relative inline-flex items-center gap-2 px-7 py-3 rounded-full text-white font-bold text-xs tracking-[0.18em] shadow-lg hover:shadow-[0_10px_30px_-6px_rgba(0,105,92,0.6)] transition-all duration-300 overflow-hidden"
-                  style={{ background: "linear-gradient(135deg, #00695C, #26A69A)", backgroundSize: "200% 200%" }}
-                >
-                  <div className="absolute inset-0 animate-gradient-shift"></div>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full blur opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                  <span className="relative z-10 flex items-center gap-2">
-                    EXPLORE NOW
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </span>
-                </button>
-
-                <button className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-slate-700 font-bold text-xs tracking-[0.18em] border border-slate-300 hover:border-teal-400 hover:text-teal-700 hover:bg-teal-50/60 transition-all duration-300">
-                  <Sparkles className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
-                  VIEW ALL
-                </button>
-              </div>
-
             </div>
           </div>
-
-          {/* Bottom accent line */}
-          <div className="h-[2px] bg-gradient-to-r from-transparent via-teal-400/70 to-transparent" />
         </section>
+        {/* =================== END BANNER =================== */}
 
-        {/* Sticky Header */}
-        <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500 animate-slide-down">
-          <div className="max-w-none mx-auto px-6 py-4">
-            <div className="hidden md:block space-y-4">
-              <div className="flex gap-4 items-center">
-                <div className="relative">
-                  <button
-                    onClick={() => setOpenDropdown(openDropdown === "toggle" ? null : "toggle")}
-                    className="group relative px-4 py-2 rounded-lg text-white font-semibold text-sm flex items-center gap-2 shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.4)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
-                    style={{
-                      background: "linear-gradient(135deg, #00695C, #26A69A)",
-                      backgroundSize: "200% 200%"
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-gradient-shift-slow"></div>
-                    <Home className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
-                    <span className="relative z-10">{activeButton}</span>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${openDropdown === "toggle" ? 'rotate-180' : ''} relative z-10`} />
-                    <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                  </button>
-
-                  {openDropdown === "toggle" && (
-                    <div className="absolute top-full left-0 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[180px] border border-teal-200/30 animate-slide-down-fast">
-                      {["Buy", "Rent", "Lease", "Sell"].map((item, idx, arr) => (
-                        <React.Fragment key={item}>
-                          <button
-                            onClick={() => { handleNavigation(`/${item.toLowerCase()}`); setActiveButton(item); setOpenDropdown(null); }}
-                            className="w-full px-5 py-3.5 text-left text-base hover:bg-teal-100/50 transition-all duration-300 text-teal-900 font-medium group"
-                            style={activeButton === item ? { color: "#00695C", backgroundColor: "#e0f2f1", fontWeight: 600 } : {}}
-                          >
-                            <div className="flex items-center gap-3 group-hover:gap-4 transition-all">
-                              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500"></div>
-                              {item}
-                            </div>
-                          </button>
-                          {idx < arr.length - 1 && <div className="h-px bg-gradient-to-r from-transparent via-teal-200/50 to-transparent"></div>}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative flex-1 group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                  <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-400 group-hover:text-teal-600 group-hover:scale-110 transition-all duration-300 z-10" />
-                  <input
-                    type="text"
-                    placeholder="Search by city, locality, or landmark"
-                    className="w-full pl-10 pr-5 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/90 text-base focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-xl text-teal-900 placeholder-teal-400 transition-all duration-500 relative z-10 hover:shadow-2xl"
-                  />
-                  <MapPin className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-teal-300 group-hover:text-emerald-500 group-hover:rotate-12 transition-all duration-300 z-10" />
-                </div>
+        {/* =================== MENU - SAME AS HOSTEL PAGE =================== */}
+        <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500">
+          <div className="max-w-none mx-auto px-6 py-3.5">
+            <div className="hidden md:block space-y-3.5">
+              <div className="flex gap-3.5 items-center">
+                <RentBuyDropdown />
+                <SearchBar />
+                <AdvancedFilterBtn />
               </div>
 
-              <div className="flex flex-wrap items-start justify-center gap-5 md:gap-8 pt-2">
+              {/* ====== LAND CATEGORIES WITH SUBMENUS - SAME LAYOUT AS HOSTEL PAGE ====== */}
+              <div className="flex flex-wrap items-start justify-center gap-3.5 md:gap-5 pt-1.5">
                 {landCategories.map((category) => {
                   const isActive =
                     activeLandType === (mainCategoryActiveMap[category.name] || category.name);
@@ -594,10 +755,11 @@ const LandAndPlotsPage = () => {
                           }
                         }}
                       >
+                        {/* Round Image - Same as HostelPage */}
                         <div
-                          className={`relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg ${
+                          className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-17 md:h-17 rounded-full overflow-hidden border-[3px] flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg ${
                             isActive
-                              ? 'border-[#00695C] shadow-[0_0_25px_rgba(0,105,92,0.35)]'
+                              ? 'border-[#00695C] shadow-[0_0_18px_rgba(0,105,92,0.3)]'
                               : 'border-gray-300 hover:border-[#00695C]'
                           }`}
                         >
@@ -608,7 +770,7 @@ const LandAndPlotsPage = () => {
                               }`}
                             >
                               {React.cloneElement(category.icon, {
-                                className: `w-7 h-7 md:w-9 md:h-9 transition-colors duration-300 ${
+                                className: `w-5 h-5 md:w-5.5 md:h-5.5 transition-colors duration-300 ${
                                   isActive ? 'text-white' : 'text-[#00695C]'
                                 }`
                               })}
@@ -620,16 +782,14 @@ const LandAndPlotsPage = () => {
                                 alt={category.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                              {isActive && (
-                                <div className="absolute inset-0 bg-[#00695C]/25" />
-                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                             </>
                           )}
                         </div>
 
+                        {/* Label */}
                         <span
-                          className={`mt-1.5 text-[10px] sm:text-xs md:text-sm font-semibold text-center max-w-[110px] leading-tight transition-colors duration-300 ${
+                          className={`mt-0.5 text-[8px] sm:text-[9px] md:text-[11px] font-semibold text-center leading-tight max-w-[100px] transition-colors duration-300 ${
                             isActive ? 'text-[#00695C]' : 'text-[#143B35] group-hover:text-[#00695C]'
                           }`}
                         >
@@ -637,6 +797,7 @@ const LandAndPlotsPage = () => {
                         </span>
                       </div>
 
+                      {/* Submenu dropdown on hover */}
                       {!category.isAllButton && hoveredCategory === category.name && category.submenus.length > 0 && (
                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-teal-50/95 backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-50 min-w-[240px] border border-teal-200/30 animate-slide-down-fast">
                           <div className="py-2 max-h-[400px] overflow-y-auto">
@@ -674,15 +835,30 @@ const LandAndPlotsPage = () => {
               </div>
             </div>
 
-            <div className="md:hidden space-y-4">
-              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+            {/* =================== MOBILE MENU - SAME AS HOSTEL PAGE =================== */}
+            <div className="md:hidden space-y-3">
+              <div className="flex gap-2.5 items-center">
+                <div className="w-[110px] flex-shrink-0">
+                  <RentBuyDropdown isMobile />
+                </div>
+                <div className="flex-1">
+                  <SearchBar />
+                </div>
+                <div className="flex-shrink-0">
+                  <AdvancedFilterBtn />
+                </div>
+              </div>
+
+              {/* Mobile categories */}
+              <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
                 {landCategories.map((category) => {
                   const isActive =
                     activeLandType === (mainCategoryActiveMap[category.name] || category.name);
+
                   return (
                     <div
                       key={category.name}
-                      className="flex-shrink-0 flex flex-col items-center"
+                      className="flex flex-col items-center flex-shrink-0 transition-transform duration-200 active:scale-95"
                       onClick={() => {
                         if (category.isAllButton) {
                           handleNavigation(category.path, "All");
@@ -692,24 +868,30 @@ const LandAndPlotsPage = () => {
                       }}
                     >
                       <div
-                        className={`relative w-14 h-14 rounded-full overflow-hidden border-[3px] flex items-center justify-center transition-all duration-300 shadow-md ${
-                          isActive ? 'border-[#00695C]' : 'border-gray-300'
+                        className={`relative w-9 h-9 xs:w-10 xs:h-10 rounded-full overflow-hidden border-2 flex items-center justify-center transition-all duration-300 shadow-sm ${
+                          isActive
+                            ? 'border-[#00695C] shadow-[0_0_10px_rgba(0,105,92,0.3)]'
+                            : 'border-gray-300'
                         }`}
                       >
                         {category.isAllButton ? (
-                          <div className={`w-full h-full flex items-center justify-center ${isActive ? 'bg-[#00695C]' : 'bg-gray-100'}`}>
+                          <div className={`w-full h-full flex items-center justify-center ${
+                            isActive ? 'bg-[#00695C]' : 'bg-gray-100'
+                          }`}>
                             {React.cloneElement(category.icon, {
-                              className: `w-5 h-5 ${isActive ? 'text-white' : 'text-[#00695C]'}`
+                              className: `w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#00695C]'}`
                             })}
                           </div>
                         ) : (
                           <>
                             <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
-                            {isActive && <div className="absolute inset-0 bg-[#00695C]/25" />}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                           </>
                         )}
                       </div>
-                      <span className={`mt-1 text-[9px] font-semibold text-center max-w-[70px] leading-tight ${isActive ? 'text-[#00695C]' : 'text-[#143B35]'}`}>
+                      <span className={`mt-0.5 text-[7px] font-semibold text-center leading-tight max-w-[70px] whitespace-nowrap transition-colors duration-300 ${
+                        isActive ? 'text-[#00695C]' : 'text-[#143B35]'
+                      }`}>
                         {category.name}
                       </span>
                     </div>
@@ -717,6 +899,7 @@ const LandAndPlotsPage = () => {
                 })}
               </div>
 
+              {/* Mobile submenu chips */}
               {hoveredCategory && (
                 <div className="bg-teal-50 rounded-xl p-2 border border-teal-200">
                   <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto">
@@ -749,8 +932,58 @@ const LandAndPlotsPage = () => {
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="max-w-none mx-auto px-6 py-8 lg:py-12">
+        {/* =================== FILTER MODAL =================== */}
+        {showFilterModal && (
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[140px] px-4 pb-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+            <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="bg-gradient-to-b from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl p-4 sm:p-6 border border-teal-200/30">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-teal-900 flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-teal-600" />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
+                      Advanced Filters
+                    </span>
+                  </h3>
+                  <button
+                    onClick={() => setShowFilterModal(false)}
+                    className="p-2 hover:bg-teal-100 rounded-full transition-all duration-300"
+                  >
+                    <X className="w-5 h-5 text-teal-600" />
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <label className="text-sm font-semibold text-teal-800 mb-2 block">Price Range</label>
+                  <div className="flex gap-3">
+                    <input type="number" placeholder="Min" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
+                    <input type="number" placeholder="Max" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="text-sm font-semibold text-teal-800 mb-2 block">Area (sq. ft. / acres)</label>
+                  <div className="flex gap-3">
+                    <input type="number" placeholder="Min Area" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
+                    <input type="number" placeholder="Max Area" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-teal-200/30">
+                  <button className="flex-1 px-4 py-2 rounded-xl border-2 border-teal-200/50 text-sm font-medium text-teal-700 hover:bg-teal-50 transition-all duration-300">
+                    Clear All
+                  </button>
+                  <button className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-xl hover:shadow-[0_0_25px_rgba(0,105,92,0.4)] transition-all duration-300"
+                    style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}>
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =================== MAIN CONTENT =================== */}
+        <div className="max-w-none mx-auto px-4 sm:px-6 py-6 lg:py-12">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             <div className="lg:w-2/3">
               <section>
@@ -758,7 +991,7 @@ const LandAndPlotsPage = () => {
                   <div className="absolute inset-0 opacity-[0.03] rounded-3xl overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/20 to-transparent animate-shimmer"></div>
                   </div>
-                  
+
                   <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-100 to-emerald-100 border border-teal-200">
                     <span className="text-sm font-medium text-teal-700">Active Filter:</span>
                     <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
@@ -768,7 +1001,7 @@ const LandAndPlotsPage = () => {
                       <span className="text-xs text-teal-500">({getParentCategory(activeLandType)})</span>
                     )}
                   </div>
-                  
+
                   <div
                     className="w-24 h-24 md:w-28 md:h-28 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-[0_0_50px_rgba(0,105,92,0.5)] transition-all duration-700 transform group-hover:scale-110 group-hover:rotate-3 relative"
                     style={{
@@ -780,27 +1013,27 @@ const LandAndPlotsPage = () => {
                     <div className="absolute -inset-4 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
                     <Landmark className="w-12 h-12 text-white group-hover:rotate-12 transition-transform duration-700 relative z-10" />
                   </div>
-                  
+
                   <h2 className="text-3xl md:text-4xl font-bold text-teal-900 mb-4 group-hover:text-teal-950 transition-colors duration-300">
                     {activeLandType === "All" ? "Premium Land & Plots" : `${activeLandType} Properties`}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 animate-gradient-text-slow"> Coming Soon</span>
                   </h2>
-                  
+
                   <p className="text-teal-800 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed group-hover:text-teal-900 transition-colors duration-300 backdrop-blur-sm bg-teal-100/30 rounded-2xl p-6 border border-teal-200/20">
-                    {activeLandType === "All" 
+                    {activeLandType === "All"
                       ? "We're currently adding verified land and plot listings across all categories."
                       : `We're currently adding exclusive ${activeLandType.toLowerCase()} listings to our database.`}
                     <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-semibold text-xl">
                       Check back soon for amazing deals!
                     </span>
                   </p>
-                  
+
                   <div className="mt-8 flex justify-center gap-4">
                     <button className="group relative px-6 py-3 rounded-xl border-2 border-teal-500 text-teal-600 font-semibold hover:bg-gradient-to-r from-teal-50 to-emerald-50 transition-all duration-500 transform hover:scale-105 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                       <span className="relative z-10">Get Notified</span>
                     </button>
-                    <button 
+                    <button
                       className="group relative px-6 py-3 rounded-xl text-white font-semibold shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, #00695C, #26A69A)",
@@ -821,17 +1054,17 @@ const LandAndPlotsPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 rounded-3xl animate-pulse-slow"></div>
                     <Landmark className="w-10 h-10 text-teal-600 animate-bounce-slow relative z-10" />
                   </div>
-                  
+
                   <h3 className="text-2xl font-bold text-teal-900 mb-4">
                     No {activeLandType !== "All" ? `${activeLandType} ` : ""}Land & Plots Found
                   </h3>
-                  
+
                   <p className="text-teal-800 mb-6 backdrop-blur-sm bg-teal-100/30 rounded-xl p-4 border border-teal-200/20">
                     {activeLandType !== "All"
                       ? `We don't have any ${activeLandType.toLowerCase()} listings available at the moment.`
                       : "Click on 'All' to see all properties or hover over any category above and select a subcategory to find specific land types."}
                   </p>
-                  
+
                   <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100">
                     {[0, 150, 300].map((delay) => (
                       <div
@@ -841,8 +1074,8 @@ const LandAndPlotsPage = () => {
                       ></div>
                     ))}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-medium">
-                      {activeLandType !== "All" 
-                        ? `Check back later for ${activeLandType.toLowerCase()} listings` 
+                      {activeLandType !== "All"
+                        ? `Check back later for ${activeLandType.toLowerCase()} listings`
                         : "Click 'All' to view all properties or select a subcategory from any menu"}
                     </span>
                   </div>
@@ -851,7 +1084,7 @@ const LandAndPlotsPage = () => {
             </div>
 
             <div className="lg:w-1/3 lg:relative">
-              <div className="lg:sticky lg:top-[120px] lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
+              <div className="lg:sticky lg:top-[110px] lg:max-h-[calc(100vh-130px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
                 <div className="bg-gradient-to-b from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-teal-200/30 hover:shadow-[0_0_40px_rgba(0,105,92,0.2)] transition-all duration-500">
                   <h3 className="text-xl font-bold text-teal-900 mb-6 flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 animate-pulse-slow">
@@ -864,7 +1097,7 @@ const LandAndPlotsPage = () => {
 
                   <div className="mb-6 animate-fade-in-up delay-100">
                     <label className="text-sm font-semibold text-teal-800 mb-3 block flex items-center gap-2">
-                      <span className="text-xl animate-bounce-slow">💰</span> 
+                      <span className="text-xl animate-bounce-slow">💰</span>
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
                         Price Range
                       </span>
@@ -899,15 +1132,10 @@ const LandAndPlotsPage = () => {
                       </span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {landCategories.filter(c => !c.isAllButton).map((category, index) => (
-                        <label 
-                          key={category.name} 
-                          onMouseEnter={() => setHoveredFilter(`cat-${index}`)}
-                          onMouseLeave={() => setHoveredFilter(null)}
-                          className={`flex items-center gap-3 p-3 rounded-xl border-2 border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50 group animate-fade-in-up ${
-                            hoveredFilter === `cat-${index}` ? 'scale-[1.02]' : ''
-                          }`}
-                          style={{ animationDelay: `${index * 50}ms` }}
+                      {landCategories.filter(c => !c.isAllButton).map((category) => (
+                        <label
+                          key={category.name}
+                          className="flex items-center gap-3 p-3 rounded-xl border-2 border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50 group"
                         >
                           <input type="checkbox" className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300" />
                           <span className="flex items-center gap-2 text-sm text-teal-800 group-hover:text-teal-900 group-hover:font-medium transition-all duration-300">
@@ -959,63 +1187,28 @@ const LandAndPlotsPage = () => {
       </div>
 
       <style jsx>{`
-        @keyframes slow-zoom {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); }
+        @keyframes gradient-shift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
         }
-        .animate-slow-zoom {
-          animation: slow-zoom 25s ease-in-out infinite;
+        .animate-gradient-shift {
+          background-size: 200% 200%;
+          animation: gradient-shift 2s linear infinite;
         }
-
+        .animate-gradient-shift-slow {
+          background-size: 200% 200%;
+          animation: gradient-shift 4s linear infinite;
+        }
+        @keyframes diamond-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         @keyframes diamond-float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
         }
         .animate-diamond-float {
           animation: diamond-float 4s ease-in-out infinite;
-        }
-
-        @keyframes gradient-flow {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        .animate-gradient-flow {
-          background-size: 200% 200%;
-          animation: gradient-flow 20s ease infinite;
-        }
-        .animate-gradient-slow {
-          background-size: 300% 300%;
-          animation: gradient-flow 15s ease infinite;
-        }
-        .animate-gradient-shift {
-          background-size: 200% 200%;
-          animation: gradient-flow 2s linear infinite;
-        }
-        .animate-gradient-shift-slow {
-          background-size: 200% 200%;
-          animation: gradient-flow 4s linear infinite;
-        }
-        .animate-gradient-text {
-          background-size: 300% 300%;
-          animation: gradient-flow 3s ease infinite;
-        }
-        .animate-gradient-text-slow {
-          background-size: 300% 300%;
-          animation: gradient-flow 5s ease infinite;
-        }
-        @keyframes particle-float {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          50% { transform: translateY(-40px) translateX(20px) rotate(180deg); opacity: 0.8; }
-        }
-        .animate-particle-float {
-          animation: particle-float 12s ease-in-out infinite;
-        }
-        @keyframes geometric-float {
-          0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-          50% { transform: translateY(-30px) rotate(180deg) scale(1.1); }
-        }
-        .animate-geometric-float {
-          animation: geometric-float 20s ease-in-out infinite;
         }
         @keyframes fade-in-up {
           from { opacity: 0; transform: translateY(20px); }
@@ -1028,9 +1221,6 @@ const LandAndPlotsPage = () => {
           from { transform: translateY(-20px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-        .animate-slide-down {
-          animation: slide-down 0.4s ease-out forwards;
-        }
         .animate-slide-down-fast {
           animation: slide-down 0.2s ease-out forwards;
         }
@@ -1041,15 +1231,15 @@ const LandAndPlotsPage = () => {
         .animate-slide-in-right {
           animation: slide-in-right 0.5s ease-out forwards;
         }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
         }
         .animate-rotate-slow {
-          animation: spin-slow 10s linear infinite;
+          animation: spin 10s linear infinite;
         }
         @keyframes bounce-slow {
           0%, 100% { transform: translateY(0); }
@@ -1079,6 +1269,14 @@ const LandAndPlotsPage = () => {
         .animate-pulse-slow {
           animation: pulse-slow 2s ease-in-out infinite;
         }
+        @keyframes gradient-text {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-text-slow {
+          background-size: 300% 300%;
+          animation: gradient-text 5s ease infinite;
+        }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
         .delay-300 { animation-delay: 0.3s; }
@@ -1090,32 +1288,6 @@ const LandAndPlotsPage = () => {
         }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-          height: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(0, 105, 92, 0.1);
-          border-radius: 10px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: linear-gradient(to right, #00695C, #26A69A);
-          border-radius: 10px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-track {
-          background: linear-gradient(to bottom, transparent, rgba(0, 105, 92, 0.1), transparent);
-          border-radius: 10px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #00695C, #26A69A);
-          border-radius: 10px;
-        }
-        .lg\\:custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #004D40, #00796B);
-          box-shadow: 0 0 10px rgba(0, 105, 92, 0.5);
         }
       `}</style>
     </div>

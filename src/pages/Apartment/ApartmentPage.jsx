@@ -7,7 +7,7 @@ import individualImg from "../../assets/individualcat.jpg";
 import commercialImg from "../../assets/commercialcat.jpg";
 import landPlotsImg from "../../assets/landcat.jpg";
 import hostelImg from "../../assets/hostelcat.jpg";
-import bannerImg from "../../assets/Apartmentban.jpg";
+import bannerImg from "../../assets/apartban1.png";
 
 // Import category images for apartment types
 import rentalApartmentImg from "../../assets/rentalapart.jpg";
@@ -20,6 +20,9 @@ import duplexApartmentImg from "../../assets/duplexapar.jpg";
 import luxuryApartmentImg from "../../assets/luxuryapar.jpg";
 import condominiumImg from "../../assets/condoapar.jpg";
 import penthouseApartmentImg from "../../assets/penthouseapar.jpg";
+
+// 👇 Image for the "All" category
+import allCategoryImg from "../../assets/Apartmentban.jpg";
 
 const ApartmentPage = () => {
   const navigate = useNavigate();
@@ -44,7 +47,7 @@ const ApartmentPage = () => {
     { 
       name: "All", 
       path: "/apartment", 
-      image: null,
+      image: allCategoryImg,
       icon: <Home className="w-6 h-6" />,
       isAll: true,
       displayName: "All",
@@ -209,16 +212,15 @@ const ApartmentPage = () => {
   return (
     <div className="w-full min-h-screen relative bg-gradient-to-b from-teal-50 via-white to-teal-50">
       <div className="relative z-10">
-        {/* ===================== BANNER - RESPONSIVE (same layout desktop & mobile, scaled down) ===================== */}
+        {/* ===================== BANNER — SAME AS HOSTEL PAGE ===================== */}
         <section className="relative overflow-hidden bg-[#E7EFEA]">
-          {/* Decorative top shape - scales down on smaller screens, unchanged at lg (system view) */}
+          {/* Decorative top shape */}
           <div className="absolute top-0 left-0 w-[130px] h-[45px] rounded-br-[35px] sm:w-[170px] sm:h-[58px] sm:rounded-br-[50px] md:w-[210px] md:h-[72px] md:rounded-br-[60px] lg:w-[250px] lg:h-[85px] lg:rounded-br-[70px] bg-[#D6E4DE]" />
 
           <div className="max-w-[1600px] mx-auto">
-            {/* Always side-by-side (flex-row) at every breakpoint, same as desktop, just smaller */}
             <div className="flex flex-row min-h-[170px] sm:min-h-[220px] md:min-h-[280px] lg:min-h-[330px]">
 
-              {/* LEFT CONTENT - scaled down on mobile, identical at lg */}
+              {/* LEFT CONTENT */}
               <div className="flex flex-col justify-center w-[38%] sm:w-[37%] md:w-[36%] lg:w-[35%] shrink-0 px-2.5 sm:px-5 md:px-6 lg:px-10 py-2.5 sm:py-4 md:py-6 lg:py-7 z-20">
 
                 <h1 className="leading-none">
@@ -251,19 +253,19 @@ const ApartmentPage = () => {
                 </button>
               </div>
 
-              {/* RIGHT COLLAGE - same composition at every size, scaled down below lg */}
+              {/* RIGHT COLLAGE */}
               <div className="relative overflow-hidden flex-1" style={{ aspectRatio: '16/8' }}>
-                {/* Main Building Background */}
+                {/* Main Building Background — VIVID (same as hostel pages) */}
                 <img
                   src={bannerImg}
                   alt="Building"
-                  className="absolute inset-0 w-full h-full object-cover object-top brightness-75"
+                  className="absolute inset-0 w-full h-full object-cover object-top contrast-105 saturate-110"
                 />
 
-                {/* Soft overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#E7EFEA] via-transparent to-transparent" />
+                {/* Soft overlay — 60% opacity (same as hostel pages) */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#E7EFEA]/60 via-transparent to-transparent" />
 
-                {/* DIAMOND COLLAGE - scaled via transform, identical layout at every breakpoint */}
+                {/* DIAMOND COLLAGE */}
                 <div className="absolute inset-0 flex items-center justify-start pl-2 sm:pl-4 md:pl-6 lg:pl-7 z-20">
                   <div className="relative w-[260px] h-[260px] scale-[0.42] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 origin-left transition-transform duration-300">
 
@@ -279,7 +281,6 @@ const ApartmentPage = () => {
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[0].path)}
                     >
-                      {/* Glow ring on hover */}
                       <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
                       
                       <div
@@ -292,7 +293,6 @@ const ApartmentPage = () => {
                           transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        {/* Animated rotating border */}
                         <div 
                           className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
                           style={{
@@ -312,7 +312,6 @@ const ApartmentPage = () => {
                           }}
                         />
                         
-                        {/* Shine sweep effect */}
                         <div 
                           className="absolute inset-0 overflow-hidden"
                           style={{
@@ -337,7 +336,6 @@ const ApartmentPage = () => {
                         </span>
                       </div>
                       
-                      {/* Sparkle dots */}
                       <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
@@ -353,7 +351,6 @@ const ApartmentPage = () => {
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[1].path)}
                     >
-                      {/* Glow ring on hover */}
                       <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
                       
                       <div
@@ -366,7 +363,6 @@ const ApartmentPage = () => {
                           transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        {/* Animated rotating border */}
                         <div 
                           className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
                           style={{
@@ -386,7 +382,6 @@ const ApartmentPage = () => {
                           }}
                         />
                         
-                        {/* Shine sweep effect */}
                         <div 
                           className="absolute inset-0 overflow-hidden"
                           style={{
@@ -411,7 +406,6 @@ const ApartmentPage = () => {
                         </span>
                       </div>
                       
-                      {/* Sparkle dots */}
                       <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
@@ -427,7 +421,6 @@ const ApartmentPage = () => {
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[2].path)}
                     >
-                      {/* Glow ring on hover */}
                       <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
                       
                       <div
@@ -440,7 +433,6 @@ const ApartmentPage = () => {
                           transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        {/* Animated rotating border */}
                         <div 
                           className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
                           style={{
@@ -460,7 +452,6 @@ const ApartmentPage = () => {
                           }}
                         />
                         
-                        {/* Shine sweep effect */}
                         <div 
                           className="absolute inset-0 overflow-hidden"
                           style={{
@@ -485,7 +476,6 @@ const ApartmentPage = () => {
                         </span>
                       </div>
                       
-                      {/* Sparkle dots */}
                       <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
@@ -501,7 +491,6 @@ const ApartmentPage = () => {
                       }}
                       onClick={() => handleDiamondClick(bannerDiamonds[3].path)}
                     >
-                      {/* Glow ring on hover */}
                       <div className="absolute -inset-4 rounded-full bg-[#26A69A]/0 hover:bg-[#26A69A]/20 blur-xl transition-all duration-700 pointer-events-none" />
                       
                       <div
@@ -514,7 +503,6 @@ const ApartmentPage = () => {
                           transition: "all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
                         }}
                       >
-                        {/* Animated rotating border */}
                         <div 
                           className="absolute -inset-1 opacity-0 group-hover/diamond:opacity-100 transition-opacity duration-500"
                           style={{
@@ -534,7 +522,6 @@ const ApartmentPage = () => {
                           }}
                         />
                         
-                        {/* Shine sweep effect */}
                         <div 
                           className="absolute inset-0 overflow-hidden"
                           style={{
@@ -559,7 +546,6 @@ const ApartmentPage = () => {
                         </span>
                       </div>
                       
-                      {/* Sparkle dots */}
                       <div className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-[#C9A227] opacity-0 group-hover/diamond:opacity-100 group-hover/diamond:animate-ping" />
                     </div>
 
@@ -571,7 +557,7 @@ const ApartmentPage = () => {
         </section>
         {/* =================== END BANNER =================== */}
 
-        {/* =================== MENU - MODERATE SIZE =================== */}
+        {/* =================== MENU =================== */}
         <div className="bg-gradient-to-r from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl shadow-2xl sticky top-0 z-40 border-b border-teal-200/30 transition-all duration-500">
           <div className="max-w-none mx-auto px-6 py-3.5">
             <div className="hidden md:block space-y-3.5">
@@ -679,7 +665,7 @@ const ApartmentPage = () => {
                 </button>
               </div>
 
-              {/* ====== PROPERTY TYPE CATEGORIES - MODERATE SIZE (DESKTOP - UNCHANGED) ====== */}
+              {/* ====== PROPERTY TYPE CATEGORIES - MODERATE SIZE (DESKTOP) ====== */}
               <div className="flex flex-wrap items-center justify-center gap-3.5 md:gap-5 pt-1.5">
                 {propertyTypeCategories.map((category) => {
                   const isActive = activeApartmentType === category.name || 
@@ -691,7 +677,6 @@ const ApartmentPage = () => {
                       className="group cursor-pointer flex flex-col items-center transition-all duration-300 hover:scale-105"
                       onClick={() => handlePropertyCategoryNavigation(category.path)}
                     >
-                      {/* Round Image - Moderate Size */}
                       <div 
                         className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-17 md:h-17 rounded-full overflow-hidden border-[3px] transition-all duration-300 shadow-md hover:shadow-lg ${
                           isActive 
@@ -699,27 +684,22 @@ const ApartmentPage = () => {
                             : 'border-gray-300 hover:border-[#00695C]'
                         }`}
                       >
-                        {category.isAll ? (
-                          <div className={`w-full h-full flex items-center justify-center transition-colors duration-300 ${
-                            isActive ? 'bg-[#00695C]' : 'bg-gray-100 group-hover:bg-[#D1E2DB]'
-                          }`}>
-                            <Home className={`w-5 h-5 md:w-5.5 md:h-5.5 transition-colors duration-300 ${
-                              isActive ? 'text-white' : 'text-[#00695C]'
-                            }`} />
+                        {/* ALL categories now render an image */}
+                        <img
+                          src={category.image}
+                          alt={category.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                        {category.isAll && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                            <span className="text-white text-[9px] sm:text-[10px] md:text-[12px] font-extrabold tracking-wider drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                              ALL
+                            </span>
                           </div>
-                        ) : (
-                          <>
-                            <img
-                              src={category.image}
-                              alt={category.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                          </>
                         )}
                       </div>
                       
-                      {/* Label - Two lines: first line displayName, second line subText */}
                       <div className="flex flex-col items-center mt-0.5">
                         <span className={`text-[8px] sm:text-[9px] md:text-[11px] font-semibold text-center leading-tight transition-colors duration-300 ${
                           isActive ? 'text-[#00695C]' : 'text-[#143B35] group-hover:text-[#00695C]'
@@ -740,7 +720,7 @@ const ApartmentPage = () => {
               </div>
             </div>
 
-            {/* =================== MOBILE MENU - EXACTLY LIKE RENTAL APARTMENT PAGE =================== */}
+            {/* =================== MOBILE MENU =================== */}
             <div className="md:hidden space-y-3">
               <div className="flex gap-2.5 items-center">
                 <div className="relative">
@@ -796,7 +776,7 @@ const ApartmentPage = () => {
                 </button>
               </div>
 
-              {/* ====== PROPERTY TYPE CATEGORIES - SAME AS RENTAL APARTMENT PAGE ====== */}
+              {/* ====== PROPERTY TYPE CATEGORIES - MOBILE ====== */}
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
                 {propertyTypeCategories.map((category) => {
                   const isActive = activeApartmentType === category.name ||
@@ -808,7 +788,6 @@ const ApartmentPage = () => {
                       className="flex flex-col items-center flex-shrink-0 transition-transform duration-200 active:scale-95"
                       onClick={() => handlePropertyCategoryNavigation(category.path)}
                     >
-                      {/* Round Image - Same size as RentalApartmentPage */}
                       <div
                         className={`relative w-9 h-9 xs:w-10 xs:h-10 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-sm ${
                           isActive
@@ -816,27 +795,22 @@ const ApartmentPage = () => {
                             : 'border-gray-300'
                         }`}
                       >
-                        {category.isAll ? (
-                          <div className={`w-full h-full flex items-center justify-center transition-colors duration-300 ${
-                            isActive ? 'bg-[#00695C]' : 'bg-gray-100'
-                          }`}>
-                            <Home className={`w-3.5 h-3.5 transition-colors duration-300 ${
-                              isActive ? 'text-white' : 'text-[#00695C]'
-                            }`} />
+                        {/* ALL categories now render an image */}
+                        <img
+                          src={category.image}
+                          alt={category.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                        {category.isAll && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <span className="text-white text-[7px] font-extrabold tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                              ALL
+                            </span>
                           </div>
-                        ) : (
-                          <>
-                            <img
-                              src={category.image}
-                              alt={category.name}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                          </>
                         )}
                       </div>
 
-                      {/* Label - Same as RentalApartmentPage */}
                       <div className="flex flex-col items-center mt-0.5">
                         <span className={`text-[7px] font-semibold text-center leading-tight whitespace-nowrap transition-colors duration-300 ${
                           isActive ? 'text-[#00695C]' : 'text-[#143B35]'
