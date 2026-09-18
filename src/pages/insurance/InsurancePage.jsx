@@ -524,4 +524,4 @@ const InsurancePage = () => {
   );
 };
 
-export default InsurancePage;
+export default InsurancePage; 

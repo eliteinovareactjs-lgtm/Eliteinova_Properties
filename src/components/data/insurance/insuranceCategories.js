@@ -1,5 +1,10 @@
 // src/components/data/insurance/insuranceCategories.js
 
+// 👇 Import images at the top — these get bundled by Vite/Webpack correctly
+import homeInsuranceImg from "../../../assets/homeinsurance.jpg";
+import propertyInsuranceImg from "../../../assets/homeinsurance.jpg";
+import buildingInsuranceImg from "../../../assets/homeinsurance.jpg";
+
 export const insuranceCategories = [
   {
     id: "home-insurance",
@@ -8,7 +13,7 @@ export const insuranceCategories = [
     icon: "home",
     accent: "#00695C",
     description: "Protect your home and belongings from unforeseen events.",
-    image: "/src/assets/insurance/home.jpg",
+    image: homeInsuranceImg,   // 👈 use the imported variable, not a string path
     features: [
       "Structure + contents cover",
       "Fire & natural calamity",
@@ -22,7 +27,7 @@ export const insuranceCategories = [
     icon: "building",
     accent: "#6A1B9A",
     description: "Safeguard your property investments from risks.",
-    image: "/src/assets/insurance/property.jpg",
+    image: propertyInsuranceImg,
     features: [
       "Fire & special perils",
       "Flood & storm cover",
@@ -36,7 +41,7 @@ export const insuranceCategories = [
     icon: "building2",
     accent: "#E65100",
     description: "Coverage for structures at every stage of construction.",
-    image: "/src/assets/insurance/building.jpg",
+    image: buildingInsuranceImg,
     features: [
       "Structure coverage",
       "Fire & calamity",
