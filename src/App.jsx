@@ -165,6 +165,11 @@ import ServiceHeader from "./service/components/ServiceHeader";
 const ServiceHomePage = lazy(() => import("./service/pages/HomePage"));
 const ServicePage = lazy(() => import("./service/pages/ServicePage"));
 const ServiceAboutPage = lazy(() => import("./service/pages/AboutPage"));
+const ConstructionPage = lazy(() => import("./service/pages/ConstructionPage"));
+const PaintingPage = lazy(() => import("./service/pages/PaintingPage"));
+const InteriorPage = lazy(() => import("./service/pages/InteriorPage"));
+const PlumbingPage = lazy(() => import("./service/pages/PlumbingPage"));
+const CleaningPage = lazy(() => import("./service/pages/CleaningPage"));
 
 // ============ SERVICE LAYOUT (with its own header) ============
 function ServiceLayout() {
@@ -413,6 +418,12 @@ export default function App() {
           <Route index element={<ServiceHomePage />} />
           <Route path="all" element={<ServicePage />} />
           <Route path="about" element={<ServiceAboutPage />} />
+          {/* ============ SUB-SERVICE PAGES ============ */}
+          <Route path="construction" element={<ConstructionPage />} />
+          <Route path="painting" element={<PaintingPage />} />
+          <Route path="interior" element={<InteriorPage />} />
+          <Route path="plumbing" element={<PlumbingPage />} />
+          <Route path="cleaning" element={<CleaningPage />} />
         </Route>
 
         {/* All other routes — use the Main Header */}
