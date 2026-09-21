@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Outlet,
+  useLocation,
 } from "react-router-dom";
 
 import Header from "./components/common/Header";
@@ -157,17 +159,36 @@ import NRIPropertyLoanPage from "./pages/loan/NRIPropertyLoanPage";
 //Insurance
 import InsurancePage from "./pages/insurance/InsurancePage";
 
-function AppLayout() {
+// ============ SERVICE IMPORTS ============
+import ServiceHeader from "./service/components/ServiceHeader";
+
+const ServiceHomePage = lazy(() => import("./service/pages/HomePage"));
+const ServicePage = lazy(() => import("./service/pages/ServicePage"));
+const ServiceAboutPage = lazy(() => import("./service/pages/AboutPage"));
+
+// ============ SERVICE LAYOUT (with its own header) ============
+function ServiceLayout() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <ServiceHeader />
+      <main className="flex-1 pt-[72px] md:pt-[132px]">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+// ============ MAIN APP LAYOUT (with main Header) ============
+function MainLayout() {
   const [openOwnerForm, setOpenOwnerForm] = useState(false);
   const [openAgentForm, setOpenAgentForm] = useState(false);
   const [openBuilderForm, setOpenBuilderForm] = useState(false);
   const [openHostelForm, setOpenHostelForm] = useState(false);
   const [openPropertyManagementForm, setOpenPropertyManagementForm] = useState(false);
 
-  // Central control from Header
   const handlePostPropertyClick = (type) => {
     console.log("Form clicked:", type);
-    
+
     if (type === "Owner") {
       setOpenOwnerForm(true);
     } else if (type === "Agent") {
@@ -183,7 +204,6 @@ function AppLayout() {
 
   return (
     <>
-      {/* HEADER (fixed) */}
       <Header
         onMenuToggle={() => {}}
         onPostPropertyClick={handlePostPropertyClick}
@@ -248,18 +268,13 @@ function AppLayout() {
 
           {/* Insurance */}
           <Route path="/insurance" element={<InsurancePage />} />
-          
+
           {/* Customer Portal Routes */}
           <Route path="/individual" element={<IndividualPage />} />
           <Route path="/apartment" element={<ApartmentPage />} />
           <Route path="/commercial" element={<CommercialPage />} />
           <Route path="/land-plots" element={<LandPlotsPage />} />
           <Route path="/hostel" element={<HostelPage />} />
-          {/* <Route path="/rent" element={<RentPage />} />
-          <Route path="/buy" element={<BuyPage />} />
-          <Route path="/lease" element={<LeasePage />} />
-          <Route path="/sell" element={<SellPage />} /> */}
-
 
           {/* Individual House Type Routes */}
           <Route path="/individual/independent-house" element={<IndependentHousePage />} />
@@ -268,17 +283,17 @@ function AppLayout() {
           <Route path="/individual/duplex-residential-unit" element={<DuplexResidentialUnitPage />} />
           <Route path="/individual/row-house" element={<RowHousePage />} />
 
-          {/* Apartment House  Type Routes */}
+          {/* Apartment House Type Routes */}
           <Route path="/apartment/rental-apartment" element={<RentalApartmentPage />} />
           <Route path="/apartment/serviced-apartment" element={<ServicedApartmentPage />} />
           <Route path="/apartment/lease-apartment" element={<LeaseApartmentPage />} />
           <Route path="/apartment/residential-apartments" element={<ResidentialApartmentsPage />} />
-          <Route path="/apartment/gated-community-apartment" element={<GatedCommunityApartmentPage/>} />
-          <Route path="/apartment/studio-apartment" element={<StudioApartmentPage/>} />
-          <Route path="/apartment/duplex-apartment" element={<DuplexApartmentPage/>} />
-          <Route path="/apartment/luxury-apartment" element={<LuxuryApartmentPage/>} />
-          <Route path="/apartment/condominium" element={<CondominiumApartmentPage/>} />
-          <Route path="/apartment/penthouse-apartment" element={<PentHouseApartmentPage/>} />
+          <Route path="/apartment/gated-community-apartment" element={<GatedCommunityApartmentPage />} />
+          <Route path="/apartment/studio-apartment" element={<StudioApartmentPage />} />
+          <Route path="/apartment/duplex-apartment" element={<DuplexApartmentPage />} />
+          <Route path="/apartment/luxury-apartment" element={<LuxuryApartmentPage />} />
+          <Route path="/apartment/condominium" element={<CondominiumApartmentPage />} />
+          <Route path="/apartment/penthouse-apartment" element={<PentHouseApartmentPage />} />
 
           {/* Commercial Type Routes */}
           <Route path="/commercial/office-space" element={<OfficeSpacePage />} />
@@ -299,94 +314,88 @@ function AppLayout() {
           <Route path="/commercial/multiplex-entertainment-space" element={<MultiplexPage />} />
           <Route path="/commercial/petrol-bunk-fuel-station" element={<PertrolBunkPage />} />
           <Route path="/commercial/cold-storage-logistics-hub" element={<ColdStoragePage />} />
-          <Route path="/commercial/mixed-use-commercial-property" element={<MixedUsePage/>} />
-          <Route path="/commercial/agricultural-commercial-property" element={<AgriculturalPage/>} />
+          <Route path="/commercial/mixed-use-commercial-property" element={<MixedUsePage />} />
+          <Route path="/commercial/agricultural-commercial-property" element={<AgriculturalPage />} />
 
           {/* Land and Plots Type Routes */}
-          <Route path="/land-plots/residential-land-plots" element={<ResidentialLandPlotsPage/>} />
-          <Route path="/land-plots/residential-land-plots/residential-plot" element={<ResidentialPlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/dtcp-cmda-approved-plot" element={<DTCPPlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/gated-community-plot" element={<GatedCommunityPlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/villa-plot" element={<VillaPlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/farm-house-plot" element={<FarmHousePlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/common-plot" element={<CommonPlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/row-house-plot" element={<RowHousePlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/duplex-house-plot" element={<DuplexHousePlotPage/>} />
-          <Route path="/land-plots/residential-land-plots/independent-house-plot" element={<IndependentHousePlotPage/>} />
+          <Route path="/land-plots/residential-land-plots" element={<ResidentialLandPlotsPage />} />
+          <Route path="/land-plots/residential-land-plots/residential-plot" element={<ResidentialPlotPage />} />
+          <Route path="/land-plots/residential-land-plots/dtcp-cmda-approved-plot" element={<DTCPPlotPage />} />
+          <Route path="/land-plots/residential-land-plots/gated-community-plot" element={<GatedCommunityPlotPage />} />
+          <Route path="/land-plots/residential-land-plots/villa-plot" element={<VillaPlotPage />} />
+          <Route path="/land-plots/residential-land-plots/farm-house-plot" element={<FarmHousePlotPage />} />
+          <Route path="/land-plots/residential-land-plots/common-plot" element={<CommonPlotPage />} />
+          <Route path="/land-plots/residential-land-plots/row-house-plot" element={<RowHousePlotPage />} />
+          <Route path="/land-plots/residential-land-plots/duplex-house-plot" element={<DuplexHousePlotPage />} />
+          <Route path="/land-plots/residential-land-plots/independent-house-plot" element={<IndependentHousePlotPage />} />
 
-          <Route path="/land-plots/commercial-land-plots" element={<CommercialLandPlotsPage/>} />
-          <Route path="/land-plots/commercial-land-plots/commercial-plot" element={<CommercialPlotPage/>} />
-          <Route path="/land-plots/commercial-land-plots/office-space-land" element={<OfficeSpaceLandPage/>} />
-          <Route path="/land-plots/commercial-land-plots/retail-shop-plot" element={<RetailShopPlotPage/>} />
-          <Route path="/land-plots/commercial-land-plots/showroom-plot" element={<ShowroomPlotPage/>} />
-          <Route path="/land-plots/commercial-land-plots/shopping-complex-land" element={<ShoppingComplexLandPage/>} />
-          <Route path="/land-plots/commercial-land-plots/hotel-resort-land" element={<HotelResortLandPage/>} />
-          <Route path="/land-plots/commercial-land-plots/petrol-bunk-plot" element={<PetrolBunkPlotPage/>} />
-          <Route path="/land-plots/commercial-land-plots/it-park-land" element={<ITParkLandPage/>} />
-          <Route path="/land-plots/commercial-land-plots/warehouse-land" element={<WarehouseLandPage/>} />
-          <Route path="/land-plots/commercial-land-plots/industrial-commercial-plot" element={<IndustrialCommercialPlotPage/>} />
+          <Route path="/land-plots/commercial-land-plots" element={<CommercialLandPlotsPage />} />
+          <Route path="/land-plots/commercial-land-plots/commercial-plot" element={<CommercialPlotPage />} />
+          <Route path="/land-plots/commercial-land-plots/office-space-land" element={<OfficeSpaceLandPage />} />
+          <Route path="/land-plots/commercial-land-plots/retail-shop-plot" element={<RetailShopPlotPage />} />
+          <Route path="/land-plots/commercial-land-plots/showroom-plot" element={<ShowroomPlotPage />} />
+          <Route path="/land-plots/commercial-land-plots/shopping-complex-land" element={<ShoppingComplexLandPage />} />
+          <Route path="/land-plots/commercial-land-plots/hotel-resort-land" element={<HotelResortLandPage />} />
+          <Route path="/land-plots/commercial-land-plots/petrol-bunk-plot" element={<PetrolBunkPlotPage />} />
+          <Route path="/land-plots/commercial-land-plots/it-park-land" element={<ITParkLandPage />} />
+          <Route path="/land-plots/commercial-land-plots/warehouse-land" element={<WarehouseLandPage />} />
+          <Route path="/land-plots/commercial-land-plots/industrial-commercial-plot" element={<IndustrialCommercialPlotPage />} />
 
-         <Route path="/land-plots/agricultural-land-plots" element={<AgriculturalLandPlotsPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/agricultural-land" element={<AgriculturalLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/farm-land" element={<FarmLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/organic-farming-land" element={<OrganicFarmingLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/coconut-farm-land" element={<CoconutFarmLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/mango-grove-land" element={<MangoGroveLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/tea-coffee-estate" element={<TeaCoffeeLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/poultry-farm-land" element={<PoultryFarmLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/dairy-farm-land" element={<DairyFarmLandPage/>} />
-        <Route path="/land-plots/agricultural-land-plots/fisheries-aquaculture-land" element={<FisheriesAquacultureLandPage/>} />
+          <Route path="/land-plots/agricultural-land-plots" element={<AgriculturalLandPlotsPage />} />
+          <Route path="/land-plots/agricultural-land-plots/agricultural-land" element={<AgriculturalLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/farm-land" element={<FarmLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/organic-farming-land" element={<OrganicFarmingLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/coconut-farm-land" element={<CoconutFarmLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/mango-grove-land" element={<MangoGroveLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/tea-coffee-estate" element={<TeaCoffeeLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/poultry-farm-land" element={<PoultryFarmLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/dairy-farm-land" element={<DairyFarmLandPage />} />
+          <Route path="/land-plots/agricultural-land-plots/fisheries-aquaculture-land" element={<FisheriesAquacultureLandPage />} />
 
+          {/* Industrial land Routes */}
+          <Route path="/land-plots/industrial-land-plots" element={<IndustrialLandPlotPage />} />
+          <Route path="/land-plots/industrial-land-plots/industrial-plot" element={<IndustrialPlotPage />} />
+          <Route path="land-plots/industrial-land-plots/factory-land" element={<FactoryLandPage />} />
+          <Route path="/land-plots/industrial-land-plots/manufacturing-unit-plot" element={<ManufacturingUnitPlotPage />} />
+          <Route path="/land-plots/industrial-land-plots/logistics-hub-land" element={<LogisticsHubLandPage />} />
+          <Route path="/land-plots/industrial-land-plots/warehouse-plot" element={<WarehousePlotPage />} />
+          <Route path="/land-plots/industrial-land-plots/cold-storage-land" element={<ColdStorageLandPage />} />
+          <Route path="/land-plots/industrial-land-plots/sez-land" element={<SEZLandPage />} />
 
-        {/* Industrial land  Routes */}
+          {/* Mixed-Use land Routes */}
+          <Route path="/land-plots/mixed-use-land-plots" element={<MixedUseLandPlotPage />} />
+          <Route path="/land-plots/mixed-use-land-plots/residential-commercial-plot" element={<ResidentialCommercialPlotPage />} />
+          <Route path="/land-plots/mixed-use-land-plots/commercial-industrial-land" element={<CommercialIndustrialLandPage />} />
+          <Route path="/land-plots/mixed-use-land-plots/township-development-land" element={<TownshipDevelopmentLandPage />} />
+          <Route path="/land-plots/mixed-use-land-plots/multi-purpose-development-land" element={<MultiPurposeDevelopmentLandPage />} />
 
-           <Route path="/land-plots/industrial-land-plots" element={<IndustrialLandPlotPage/>} />
-           <Route path="/land-plots/industrial-land-plots/industrial-plot" element={<IndustrialPlotPage/>} />
-           <Route path="land-plots/industrial-land-plots/factory-land" element={<FactoryLandPage/>} />
-           <Route path="/land-plots/industrial-land-plots/manufacturing-unit-plot" element={<ManufacturingUnitPlotPage/>} />
-           <Route path="/land-plots/industrial-land-plots/logistics-hub-land" element={<LogisticsHubLandPage/>} />
-           <Route path="/land-plots/industrial-land-plots/warehouse-plot" element={<WarehousePlotPage/>} />
-           <Route path="/land-plots/industrial-land-plots/cold-storage-land" element={<ColdStorageLandPage/>} />
-           <Route path="/land-plots/industrial-land-plots/sez-land" element={<SEZLandPage/>} />
+          {/* Institutional land Routes */}
+          <Route path="/land-plots/institutional-land-plots" element={<InstitutionalLandPlotPage />} />
+          <Route path="/land-plots/institutional-land-plots/school-college-land" element={<SchoolCollegeLandPage />} />
+          <Route path="/land-plots/institutional-land-plots/hospital-clinic-land" element={<HospitalClinicLandPage />} />
+          <Route path="/land-plots/institutional-land-plots/training-institute-plot" element={<TrainingInstitutePlotPage />} />
+          <Route path="/land-plots/institutional-land-plots/religious-institution-land" element={<ReligiousInstitutionLandPage />} />
 
-           {/* Mixed-Use land  Routes */}
+          {/* Investment land Routes */}
+          <Route path="/land-plots/investment-land-plots" element={<InvestmentLandPlotPage />} />
+          <Route path="/land-plots/investment-land-plots/highway-facing-plot" element={<HighwayFacingPlotPage />} />
+          <Route path="/land-plots/investment-land-plots/lake-view-plot" element={<LakeViewPlotPage />} />
+          <Route path="/land-plots/investment-land-plots/hill-view-plot" element={<HillViewPlotPage />} />
+          <Route path="/land-plots/investment-land-plots/beach-side-plot" element={<BeachSidePlotPage />} />
+          <Route path="/land-plots/investment-land-plots/river-side-land" element={<RiverSideLandPage />} />
+          <Route path="/land-plots/investment-land-plots/eco-tourism-land" element={<EcoTourismLandPage />} />
+          <Route path="/land-plots/investment-land-plots/layout-development-land" element={<LayoutDevelopmentLandPage />} />
+          <Route path="/land-plots/investment-land-plots/future-investment-plot" element={<FutureInvestmentPlotPage />} />
 
-           <Route path="/land-plots/mixed-use-land-plots" element={<MixedUseLandPlotPage/>} />
-           <Route path="/land-plots/mixed-use-land-plots/residential-commercial-plot" element={<ResidentialCommercialPlotPage/>} />
-           <Route path="/land-plots/mixed-use-land-plots/commercial-industrial-land" element={<CommercialIndustrialLandPage/>} />
-           <Route path="/land-plots/mixed-use-land-plots/township-development-land" element={<TownshipDevelopmentLandPage/>} />
-           <Route path="/land-plots/mixed-use-land-plots/multi-purpose-development-land" element={<MultiPurposeDevelopmentLandPage/>} />
-
-           {/* Institutional land  Routes */}
-
-           <Route path="/land-plots/institutional-land-plots" element={<InstitutionalLandPlotPage/>} />
-           <Route path="/land-plots/institutional-land-plots/school-college-land" element={<SchoolCollegeLandPage/>} />
-           <Route path="/land-plots/institutional-land-plots/hospital-clinic-land" element={<HospitalClinicLandPage/>} />
-           <Route path="/land-plots/institutional-land-plots/training-institute-plot" element={<TrainingInstitutePlotPage/>} />
-           <Route path="/land-plots/institutional-land-plots/religious-institution-land" element={<ReligiousInstitutionLandPage/>} />
-
-           {/* Investment land  Routes */}
-
-           <Route path="/land-plots/investment-land-plots" element={<InvestmentLandPlotPage/>} />
-           <Route path="/land-plots/investment-land-plots/highway-facing-plot" element={<HighwayFacingPlotPage/>} />
-           <Route path="/land-plots/investment-land-plots/lake-view-plot" element={<LakeViewPlotPage/>} />
-           <Route path="/land-plots/investment-land-plots/hill-view-plot" element={<HillViewPlotPage/>} />
-           <Route path="/land-plots/investment-land-plots/beach-side-plot" element={<BeachSidePlotPage/>} />
-           <Route path="/land-plots/investment-land-plots/river-side-land" element={<RiverSideLandPage/>} />
-           <Route path="/land-plots/investment-land-plots/eco-tourism-land" element={<EcoTourismLandPage/>} />
-           <Route path="/land-plots/investment-land-plots/layout-development-land" element={<LayoutDevelopmentLandPage/>} />
-           <Route path="/land-plots/investment-land-plots/future-investment-plot" element={<FutureInvestmentPlotPage/>} />
-          
           {/* Hostel */}
+          <Route path="/hostel/girls-hostel" element={<GirlsHostelPage />} />
+          <Route path="/hostel/boys-hostel" element={<BoysHostelPage />} />
+          <Route path="/hostel/co-living-space" element={<CoLivingSpacePage />} />
+          <Route path="/hostel/working-professional-hostel" element={<WorkingProfessionalHostelPage />} />
 
-          <Route path="/hostel/girls-hostel" element={<GirlsHostelPage/>} />
-          <Route path="/hostel/boys-hostel" element={<BoysHostelPage/>} />
-          <Route path="/hostel/co-living-space" element={<CoLivingSpacePage/>} />
-          <Route path="/hostel/working-professional-hostel" element={<WorkingProfessionalHostelPage/>} />
-
-          <Route 
-            path="/post-property" 
-            element={<PostPropertyPage onPostPropertyClick={handlePostPropertyClick} />} 
+          <Route
+            path="/post-property"
+            element={<PostPropertyPage onPostPropertyClick={handlePostPropertyClick} />}
           />
         </Routes>
       </main>
@@ -394,10 +403,21 @@ function AppLayout() {
   );
 }
 
+// ============ ROOT APP ============
 export default function App() {
   return (
     <Router>
-      <AppLayout />
+      <Routes>
+        {/* Service routes — use ONLY ServiceHeader */}
+        <Route path="/service" element={<ServiceLayout />}>
+          <Route index element={<ServiceHomePage />} />
+          <Route path="all" element={<ServicePage />} />
+          <Route path="about" element={<ServiceAboutPage />} />
+        </Route>
+
+        {/* All other routes — use the Main Header */}
+        <Route path="/*" element={<MainLayout />} />
+      </Routes>
     </Router>
   );
 }

@@ -871,6 +871,19 @@ const Header = ({ onPostPropertyClick }) => {
     setActiveDropdown(null);
   };
 
+  // ============ SERVICES NAVIGATION (NEW) ============
+  const handleServicesClick = () => {
+    navigate("/service");
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  };
+
+  const handleServiceItemClick = () => {
+    navigate("/service/all");
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -1262,31 +1275,14 @@ const Header = ({ onPostPropertyClick }) => {
               )}
             </div>
 
-            {/* Services Dropdown */}
-            <div
-              className="relative h-full"
-              onMouseEnter={() => setActiveDropdown("services")}
-              onMouseLeave={() => setActiveDropdown(null)}
+            {/* Services Button — Direct Navigation (No Dropdown) */}
+            <button
+              onClick={() => navigate("/service")}
+              className="group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300"
             >
-              <button className="group relative px-5 h-full text-white font-medium text-sm tracking-wide hover:bg-white/5 flex items-center gap-2 transition-all duration-300">
-                <Settings className="w-4 h-4" />
-                <span>Services</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === "services" ? 'rotate-180' : ''}`} />
-              </button>
-
-              {activeDropdown === "services" && (
-                <div className="absolute top-full left-0 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl shadow-[#00695C]/20 z-50 min-w-[160px] border border-white/30 animate-dropdown">
-                  {servicesMenu.map((item) => (
-                    <button
-                      key={item}
-                      className="w-full px-5 py-2.5 text-left text-sm font-semibold text-gray-800 hover:bg-gradient-to-r from-[#00695C]/5 to-[#26A69A]/5 transition-all duration-300"
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+              <Settings className="w-4 h-4" />
+              <span>Services</span>
+            </button>
           </div>
         </nav>
       </header>
@@ -2761,33 +2757,17 @@ const Header = ({ onPostPropertyClick }) => {
                 )}
               </div>
 
-              <div className="border-b border-white/5 animate-slide-item" style={{ animationDelay: '200ms' }}>
-                <div
-                  className="flex items-center justify-between py-3 cursor-pointer"
-                  onClick={() => toggleMobileDropdown('services')}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium text-sm">🛠️ Services</span>
-                  </div>
-                  <ChevronDown className={`w-3.5 h-3.5 text-white transition-transform duration-300 ${mobileDropdowns.services ? 'rotate-180' : ''}`} />
-                </div>
-
-                {mobileDropdowns.services && (
-                  <div className="pl-4 pb-2 space-y-1">
-                    {servicesMenu.map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          toggleMobileMenu();
-                        }}
-                        className="block text-white/90 text-xs py-2 w-full text-left hover:text-white transition-colors"
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Mobile Services — Direct Navigation */}
+              <button
+                onClick={() => {
+                  navigate("/service");
+                  toggleMobileMenu();
+                }}
+                className="w-full text-left text-white font-medium py-3 border-b border-white/5 text-sm animate-slide-item flex items-center gap-2"
+                style={{ animationDelay: '200ms' }}
+              >
+                🛠️ Services
+              </button>
 
               <button
                 onClick={() => {
