@@ -15,6 +15,9 @@ import independentHouseImg from "../../assets/banner1.jpg";
 import independentVillaImg from "../../assets/banner1.jpg";
 import duplexResidentialImg from "../../assets/banner1.jpg";
 
+// Import property card component
+import Individual from "../../components/propertycard/Individual/Individual";
+
 const IndividualPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +26,12 @@ const IndividualPage = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState(null);
+  
+  // Filter states
+  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
+  const [bhkType, setBhkType] = useState([]);
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState([]);
+  const [furnishing, setFurnishing] = useState([]);
 
   const propertyCategories = [
     { name: "Apartment", path: "/apartment", icon: <Building className="w-4 h-4" /> },
@@ -127,6 +136,32 @@ const IndividualPage = () => {
   const handleFilterChange = (filters) => {
     setAppliedFilters(filters);
     console.log("Applied Filters:", filters);
+  };
+
+  const toggleArrayFilter = (value, state, setState) => {
+    setState((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
+
+  const handleApplyFilters = () => {
+    const filters = {
+      priceRange,
+      bhkType,
+      propertyType: propertyTypeFilter,
+      furnishing,
+    };
+    setAppliedFilters(filters);
+    setShowFilterModal(false);
+    console.log("Applied Filters:", filters);
+  };
+
+  const handleClearFilters = () => {
+    setPriceRange({ min: "", max: "" });
+    setBhkType([]);
+    setPropertyTypeFilter([]);
+    setFurnishing([]);
+    setAppliedFilters(null);
   };
 
   return (
@@ -724,7 +759,7 @@ const IndividualPage = () => {
           </div>
         </div>
 
-        {/* =================== FILTER MODAL =================== */}
+        {/* =================== FILTER MODAL - USING EXISTING FILTER =================== */}
         {showFilterModal && (
           <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[120px] px-4 pb-4 bg-black/50 backdrop-blur-sm animate-fade-in">
             <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -747,8 +782,20 @@ const IndividualPage = () => {
                 <div className="mb-4">
                   <label className="text-sm font-semibold text-teal-800 mb-2 block">Price Range</label>
                   <div className="flex gap-3">
-                    <input type="number" placeholder="Min" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
-                    <input type="number" placeholder="Max" className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" />
+                    <input 
+                      type="number" 
+                      placeholder="Min" 
+                      value={priceRange.min}
+                      onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                      className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" 
+                    />
+                    <input 
+                      type="number" 
+                      placeholder="Max" 
+                      value={priceRange.max}
+                      onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                      className="w-1/2 px-3 py-2 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500" 
+                    />
                   </div>
                 </div>
 
@@ -756,20 +803,71 @@ const IndividualPage = () => {
                   <label className="text-sm font-semibold text-teal-800 mb-2 block">BHK Type</label>
                   <div className="grid grid-cols-3 gap-2">
                     {["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"].map((bhk) => (
-                      <label key={bhk} className="flex items-center gap-2 p-2 rounded-xl border-2 border-teal-200/50 cursor-pointer">
-                        <input type="checkbox" className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600" />
+                      <label key={bhk} className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                        bhkType.includes(bhk) ? "border-teal-500 bg-teal-50" : "border-teal-200/50"
+                      }`}>
+                        <input 
+                          type="checkbox" 
+                          checked={bhkType.includes(bhk)}
+                          onChange={() => toggleArrayFilter(bhk, bhkType, setBhkType)}
+                          className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600" 
+                        />
                         <span className="text-xs text-teal-800">{bhk}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
+                <div className="mb-4">
+                  <label className="text-sm font-semibold text-teal-800 mb-2 block">Property Type</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["Independent House", "Independent Villa", "Duplex Unit", "Row House"].map((type) => (
+                      <label key={type} className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                        propertyTypeFilter.includes(type) ? "border-teal-500 bg-teal-50" : "border-teal-200/50"
+                      }`}>
+                        <input 
+                          type="checkbox" 
+                          checked={propertyTypeFilter.includes(type)}
+                          onChange={() => toggleArrayFilter(type, propertyTypeFilter, setPropertyTypeFilter)}
+                          className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600" 
+                        />
+                        <span className="text-xs text-teal-800">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="text-sm font-semibold text-teal-800 mb-2 block">Furnishing</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["Furnished", "Semi-Furnished", "Unfurnished"].map((item) => (
+                      <label key={item} className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                        furnishing.includes(item) ? "border-teal-500 bg-teal-50" : "border-teal-200/50"
+                      }`}>
+                        <input 
+                          type="checkbox" 
+                          checked={furnishing.includes(item)}
+                          onChange={() => toggleArrayFilter(item, furnishing, setFurnishing)}
+                          className="w-3.5 h-3.5 rounded border-teal-300 text-teal-600" 
+                        />
+                        <span className="text-xs text-teal-800">{item}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-4 border-t border-teal-200/30">
-                  <button className="flex-1 px-4 py-2 rounded-xl border-2 border-teal-200/50 text-sm font-medium text-teal-700 hover:bg-teal-50 transition-all duration-300">
+                  <button 
+                    onClick={handleClearFilters}
+                    className="flex-1 px-4 py-2 rounded-xl border-2 border-teal-200/50 text-sm font-medium text-teal-700 hover:bg-teal-50 transition-all duration-300"
+                  >
                     Clear All
                   </button>
-                  <button className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-xl hover:shadow-[0_0_25px_rgba(0,105,92,0.4)] transition-all duration-300"
-                    style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}>
+                  <button 
+                    onClick={handleApplyFilters}
+                    className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-xl hover:shadow-[0_0_25px_rgba(0,105,92,0.4)] transition-all duration-300"
+                    style={{ background: "linear-gradient(135deg, #00695C, #26A69A)" }}
+                  >
                     Apply Filters
                   </button>
                 </div>
@@ -783,99 +881,12 @@ const IndividualPage = () => {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             <div className="lg:w-2/3">
               <section>
-                <div className="bg-gradient-to-br from-teal-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-12 text-center border border-teal-200/30 hover:shadow-[0_0_60px_rgba(0,105,92,0.3)] transition-all duration-700 group animate-fade-in-up">
-                  <div className="absolute inset-0 opacity-[0.03] rounded-3xl overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/20 to-transparent animate-shimmer"></div>
-                  </div>
-
-                  <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-100 to-emerald-100 border border-teal-200">
-                    <span className="text-sm font-medium text-teal-700">Active Filter:</span>
-                    <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
-                      {activeHouseType}
-                    </span>
-                  </div>
-
-                  <div
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-[0_0_50px_rgba(0,105,92,0.5)] transition-all duration-700 transform group-hover:scale-110 group-hover:rotate-3 relative"
-                    style={{
-                      background: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)",
-                      backgroundSize: "200% 200%"
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-gradient-shift-slow rounded-3xl"></div>
-                    <div className="absolute -inset-4 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
-                    <Home className="w-12 h-12 text-white group-hover:rotate-12 transition-transform duration-700 relative z-10" />
-                  </div>
-
-                  <h2 className="text-3xl md:text-4xl font-bold text-teal-900 mb-4 group-hover:text-teal-950 transition-colors duration-300">
-                    {activeHouseType === "All" ? "Premium Individual Properties" : `${activeHouseType} Properties`}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 animate-gradient-text-slow"> Coming Soon</span>
-                  </h2>
-
-                  <p className="text-teal-800 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed group-hover:text-teal-900 transition-colors duration-300 backdrop-blur-sm bg-teal-100/30 rounded-2xl p-6 border border-teal-200/20">
-                    {activeHouseType === "All"
-                      ? "We're currently adding exclusive individual properties to our database."
-                      : `We're currently adding exclusive ${activeHouseType.toLowerCase()} properties to our database.`}
-                    <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-semibold text-xl">
-                      Check back soon for amazing deals!
-                    </span>
-                  </p>
-
-                  <div className="mt-8 flex justify-center gap-4">
-                    <button className="group relative px-6 py-3 rounded-xl border-2 border-teal-500 text-teal-600 font-semibold hover:bg-gradient-to-r from-teal-50 to-emerald-50 transition-all duration-500 transform hover:scale-105 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                      <span className="relative z-10">Get Notified</span>
-                    </button>
-                    <button
-                      className="group relative px-6 py-3 rounded-xl text-white font-semibold shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
-                      style={{
-                        background: "linear-gradient(135deg, #00695C, #26A69A)",
-                        backgroundSize: "200% 200%"
-                      }}
-                    >
-                      <div className="absolute inset-0 animate-gradient-shift"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                      <span className="relative z-10">Browse Similar</span>
-                    </button>
-                  </div>
-                </div>
+                {/* Connected Data Card */}
+                <Individual />
               </section>
-
-              <div className="mt-8 bg-gradient-to-br from-teal-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-12 text-center border border-teal-200/30 animate-fade-in-up delay-300">
-                <div className="max-w-2xl mx-auto">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 mx-auto mb-6 flex items-center justify-center relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 rounded-3xl animate-pulse-slow"></div>
-                    <Home className="w-10 h-10 text-teal-600 animate-bounce-slow relative z-10" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold text-teal-900 mb-4">
-                    No {activeHouseType !== "All" ? `${activeHouseType} ` : ""}Properties Found
-                  </h3>
-
-                  <p className="text-teal-800 mb-6 backdrop-blur-sm bg-teal-100/30 rounded-xl p-4 border border-teal-200/20">
-                    {activeHouseType !== "All"
-                      ? `We don't have any ${activeHouseType.toLowerCase()} properties available at the moment.`
-                      : "Use the filters on the right to find properties that match your criteria."}
-                  </p>
-
-                  <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100">
-                    {[0, 150, 300].map((delay) => (
-                      <div
-                        key={delay}
-                        className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 animate-pulse"
-                        style={{ animationDelay: `${delay}ms` }}
-                      ></div>
-                    ))}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-medium">
-                      {activeHouseType !== "All"
-                        ? `Check back later for ${activeHouseType.toLowerCase()} listings`
-                        : "Adjust your filters to see matching properties"}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
 
+            {/* Sidebar Filter - Desktop Only */}
             <div className="lg:w-1/3 lg:relative">
               <div className="lg:sticky lg:top-[110px] lg:max-h-[calc(100vh-130px)] lg:overflow-y-auto lg:scrollbar-hide animate-slide-in-right">
                 <div className="bg-gradient-to-b from-teal-50/95 via-emerald-50/95 to-teal-50/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-teal-200/30 hover:shadow-[0_0_40px_rgba(0,105,92,0.2)] transition-all duration-500">
@@ -899,11 +910,15 @@ const IndividualPage = () => {
                       <input
                         type="number"
                         placeholder="Min"
+                        value={priceRange.min}
+                        onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
                         className="w-1/2 px-4 py-3 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-lg text-teal-900 placeholder-teal-400 transition-all duration-300 hover:shadow-xl"
                       />
                       <input
                         type="number"
                         placeholder="Max"
+                        value={priceRange.max}
+                        onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
                         className="w-1/2 px-4 py-3 rounded-xl border-2 border-teal-200/50 bg-teal-50/80 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 shadow-lg text-teal-900 placeholder-teal-400 transition-all duration-300 hover:shadow-xl"
                       />
                     </div>
@@ -923,10 +938,16 @@ const IndividualPage = () => {
                       {["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5+ BHK"].map((bhk) => (
                         <label
                           key={bhk}
-                          className="flex items-center gap-3 p-3 rounded-xl border-2 border-teal-200/50 hover:border-teal-300 cursor-pointer transition-all duration-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50 group"
+                          className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
+                            bhkType.includes(bhk) 
+                              ? "border-teal-500 bg-teal-50" 
+                              : "border-teal-200/50 hover:border-teal-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50"
+                          }`}
                         >
                           <input
                             type="checkbox"
+                            checked={bhkType.includes(bhk)}
+                            onChange={() => toggleArrayFilter(bhk, bhkType, setBhkType)}
                             className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300"
                           />
                           <span className="text-sm text-teal-800 group-hover:text-teal-900 group-hover:font-medium transition-all duration-300">
@@ -937,12 +958,47 @@ const IndividualPage = () => {
                     </div>
                   </div>
 
+                  <div className="mb-6 animate-fade-in-up delay-300">
+                    <label className="text-sm font-semibold text-teal-800 mb-3 block flex items-center gap-2">
+                      <span className="text-xl animate-bounce-slow">🏘️</span>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
+                        Property Type
+                      </span>
+                    </label>
+                    <div className="space-y-2">
+                      {["Independent House", "Independent Villa", "Duplex Unit", "Row House"].map((type) => (
+                        <label
+                          key={type}
+                          className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 group ${
+                            propertyTypeFilter.includes(type)
+                              ? "border-teal-500 bg-teal-50"
+                              : "border-teal-200/50 hover:border-teal-300 hover:bg-gradient-to-r from-teal-50/50 to-emerald-50/50"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={propertyTypeFilter.includes(type)}
+                            onChange={() => toggleArrayFilter(type, propertyTypeFilter, setPropertyTypeFilter)}
+                            className="w-4 h-4 rounded border-teal-300 text-teal-600 focus:ring-teal-500/30 transition-all duration-300"
+                          />
+                          <span className="text-sm text-teal-800 group-hover:text-teal-900 group-hover:font-medium transition-all duration-300">
+                            {type}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="flex gap-3 pt-6 border-t border-teal-200/30 animate-fade-in-up delay-500">
-                    <button className="flex-1 px-4 py-3 rounded-xl border-2 border-teal-200/50 text-sm font-medium text-teal-700 hover:bg-gradient-to-r from-teal-50 to-emerald-50 hover:border-teal-300 transition-all duration-500 transform hover:scale-[1.02] relative overflow-hidden group">
+                    <button 
+                      onClick={handleClearFilters}
+                      className="flex-1 px-4 py-3 rounded-xl border-2 border-teal-200/50 text-sm font-medium text-teal-700 hover:bg-gradient-to-r from-teal-50 to-emerald-50 hover:border-teal-300 transition-all duration-500 transform hover:scale-[1.02] relative overflow-hidden group"
+                    >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                       <span className="relative z-10">Clear All</span>
                     </button>
                     <button
+                      onClick={handleApplyFilters}
                       className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl hover:shadow-[0_0_25px_rgba(0,105,92,0.4)] transition-all duration-500 transform hover:scale-[1.02] group relative overflow-hidden"
                       style={{
                         background: "linear-gradient(135deg, #00695C, #26A69A)",

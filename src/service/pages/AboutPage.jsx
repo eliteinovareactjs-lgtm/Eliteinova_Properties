@@ -78,13 +78,6 @@ const AboutPage = () => {
     },
   ];
 
-  const milestones = [
-    { year: "2018", event: "Company founded in Chennai with a small team of 5." },
-    { year: "2020", event: "Expanded operations to 5 major cities across India." },
-    { year: "2022", event: "Crossed 10,000 happy customers milestone." },
-    { year: "2024", event: "Launched full-service platform with 500+ verified pros." },
-  ];
-
   const highlights = [
     {
       icon: <ShieldCheck className="w-5 h-5" />,
@@ -385,58 +378,6 @@ const AboutPage = () => {
                     {value.description}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== TIMELINE ==================== */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-20 md:py-24">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#E8F5E9] px-4 py-2 rounded-full mb-4">
-            <TrendingUp className="w-4 h-4 text-[#00695C]" />
-            <span className="text-sm font-medium text-[#00695C]">Our Journey</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Key Milestones
-          </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">
-            A look back at how far we've come on this journey.
-          </p>
-        </div>
-
-        <div className="relative">
-          {/* Vertical line (desktop) */}
-          <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-[#00695C] via-[#26A69A] to-[#FFD93D] rounded-full" />
-
-          <div className="space-y-8 md:space-y-0">
-            {milestones.map((m, i) => (
-              <div
-                key={i}
-                className={`relative flex items-center md:min-h-[100px] ${
-                  i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
-              >
-                {/* Content card */}
-                <div className={`w-full md:w-1/2 ${i % 2 === 0 ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
-                  <div className="inline-block bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-2xl hover:border-[#26A69A]/30 transition-all duration-500 max-w-md">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F5E9] mb-2">
-                      <span className="text-xs font-bold text-[#00695C]">
-                        {m.year}
-                      </span>
-                    </div>
-                    <p className="text-gray-700 text-sm leading-relaxed">
-                      {m.event}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Center dot */}
-                <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-4 border-[#26A69A] shadow-lg z-10" />
-
-                {/* Empty other side */}
-                <div className="hidden md:block w-1/2" />
               </div>
             ))}
           </div>

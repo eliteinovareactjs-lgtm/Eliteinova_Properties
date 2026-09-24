@@ -24,6 +24,9 @@ import penthouseApartmentImg from "../../assets/penthouseapar.jpg";
 // 👇 Image for the "All" category
 import allCategoryImg from "../../assets/Apartmentban.jpg";
 
+// 👇 Connected Data Card
+import Apartment from "../../components/propertycard/Apartment/Apartment";
+
 const ApartmentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -684,7 +687,6 @@ const ApartmentPage = () => {
                             : 'border-gray-300 hover:border-[#00695C]'
                         }`}
                       >
-                        {/* ALL categories now render an image */}
                         <img
                           src={category.image}
                           alt={category.name}
@@ -795,7 +797,6 @@ const ApartmentPage = () => {
                             : 'border-gray-300'
                         }`}
                       >
-                        {/* ALL categories now render an image */}
                         <img
                           src={category.image}
                           alt={category.name}
@@ -892,97 +893,9 @@ const ApartmentPage = () => {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             <div className="lg:w-2/3">
               <section>
-                <div className="bg-gradient-to-br from-teal-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-12 text-center border border-teal-200/30 hover:shadow-[0_0_60px_rgba(0,105,92,0.3)] transition-all duration-700 group animate-fade-in-up">
-                  <div className="absolute inset-0 opacity-[0.03] rounded-3xl overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/20 to-transparent animate-shimmer"></div>
-                  </div>
-
-                  <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-100 to-emerald-100 border border-teal-200">
-                    <span className="text-sm font-medium text-teal-700">Active Filter:</span>
-                    <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
-                      {activeApartmentType}
-                    </span>
-                  </div>
-
-                  <div
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl group-hover:shadow-[0_0_50px_rgba(0,105,92,0.5)] transition-all duration-700 transform group-hover:scale-110 group-hover:rotate-3 relative"
-                    style={{
-                      background: "linear-gradient(135deg, #00695C, #26A69A, #4DB6AC)",
-                      backgroundSize: "200% 200%"
-                    }}
-                  >
-                    <div className="absolute inset-0 animate-gradient-shift-slow rounded-3xl"></div>
-                    <div className="absolute -inset-4 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
-                    <Building className="w-12 h-12 text-white group-hover:rotate-12 transition-transform duration-700 relative z-10" />
-                  </div>
-
-                  <h2 className="text-3xl md:text-4xl font-bold text-teal-900 mb-4 group-hover:text-teal-950 transition-colors duration-300">
-                    {activeApartmentType === "All" ? "Premium Apartments" : `${activeApartmentType} Properties`}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 animate-gradient-text-slow"> Coming Soon</span>
-                  </h2>
-
-                  <p className="text-teal-800 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed group-hover:text-teal-900 transition-colors duration-300 backdrop-blur-sm bg-teal-100/30 rounded-2xl p-6 border border-teal-200/20">
-                    {activeApartmentType === "All"
-                      ? "We're currently adding exclusive apartment listings to our database."
-                      : `We're currently adding exclusive ${activeApartmentType.toLowerCase()} listings to our database.`}
-                    <span className="block mt-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-semibold text-xl">
-                      Check back soon for amazing deals!
-                    </span>
-                  </p>
-
-                  <div className="mt-8 flex justify-center gap-4">
-                    <button className="group relative px-6 py-3 rounded-xl border-2 border-teal-500 text-teal-600 font-semibold hover:bg-gradient-to-r from-teal-50 to-emerald-50 transition-all duration-500 transform hover:scale-105 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                      <span className="relative z-10">Get Notified</span>
-                    </button>
-                    <button
-                      className="group relative px-6 py-3 rounded-xl text-white font-semibold shadow-xl hover:shadow-[0_0_30px_rgba(0,105,92,0.5)] transition-all duration-500 transform hover:scale-105 overflow-hidden"
-                      style={{
-                        background: "linear-gradient(135deg, #00695C, #26A69A)",
-                        backgroundSize: "200% 200%"
-                      }}
-                    >
-                      <div className="absolute inset-0 animate-gradient-shift"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-500"></div>
-                      <span className="relative z-10">Browse Similar</span>
-                    </button>
-                  </div>
-                </div>
+                {/* ✅ CONNECTED DATA CARD */}
+                <Apartment />
               </section>
-
-              <div className="mt-8 bg-gradient-to-br from-teal-50/90 via-emerald-50/90 to-teal-50/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-12 text-center border border-teal-200/30 animate-fade-in-up delay-300">
-                <div className="max-w-2xl mx-auto">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-r from-teal-500/10 to-emerald-500/10 mx-auto mb-6 flex items-center justify-center relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 rounded-3xl animate-pulse-slow"></div>
-                    <Building className="w-10 h-10 text-teal-600 animate-bounce-slow relative z-10" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold text-teal-900 mb-4">
-                    No {activeApartmentType !== "All" ? `${activeApartmentType} ` : ""}Apartments Found
-                  </h3>
-
-                  <p className="text-teal-800 mb-6 backdrop-blur-sm bg-teal-100/30 rounded-xl p-4 border border-teal-200/20">
-                    {activeApartmentType !== "All"
-                      ? `We don't have any ${activeApartmentType.toLowerCase()} available at the moment.`
-                      : "Use the filters on the right to find apartments that match your criteria."}
-                  </p>
-
-                  <div className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100">
-                    {[0, 150, 300].map((delay) => (
-                      <div
-                        key={delay}
-                        className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 animate-pulse"
-                        style={{ animationDelay: `${delay}ms` }}
-                      ></div>
-                    ))}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600 font-medium">
-                      {activeApartmentType !== "All"
-                        ? `Check back later for ${activeApartmentType.toLowerCase()} listings`
-                        : "Adjust your filters to see matching apartments"}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="lg:w-1/3 lg:relative">
@@ -1126,7 +1039,7 @@ const ApartmentPage = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes gradient-shift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
